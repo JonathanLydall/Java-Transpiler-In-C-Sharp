@@ -23,7 +23,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             Debug.Assert(CurrentInputElement.Data == Keywords.While);
             MoveToNextToken();
 
-            _whileLoop.Condition = GetConditionalBracket();
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextInputElement();
+
+            _whileLoop.Condition = GetInnerExpression(")");
+
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == ")");
+            MoveToNextInputElement();
 
             _whileLoop.Body = GetBody();
 
@@ -33,7 +41,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         private IList<IAstNode> GetBody()
         {
             MoveToNextToken();
-            if (CurrentInputElement is SeparatorToken && CurrentInputElement.Data == "{")
+            if (CurrentInputElement is SeperatorToken && CurrentInputElement.Data == "{")
             {
                 return ParseBody();
             }
@@ -43,34 +51,6 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 body.Add(ParseSingleStatement());
                 return body;
             }
-        }
-
-        private IList<IInputElement> GetConditionalBracket()
-        {
-            var contents = new List<IInputElement>();
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == "(");
-            MoveToNextInputElement();
-            
-            while (CurrentInputElement.Data != ")")
-            {
-                if (CurrentInputElement.Data == "(")
-                {
-                    contents.AddRange(GetConditionalBracket());
-                    continue;
-                }
-
-                contents.Add(CurrentInputElement);
-                MoveToNextInputElement();
-                continue;
-            }
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == ")");
-            MoveToNextInputElement();
-
-            return contents;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,18 +7,19 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
 {
-    class PackageDeclaration : AstNode
+    public class PackageDeclaration : AstNode
     {
-        public PackageDeclaration()
-        {
-            Content = "";
-        }
-        
-        public string Content { get; set; }
+        public IList<IInputElement> Content = new List<IInputElement>();
 
         public override string DebugOut()
         {
-            return string.Format("package {0};", Content);
+            var content = Content == null || Content.Count == 0
+                ? string.Empty
+                : Content
+                    .Select(x => x.Data)
+                    .Aggregate((x, y) => x + y);
+            
+            return string.Format("package {0};", content);
         }
     }
 }

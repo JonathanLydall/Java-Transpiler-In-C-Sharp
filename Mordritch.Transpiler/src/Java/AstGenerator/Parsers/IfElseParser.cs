@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 {
-    public class IfElseParser : Parser, IParser
+    public class IfElseStatementParser : Parser, IParser
     {
         private IfElseStatement _ifElseStatement = new IfElseStatement();
 
@@ -24,28 +24,35 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             Debug.Assert(CurrentInputElement.Data == Keywords.If);
             MoveToNextToken();
 
-            ProcessCondition();
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextToken();
+
+            _ifElseStatement.Condition = GetInnerExpression(")");
+            
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == ")");
+            MoveToNextToken();
+
+            _ifElseStatement.Body = GetWork();
+
+            while (!Eof && CurrentInputElement.Data == Keywords.Else)
+            {
+                ProcessElseStatement();
+            }
 
             return _ifElseStatement;
         }
 
-        private void ProcessCondition()
+        private IList<IAstNode> GetWork()
         {
-            _ifElseStatement.Condition = ProcessConditionalBracket();
-            
-            MoveToNextToken();
-            if (CurrentInputElement is SeparatorToken && CurrentInputElement.Data == "{")
+            if (CurrentInputElement is SeperatorToken && CurrentInputElement.Data == "{")
             {
-                _ifElseStatement.Body = ParseBody();
+                return ParseBody();
             }
             else
             {
-                _ifElseStatement.Body.Add(ParseSingleStatement());
-            }
-
-            while (CurrentInputElement.Data == Keywords.Else)
-            {
-                ProcessElseStatement();
+                return new List<IAstNode>{ ParseSingleStatement() };
             }
         }
 
@@ -57,63 +64,27 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
             if (CurrentInputElement.Data == Keywords.If)
             {
+                MoveToNextToken();
                 var conditionalElse = new IfElseStatement();
                 
-                MoveToNextToken();
-                Debug.Assert(CurrentInputElement is SeparatorToken);
+                Debug.Assert(CurrentInputElement is SeperatorToken);
                 Debug.Assert(CurrentInputElement.Data == "(");
-
-                conditionalElse.Condition = ProcessConditionalBracket();
                 MoveToNextToken();
 
-                if (CurrentInputElement is SeparatorToken && CurrentInputElement.Data == "{")
-                {
-                    conditionalElse.Body = ParseBody();
-                }
-                else
-                {
-                    conditionalElse.Body.Add(ParseSingleStatement());
-                }
+                conditionalElse.Condition = GetInnerExpression(")");
+
+                Debug.Assert(CurrentInputElement is SeperatorToken);
+                Debug.Assert(CurrentInputElement.Data == ")");
+                MoveToNextToken();
+
+                conditionalElse.Body = GetWork();
+                _ifElseStatement.ConditionalElses.Add(conditionalElse);
             }
             else
             {
-                if (CurrentInputElement is SeparatorToken && CurrentInputElement.Data == "{")
-                {
-                    _ifElseStatement.Body = ParseBody();
-                }
-                else
-                {
-                    _ifElseStatement.Body.Add(ParseSingleStatement());
-                }
+                _ifElseStatement.ElseBody = new List<IAstNode>();
+                _ifElseStatement.ElseBody = GetWork();
             }
-        }
-
-        private IList<IInputElement> ProcessConditionalBracket()
-        {
-            var contents = new List<IInputElement>();
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == "(");
-            MoveToNextInputElement();
-            
-            while (CurrentInputElement.Data != ")")
-            {
-                if (CurrentInputElement.Data == "(")
-                {
-                    contents.AddRange(ProcessConditionalBracket());
-                    continue;
-                }
-
-                contents.Add(CurrentInputElement);
-                MoveToNextInputElement();
-                continue;
-            }
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == ")");
-            MoveToNextInputElement();
-
-            return contents;
         }
     }
 }

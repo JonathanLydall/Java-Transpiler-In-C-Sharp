@@ -7,25 +7,25 @@ namespace Mordritch.Transpiler.Java.Common
 {
     public static class Primitives
     {
+        public static string Boolean = "boolean";
         public static string Byte = "byte";
-        public static string Short = "short";
+        public static string Char = "char";
+        public static string Double = "double";
+        public static string Float = "float";
         public static string Int = "int";
         public static string Long = "long";
-        public static string Float = "float";
-        public static string Double = "double";
-        public static string Boolean = "boolean";
-        public static string Char = "char";
+        public static string Short = "short";
 
         public static string[] AsList = 
         {
+            Boolean,
             Byte,
-            Short,
+            Char,
+            Double,
+            Float,
             Int,
             Long,
-            Float,
-            Double,
-            Boolean,
-            Char
+            Short,
         };
     }
 }

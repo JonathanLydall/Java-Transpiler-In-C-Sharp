@@ -1,7 +1,10 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
+using Mordritch.Transpiler.Java.AstGenerator.Declarations;
+using Mordritch.Transpiler.Java.AstGenerator.Expressions;
 using Mordritch.Transpiler.Java.AstGenerator.Statements;
 using Mordritch.Transpiler.Java.Common;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.LiteralTypes;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 using System;
 using System.Collections.Generic;
@@ -25,6 +28,18 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             }
 
             BufferSize = 0;
+        }
+
+        public IList<IAstNode> GetInnerExpression(string endCharacter)
+        {
+            var contents = new List<IAstNode>();
+
+            while (CurrentInputElement.Data != endCharacter)
+            {
+                contents.Add(ParseExpression());
+            }
+
+            return contents;
         }
 
         public IAstNode Parse(InputElementDataSource inputElementDataSource)
@@ -101,143 +116,19 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             DataSource.Pointer = DataSource.Pointer > 0 ? DataSource.Pointer - 1 : 0;
         }
 
-        public void AssertNotWhiteSpace()
-        {
-            if (IsWhiteSpace)
-            {
-                throw new Exception("Expected non-whitespace.");
-            }
-        }
-
-        public void AssertWhiteSpace()
-        {
-            if (CurrentInputElement.InputElementType != InputElementTypeEnum.WhiteSpace)
-            {
-                throw new Exception("White space expected.");
-            }
-        }
-
-        public void AssertKeyword(string data)
-        {
-            AssertTokenType(TokenTypeEnum.Keyword);
-
-            if (CurrentInputElement.Data != data)
-            {
-                throw new Exception(string.Format("Expected keyword '{0}', but instead found '{1}'.", data, CurrentInputElement.Data));
-            }
-        }
-
-        public void AssertSeperator(string data)
-        {
-            AssertTokenType(TokenTypeEnum.Separator);
-            
-            if (CurrentInputElement.Data != data)
-            {
-                throw new Exception(string.Format("Expected '{0}', but instead found '{1}'.", data, CurrentInputElement.Data));
-            }
-        }
-
-        public void AssertOperator(string data)
-        {
-            AssertTokenType<OperatorToken>();
-
-            if (CurrentInputElement.Data != data)
-            {
-                throw new Exception(string.Format("Expected '{0}', but instead found '{1}'.", data, CurrentInputElement.Data));
-            }
-        }
-
-        public void AssertToken()
-        {
-            if (!IsToken(CurrentInputElement))
-            {
-                throw new Exception(string.Format("Expected inputElement type of 'Token', instead found '{0}'.", CurrentInputElement.InputElementType.ToString()));
-            }
-        }
-
-        public void AssertTokenData(string data)
-        {
-            AssertToken();
-            if (CurrentInputElement.Data != data)
-            {
-                throw new Exception(string.Format("Expected data '{0}', instead found '{1}'.", data, CurrentInputElement.Data));
-            }
-        }
-
-        public void AssertTokenType(TokenTypeEnum tokenTypeEnum)
-        {
-            AssertToken();
-
-            if (((IToken)CurrentInputElement).TokenType != tokenTypeEnum)
-            {
-                throw new Exception(string.Format("Expected token type of '{0}', instead found '{1}'.", tokenTypeEnum.ToString(), ((IToken)CurrentInputElement).TokenType.ToString()));
-            }
-        }
-
-        public void AssertTokenType<TTokenType>()
-        {
-            if (!(CurrentInputElement is TTokenType))
-            {
-                throw new Exception(string.Format("Expected token type of '{0}', instead found '{1}'.", typeof(TTokenType).Name, CurrentInputElement.GetType().Name));
-            }
-        }
-
-        public void AssertIdentifier()
-        {
-            if (!IsIdentifier(CurrentInputElement))
-            {
-                throw new Exception(string.Format("Expected token type of '{0}', instead found '{1}'.", TokenTypeEnum.Identifier.ToString(), CurrentInputElement.GetType()));
-            }
-        }
-
         public bool CurrentTokenIs(string data)
         {
             return CurrentInputElement.Data == data;
         }
 
-        public bool IsToken(IInputElement inputElement)
-        {
-            return inputElement.InputElementType == InputElementTypeEnum.Token;
-        }
-
-        public bool IsIdentifier(IInputElement inputElement)
-        {
-            return IsToken(inputElement) && ((IToken)inputElement).TokenType == TokenTypeEnum.Identifier;
-        }
-
-        public bool IsKeyword(IInputElement inputElement)
-        {
-            return IsToken(inputElement) && ((IToken)inputElement).TokenType == TokenTypeEnum.Keyword;
-        }
-
-        public bool IsLiteral(IInputElement inputElement)
-        {
-            return IsToken(inputElement) && ((IToken)inputElement).TokenType == TokenTypeEnum.Literal;
-        }
-
-        public bool IsSeperator(IInputElement inputElement)
-        {
-            return IsToken(inputElement) && ((IToken)inputElement).TokenType == TokenTypeEnum.Separator;
-        }
-
-        public bool IsOperator(IInputElement inputElement)
-        {
-            return IsToken(inputElement) && ((IToken)inputElement).TokenType == TokenTypeEnum.Operator;
-        }
-
         public bool IsPrimitive(IInputElement inputElement)
         {
-            return IsKeyword(inputElement) && Primitives.AsList.Any(p => p == inputElement.Data);
+            return inputElement is KeywordToken && Primitives.AsList.Any(p => p == inputElement.Data);
         }
 
         public bool IsMethodModifier(IInputElement inputElement)
         {
             return Keywords.MethodModifiers.Any(m => m == inputElement.Data);
-        }
-
-        public bool IsWhiteSpaceElement(IInputElement inputElement)
-        {
-            return inputElement is WhiteSpaceInputElement;
         }
 
         public IInputElement ForwardInputElement(int count)
@@ -259,20 +150,40 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             }
         }
 
+        public IList<IInputElement> GetBufferElements()
+        {
+            var buffer = new List<IInputElement>();
+            
+            for (var i = 1; i <= BufferSize; i++)
+            {
+                buffer.Add(ForwardInputElement(-i));
+            }
+
+            return buffer;
+        }
+
         public IList<IAstNode> ParseBody()
         {
             var body = new List<IAstNode>();
             IInputElement previousNonWhiteSpace = new WhiteSpaceInputElement();
 
-            AssertSeperator("{");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "{");
             MoveToNextToken();
 
             while (CurrentInputElement.Data != "}")
             {
+                if (CurrentInputElement is WhiteSpaceInputElement)
+                {
+                    MoveToNextInputElement();
+                    continue;
+                }
+
                 body.Add(ParseSingleStatement());
             }
 
-            AssertSeperator("}");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "}");
             MoveToNextToken();
 
             return body;
@@ -282,7 +193,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         {
             while (true)
             {
-                if (CurrentInputElement.Data == ")" && NextNonWhiteSpaceInputElement.Data == "{")
+                if (MethodDeclarationParser.IsMatch(this))
                 {
                     ResetBuffer();
                     return ParserHelper.Parse<MethodDeclarationParser>(DataSource);
@@ -294,36 +205,25 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 //    throw new NotImplementedException();
                 //}
 
-                if (
-                    (IsPrimitive(CurrentInputElement) || IsIdentifier(CurrentInputElement)) &&
-                    IsWhiteSpaceElement(ForwardInputElement(1)) &&
-                    IsIdentifier(ForwardInputElement(2)) &&
-                    IsWhiteSpaceElement(ForwardInputElement(3)) &&
-                    (IsOperator(ForwardInputElement(4)) && ForwardInputElement(4).Data == "="))
+                if (IsVariableDeclaration())
                 {
                     ResetBuffer();
                     return ParserHelper.Parse<VariableDeclarationParser>(DataSource);
                 }
 
-                if (
-                    (CurrentInputElement.Data == ")" && NextNonWhiteSpaceInputElement.Data == ";") ||
-                    (CurrentInputElement.Data == "." && PreviousNonWhiteSpaceInputElement.Data == ")") //Chained function calls, like: task().doWithTask();
-                )
+                if (CurrentInputElement.Data == Keywords.Static && ForwardToken(1).Data == "{")
                 {
                     ResetBuffer();
-                    var functionCall = ParserHelper.Parse<FunctionCallParser>(DataSource) as FunctionCallStatement;
-
-                    if (CurrentInputElement.Data != ".")
-                    {
-                        Debug.Assert(CurrentInputElement.Data == ";");
-                        functionCall.IsStandaloneStatement = true;
-                        MoveToNextToken();
-                    }
-
-                    return functionCall;
+                    return ParserHelper.Parse<StaticInitializerDeclarationParser>(DataSource) as StaticInitializerDeclaration;
                 }
 
-                if (CurrentInputElement.Data == "=" || (CurrentInputElement.Data == ";" && PreviousNonWhiteSpaceInputElement.Data != ")"))
+                if (SimpleStatementParser.IsSimpleStatement(this))
+                {
+                    ResetBuffer();
+                    return ParserHelper.Parse<SimpleStatementParser>(DataSource) as SimpleStatement;
+                }
+
+                if (JavaUtils.IsAssignmentOperator(CurrentInputElement.Data) || (CurrentInputElement.Data == ";" && PreviousNonWhiteSpaceInputElement.Data != ")"))
                 {
                     ResetBuffer();
                     return ParserHelper.Parse<VariableAssignmentParser>(DataSource);
@@ -332,7 +232,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 if (CurrentInputElement.Data == Keywords.If)
                 {
                     ResetBuffer();
-                    return ParserHelper.Parse<IfElseParser>(DataSource);
+                    return ParserHelper.Parse<IfElseStatementParser>(DataSource);
                 }
 
                 if (CurrentInputElement.Data == Keywords.Switch)
@@ -349,8 +249,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
                 if (CurrentInputElement.Data == Keywords.Do)
                 {
-                    // TODO: Parse do ... while loop control structure
-                    throw new NotImplementedException();
+                    ResetBuffer();
+                    return ParserHelper.Parse<DoWhileLoopParser>(DataSource);
                 }
 
                 if (CurrentInputElement.Data == Keywords.For)
@@ -359,7 +259,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                     return ParserHelper.Parse<ForLoopParser>(DataSource);
                 }
 
-                if (CurrentInputElement.Data == ":")
+                if (LabelStatementParser.IsLabel(CurrentInputElement, BufferSize, DataSource))
                 {
                     ResetBuffer();
                     return ParserHelper.Parse<LabelStatementParser>(DataSource);
@@ -379,8 +279,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
                 if (CurrentInputElement.Data == Keywords.Try)
                 {
-                    // TODO: Parse try statement
-                    throw new NotImplementedException();
+                    ResetBuffer();
+                    return ParserHelper.Parse<TryStatementParser>(DataSource);
                 }
 
                 if (CurrentInputElement.Data == Keywords.Throw)
@@ -410,6 +310,145 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 BufferSize++;
                 MoveToNextInputElement();
             }
+        }
+
+        private bool IsVariableDeclaration()
+        {
+            if (!IsPrimitive(CurrentInputElement) && !(CurrentInputElement is IdentifierToken))
+            {
+                return false;
+            }
+
+            var possibleOffsetDueToArray = 0;
+            while (ForwardToken(possibleOffsetDueToArray + 1).Data == "[")
+            {
+                if (ForwardToken(possibleOffsetDueToArray + 2).Data != "]")
+                {
+                    return false;
+                }
+
+                possibleOffsetDueToArray += 2;
+            }
+
+            if (!(ForwardToken(1 + possibleOffsetDueToArray) is IdentifierToken))
+            {
+                return false;
+            }
+
+            var tokenAfterIdentifier = ForwardToken(2 + possibleOffsetDueToArray);
+            return (tokenAfterIdentifier.Data == ";" || tokenAfterIdentifier.Data == "=");
+        }
+
+        public IAstNode ParseExpression()
+        {
+
+            if (CurrentInputElement.Data == "(" &&
+                ForwardInputElement(2).Data != ")")
+            {
+                return ParseExpressionBracketed();
+            }
+
+            if (CurrentInputElement.Data == "(" &&
+                ForwardInputElement(2).Data == ")")
+            {
+                return ParseExpressionTypeCast();
+            }
+
+            if (CurrentInputElement.Data == Keywords.New)
+            {
+                return ParserHelper.Parse<ClassInstantiationExpressionParser>(DataSource);
+            }
+
+            if (
+                (CurrentInputElement is IdentifierToken || CurrentInputElement.Data == Keywords.Super) &&
+                ForwardInputElement(1).Data == "(")
+            {
+                return ParseExpressionMethodCall();
+            }
+
+            var identifier = new IdentifierExpression(CurrentInputElement);
+            MoveToNextToken();
+
+            return identifier;
+        }
+
+        public MethodCallExpression ParseExpressionMethodCall()
+        {
+            var methodCallExpression = new MethodCallExpression();
+
+            methodCallExpression.MethodIdentifier = CurrentInputElement;
+            MoveToNextToken();
+
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextToken();
+
+            while (CurrentInputElement.Data != ")")
+            {
+                methodCallExpression.Parameters.Add(ParseExpressionParameter());
+            }
+
+            Debug.Assert(CurrentInputElement.Data == ")");
+            MoveToNextToken();
+
+            return methodCallExpression;
+        }
+
+        public IList<IAstNode> ParseExpressionParameter()
+        {
+            var parameter = new List<IAstNode>();
+
+            var delimeters = new[] { ",", ")", "}" };
+
+            while (delimeters.All(x => x != CurrentInputElement.Data))
+            {
+                parameter.Add(ParseExpression());
+            }
+
+            if (CurrentInputElement.Data == ",")
+            {
+                MoveToNextToken();
+            }
+
+            return parameter;
+        }
+
+        public IAstNode ParseExpressionTypeCast()
+        {
+            var typeCastExpression = new TypeCastExpression();
+
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextToken();
+
+            typeCastExpression.CastTarget = CurrentInputElement;
+            MoveToNextToken();
+
+            Debug.Assert(CurrentInputElement.Data == ")");
+            MoveToNextToken();
+
+            while (CurrentInputElement.Data != ")" && CurrentInputElement.Data != ";" && CurrentInputElement.Data != ",")
+            {
+                typeCastExpression.InnerExpressions.Add(ParseExpression());
+            }
+
+            return typeCastExpression;
+        }
+
+        public IAstNode ParseExpressionBracketed()
+        {
+            var bracketedExpression = new BracketedExpression();
+
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextToken();
+
+            while (CurrentInputElement.Data != ")")
+            {
+                bracketedExpression.InnerExpressions.Add(ParseExpression());
+            }
+
+            Debug.Assert(CurrentInputElement.Data == ")");
+            MoveToNextToken();
+
+            return bracketedExpression;
         }
 
         public virtual IAstNode ImplementationSpecificParseSingleStatement()

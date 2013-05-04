@@ -25,68 +25,56 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             Debug.Assert(CurrentInputElement.Data == Keywords.For);
             MoveToNextToken();
 
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == "(");
             MoveToNextToken();
 
             _forControlStructure.Initializers = GetInitializers();
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextToken();
 
-            _forControlStructure.Condition = GetCondition();
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            _forControlStructure.Condition = GetInnerExpression(";");
+            
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextToken();
 
             _forControlStructure.CounterExpressions = GetCounterExpressions();
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == ")");
             MoveToNextToken();
 
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == "{");
             _forControlStructure.Body = ParseBody();
 
             return _forControlStructure;
         }
 
-        private IList<IList<IInputElement>> GetCounterExpressions()
+        private IList<SimpleStatement> GetCounterExpressions()
         {
-            var counterExpressions = new List<IList<IInputElement>>();
-            
+            var counterExpressions = new List<SimpleStatement>();
+
             while (CurrentInputElement.Data != ")")
             {
-                var counterExpression = new List<IInputElement>();
+                var simpleStatement = new SimpleStatement();
 
                 while (CurrentInputElement.Data != "," && CurrentInputElement.Data != ")")
                 {
-                    counterExpression.Add(CurrentInputElement);
-                    MoveToNextInputElement();
+                    simpleStatement.Expressions.Add(ParseExpression());
                 }
 
-                if (CurrentInputElement.Data == ",")
+                if (CurrentInputElement.Data != ")")
                 {
+                    Debug.Assert(CurrentInputElement.Data == ",");
                     MoveToNextToken();
                 }
 
-                counterExpressions.Add(counterExpression);
+                counterExpressions.Add(simpleStatement);
             }
 
             return counterExpressions;
-        }
-
-        private IList<IInputElement> GetCondition()
-        {
-            var condition = new List<IInputElement>();
-            
-            while (CurrentInputElement.Data != ";")
-            {
-                condition.Add(CurrentInputElement);
-                MoveToNextInputElement();
-            }
-
-            return condition;
         }
 
         private IList<ForLoopInitializer> GetInitializers()
@@ -96,13 +84,13 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             while (CurrentInputElement.Data != ";")
             {
                 var initializer = new ForLoopInitializer();
-                
-                if (ForwardToken(1).Data == "=" && CurrentInputElement is IdentifierToken)
+
+                if (ForwardToken(1) is OperatorToken && CurrentInputElement is IdentifierToken)
                 {
                     initializer.VariableName = CurrentInputElement;
                     MoveToNextToken();
                 }
-                else if (ForwardToken(2).Data == "=" && ForwardToken(1) is IdentifierToken)
+                else if (ForwardToken(2) is OperatorToken && ForwardToken(1) is IdentifierToken)
                 {
                     initializer.InitializedType = CurrentInputElement;
                     MoveToNextToken();
@@ -111,17 +99,17 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 }
                 else
                 {
-                    throw new Exception("Expected pattern 'type variableName =...' or 'variableName =...'");
+                    throw new Exception("Expected pattern 'type variableName <operator>...' or 'variableName <operator>...'");
                 }
 
                 Debug.Assert(CurrentInputElement is OperatorToken);
-                Debug.Assert(CurrentInputElement.Data == "=");
+                initializer.OperatorToken = CurrentInputElement as OperatorToken;
                 MoveToNextToken();
 
                 while (CurrentInputElement.Data != "," && CurrentInputElement.Data != ";")
                 {
                     initializer.AssignedValue.Add(CurrentInputElement);
-                    MoveToNextInputElement();
+                    MoveToNextToken();
                 }
 
                 if (CurrentInputElement.Data == ",")

@@ -12,7 +12,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
         public override string DebugOut()
         {
-            throw new NotImplementedException();
+            return string.Format("{0}:", Name.Data);
         }
     }
 }

@@ -19,19 +19,27 @@ namespace Mordritch.Transpiler.Java.Tokenizer
 
         private int _column;
 
-        public Tokenizer(string source, bool isFile = true)
+        private string _sourceName;
+
+        public Tokenizer(string source)
         {
-            if (isFile)
-            {
-                var fileContents = new StreamReader(source).ReadToEnd().ToCharArray();
-                fileContents = ParseEscapedUnicodeSequences(fileContents);
-                _data = SplitIntoLines(fileContents);
-            }
-            else
-            {
-                _data = SplitIntoLines(source);
-            }
+            var fileInfo = new FileInfo(source);
+            _sourceName = fileInfo.Name;
+            
+            var fileContents = new StreamReader(source).ReadToEnd().ToCharArray();
+            fileContents = ParseEscapedUnicodeSequences(fileContents);
+            _data = SplitIntoLines(fileContents);
         }
+
+        public Tokenizer(string source, string sourceName)
+        {
+            _sourceName = sourceName;
+
+            var fileContents = ParseEscapedUnicodeSequences(source.ToCharArray());
+            _data = SplitIntoLines(fileContents);
+        }
+
+        public 
 
         static string[] SplitIntoLines(char[] data)
         {
@@ -178,6 +186,7 @@ namespace Mordritch.Transpiler.Java.Tokenizer
                     var inputElement = GetWhiteSpace();
                     inputElement.Line = line;
                     inputElement.Column = column;
+                    inputElement.Source = _sourceName;
                     inputElements.Add(inputElement);
                     continue;
                 }
@@ -187,6 +196,7 @@ namespace Mordritch.Transpiler.Java.Tokenizer
                     var inputElement = GetComment();
                     inputElement.Line = line;
                     inputElement.Column = column;
+                    inputElement.Source = _sourceName;
                     inputElements.Add(inputElement);
                     continue;
                 }
@@ -196,6 +206,7 @@ namespace Mordritch.Transpiler.Java.Tokenizer
                     var inputElement = GetToken();
                     inputElement.Line = line;
                     inputElement.Column = column;
+                    inputElement.Source = _sourceName;
                     inputElements.Add(inputElement);
                     continue;
                 }
@@ -297,7 +308,7 @@ namespace Mordritch.Transpiler.Java.Tokenizer
 
             if (InputElementClassifier.IsSeperatorTokenStart(ch))
             {
-                var seperatorToken = new SeparatorToken();
+                var seperatorToken = new SeperatorToken();
                 seperatorToken.Data = new String(ch, 1);
                 MoveToNextChar();
                 return seperatorToken;

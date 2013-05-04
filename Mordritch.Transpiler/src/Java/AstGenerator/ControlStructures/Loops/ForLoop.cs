@@ -1,4 +1,5 @@
-﻿using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
+﻿using Mordritch.Transpiler.Java.AstGenerator.Statements;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +11,18 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
     {
         public IList<ForLoopInitializer> Initializers = new List<ForLoopInitializer>();
 
-        public IList<IInputElement> Condition = new List<IInputElement>();
+        public IList<IAstNode> Condition = new List<IAstNode>();
 
-        public IList<IList<IInputElement>> CounterExpressions = new List<IList<IInputElement>>();
+        public IList<SimpleStatement> CounterExpressions = new List<SimpleStatement>();
 
         public IList<IAstNode> Body = new List<IAstNode>();
 
         public override string DebugOut()
         {
-            var condition = Condition.Select(x => x.Data).Aggregate((x, y) => x + " " + y);
+            var condition =
+                Condition
+                    .Select(x => x.DebugOut())
+                    .Aggregate((x, y) => x + y);
             
             var initializers = Initializers.Count > 0 
                 ? Initializers
@@ -28,9 +32,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
             var counterExpressions = CounterExpressions.Count > 0
                 ? CounterExpressions
-                    .Select(xx => xx
-                        .Select(x => x.Data)
-                        .Aggregate((x, y) => x + " " + y))
+                    .Select(x => x.DebugOut())
                     .Aggregate((x, y) => x + ", " + y)
                 : string.Empty;
             

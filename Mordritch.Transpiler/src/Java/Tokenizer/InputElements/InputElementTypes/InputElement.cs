@@ -11,6 +11,8 @@ namespace Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes
 
         public int Column { get; set; }
 
+        public string Source { get; set; }
+
         public abstract InputElementTypeEnum InputElementType { get; }
 
         public string Data
@@ -20,7 +22,7 @@ namespace Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes
 
         public string Position
         {
-            get { return string.Format("({0}, {1})", Line + 1, Column + 1); }
+            get { return string.Format("({0}, {1} - {2})", Line + 1, Column + 1, Source); }
         }
 
         public string GetInputElementType()

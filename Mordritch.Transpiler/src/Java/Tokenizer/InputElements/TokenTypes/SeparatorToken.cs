@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes
 {
-    public class SeparatorToken : TokenInputElement, IToken
+    public class SeperatorToken : TokenInputElement, IToken
     {
         public override TokenTypeEnum TokenType
         {

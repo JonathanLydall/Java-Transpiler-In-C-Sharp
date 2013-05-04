@@ -8,13 +8,18 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 {
     public class ReturnStatement : AstNode
     {
-        public IList<IInputElement> ReturnValue = new List<IInputElement>();
+        public IList<IAstNode> ReturnValue = new List<IAstNode>();
 
         public override string DebugOut()
         {
+            if (ReturnValue.Count == 0)
+            {
+                return "return;";
+            }
+            
             var returnValue =
                 ReturnValue
-                    .Select(x => x.Data)
+                    .Select(x => x.DebugOut())
                     .Aggregate((x, y) => x + y);
 
             return string.Format("return {0};", returnValue);

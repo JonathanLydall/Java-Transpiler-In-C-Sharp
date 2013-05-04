@@ -27,12 +27,18 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
             ProcessVariableName();
 
-            if (CurrentInputElement.Data == "=")
+            if (JavaUtils.IsAssignmentOperator(CurrentInputElement.Data))
             {
-                ProcessAssignedValue();
+                _variableAssignment.AssignmentOperator = CurrentInputElement;
+                MoveToNextToken();
+
+                while (CurrentInputElement.Data != ";")
+                {
+                    _variableAssignment.AssignedValue.Add(ParseExpression());
+                }
             }
 
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextToken();
             
@@ -41,28 +47,10 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
         private void ProcessVariableName()
         {
-            while (CurrentInputElement.Data != "=" && CurrentInputElement.Data != ";")
+            while (!JavaUtils.IsAssignmentOperator(CurrentInputElement.Data) && CurrentInputElement.Data != ";")
             {
                 _variableAssignment.VariableName.Add(CurrentInputElement);
                 MoveToNextToken();
-            }
-        }
-
-        private void ProcessAssignedValue()
-        {
-            Debug.Assert(CurrentInputElement is OperatorToken);
-            Debug.Assert(CurrentInputElement.Data == "=");
-            MoveToNextInputElement();
-
-            if (IsWhiteSpace)
-            {
-                MoveToNextInputElement();
-            }
-
-            while (CurrentInputElement.Data != ";")
-            {
-                _variableAssignment.AssignedValue.Add(CurrentInputElement);
-                MoveToNextInputElement();
             }
         }
     }

@@ -13,6 +13,8 @@ namespace Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes
 
         int Column { get; set; }
 
+        string Source { get; set; }
+
         string Position { get; }
 
         string GetInputElementType();

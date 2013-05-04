@@ -58,6 +58,15 @@ namespace Mordritch.Transpiler.Java.Common
         public static string Super = "super";
         public static string While = "while";
 
-        public static IList<string> MethodModifiers = new List<string>() { Abstract, Static, Final, Native, Strictfp, Synchronized, Protected };
+        public static IList<string> MethodModifiers = new List<string>()
+        { 
+            Abstract,
+            Final,
+            Native,
+            Protected,
+            Static,
+            Strictfp,
+            Synchronized
+        };
     }
 }

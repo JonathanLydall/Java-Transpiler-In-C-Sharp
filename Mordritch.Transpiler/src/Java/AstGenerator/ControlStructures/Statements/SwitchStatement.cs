@@ -8,7 +8,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 {
     public class SwitchStatement : AstNode
     {
-        public IList<IInputElement> ControlStatement = new List<IInputElement>();
+        public IList<IAstNode> ControlStatement = new List<IAstNode>();
 
         public IList<IAstNode> Body = new List<IAstNode>();
 
@@ -16,7 +16,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
         {
             var controlStatement =
                 ControlStatement
-                    .Select(x => x.Data)
+                    .Select(x => x.DebugOut())
                     .Aggregate((x, y) => x + y);
 
             return string.Format("switch ({0}) {{...", controlStatement);

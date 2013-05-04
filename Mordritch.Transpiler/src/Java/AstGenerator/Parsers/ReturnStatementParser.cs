@@ -25,11 +25,10 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
             while (CurrentInputElement.Data != ";")
             {
-                _returnStatement.ReturnValue.Add(CurrentInputElement);
-                MoveToNextInputElement();
+                _returnStatement.ReturnValue.Add(ParseExpression());
             }
 
-            Debug.Assert(CurrentInputElement is SeparatorToken);
+            Debug.Assert(CurrentInputElement is SeperatorToken);
             Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextToken();
             

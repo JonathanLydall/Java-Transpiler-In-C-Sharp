@@ -3,6 +3,7 @@ using Mordritch.Transpiler.Java.Common;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -12,10 +13,10 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
     {
         public override IAstNode ImplementationSpecificParse()
         {
-            AssertKeyword(Keywords.Import);
+            Debug.Assert(CurrentInputElement.Data == Keywords.Import);
             MoveToNextInputElement();
 
-            AssertWhiteSpace();
+            Debug.Assert(CurrentInputElement is WhiteSpaceInputElement);
             MoveToNextInputElement();
 
             var importDeclaration = new ImportDeclaration();

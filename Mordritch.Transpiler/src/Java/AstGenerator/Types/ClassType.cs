@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Types
 {
-    class ClassType : AstNode
+    public class ClassType : AstNode
     {
         private bool _accessModifierPublic = false;
         

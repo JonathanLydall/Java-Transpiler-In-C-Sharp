@@ -23,7 +23,9 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             Debug.Assert(CurrentInputElement.Data == Keywords.Switch);
             MoveToNextToken();
 
-            _switchStatement.ControlStatement = GetBracketedStatement();
+            Debug.Assert(CurrentInputElement.Data == "(");
+            MoveToNextToken();
+            _switchStatement.ControlStatement = GetInnerExpression(")");
 
             _switchStatement.Body = GetBody();
 
@@ -93,7 +95,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         private IList<IAstNode> GetBody()
         {
             MoveToNextToken();
-            if (CurrentInputElement is SeparatorToken && CurrentInputElement.Data == "{")
+            if (CurrentInputElement is SeperatorToken && CurrentInputElement.Data == "{")
             {
                 return ParseBody();
             }
@@ -103,42 +105,6 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 body.Add(ParseSingleStatement());
                 return body;
             }
-        }
-
-        private IList<IInputElement> GetBracketedStatement(bool isNested = false)
-        {
-            var contents = new List<IInputElement>();
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == "(");
-            if (isNested)
-            {
-                contents.Add(CurrentInputElement);
-            }
-            MoveToNextInputElement();
-            
-            while (CurrentInputElement.Data != ")")
-            {
-                if (CurrentInputElement.Data == "(")
-                {
-                    contents.AddRange(GetBracketedStatement(true));
-                    continue;
-                }
-
-                contents.Add(CurrentInputElement);
-                MoveToNextInputElement();
-                continue;
-            }
-
-            Debug.Assert(CurrentInputElement is SeparatorToken);
-            Debug.Assert(CurrentInputElement.Data == ")");
-            if (isNested)
-            {
-                contents.Add(CurrentInputElement);
-            }
-            MoveToNextInputElement();
-
-            return contents;
         }
     }
 }

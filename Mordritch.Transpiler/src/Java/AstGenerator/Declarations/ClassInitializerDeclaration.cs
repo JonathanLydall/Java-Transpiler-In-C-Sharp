@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
 {
-    class ClassInitializerDeclaration : AstNode
+    public class ClassInitializerDeclaration : AstNode
     {
         public bool IsStatic = false;
 

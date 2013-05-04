@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 {
-    class SynchronizedStatement : AstNode
+    public class SynchronizedStatement : AstNode
     {
         public IList<IInputElement> LockObject = new List<IInputElement>();
 

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
 {
-    class ImportDeclaration : AstNode
+    public class ImportDeclaration : AstNode
     {
         public ImportDeclaration()
         {

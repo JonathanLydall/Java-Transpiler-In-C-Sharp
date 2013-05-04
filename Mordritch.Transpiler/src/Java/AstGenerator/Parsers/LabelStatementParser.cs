@@ -19,5 +19,24 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             MoveToNextInputElement();
             return _labelStatement;
         }
+
+        public static bool IsLabel(IInputElement currentInputElement, int bufferSize, InputElementDataSource dataSource)
+        {
+            if (currentInputElement.Data != ":")
+            {
+                return false;
+            }
+            
+            var buffer = new List<IInputElement>();
+            for (var i = 0; i < bufferSize; i++)
+            {
+                if (dataSource.ForwardInputElement(i * -1).Data == "?")
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
     }
 }

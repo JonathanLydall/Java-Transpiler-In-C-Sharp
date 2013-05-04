@@ -4,6 +4,7 @@ using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -24,7 +25,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
             while (CurrentInputElement.Data != ";")
             {
-                if (IsIdentifier(CurrentInputElement) && _jumpStatement.JumpTo == null)
+                if (CurrentInputElement is IdentifierToken && _jumpStatement.JumpTo == null)
                 {
                     _jumpStatement.JumpTo = (IdentifierToken)CurrentInputElement;
                     MoveToNextInputElement();
@@ -39,8 +40,9 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
                 throw new Exception("Unexpected token.");
             }
-            
-            AssertSeperator(";");
+
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextInputElement();
             
             return _jumpStatement;

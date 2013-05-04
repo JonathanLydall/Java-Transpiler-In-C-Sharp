@@ -4,6 +4,7 @@ using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -16,8 +17,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         public override IAstNode ImplementationSpecificParse()
         {
             ProcessModifiers();
-            
-            AssertKeyword(Keywords.Class);
+
+            Debug.Assert(CurrentInputElement.Data == Keywords.Class);
             MoveToNextToken();
 
             _classType.Name = CurrentInputElement.Data;
@@ -57,54 +58,44 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 {
                     isImplementing = false;
 
-                    AssertKeyword(Keywords.Extends);
-                    MoveToNextInputElement();
-
-                    AssertWhiteSpace();
-                    MoveToNextInputElement();
+                    Debug.Assert(CurrentInputElement is KeywordToken);
+                    Debug.Assert(CurrentInputElement.Data == Keywords.Extends);
+                    MoveToNextToken();
 
                     _classType.Extends = CurrentInputElement.Data;
-                    MoveToNextInputElement();
+                    MoveToNextToken();
                     continue;
                 }
 
                 if (CurrentInputElement.Data == Keywords.Implements)
                 {
-                    AssertKeyword(Keywords.Extends);
-                    MoveToNextInputElement();
-
-                    AssertWhiteSpace();
-                    MoveToNextInputElement();
+                    Debug.Assert(CurrentInputElement is KeywordToken);
+                    Debug.Assert(CurrentInputElement.Data == Keywords.Implements);
+                    MoveToNextToken();
 
                     isImplementing = true;
-                    MoveToNextInputElement();
-                    continue;
-                }
-
-                if (IsWhiteSpace)
-                {
-                    MoveToNextInputElement();
                     continue;
                 }
 
                 if (isImplementing && CurrentInputElement.Data == ",")
                 {
-                    MoveToNextInputElement();
+                    MoveToNextToken();
                     continue;
                 }
 
                 if (isImplementing)
                 {
-                    AssertTokenType(TokenTypeEnum.Identifier);
+                    Debug.Assert(CurrentInputElement is IdentifierToken);
                     _classType.Implements.Add(CurrentInputElement.Data);
-                    MoveToNextInputElement();
+                    MoveToNextToken();
                     continue;
                 }
 
                 throw new Exception(string.Format("Unexpected input element '{0}', with data '{1}'.", CurrentInputElement.GetInputElementType(), CurrentInputElement.Data));
             }
 
-            AssertSeperator("{");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "{");
         }
     }
 }

@@ -15,7 +15,10 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
         public override string DebugOut()
         {
-            throw new NotImplementedException();
+            var jumpStatement = Statement.Data;
+            var jumpTo = JumpTo == null ? string.Empty : " " + JumpTo.Data;
+
+            return string.Format("{0}{1};", jumpStatement, jumpTo);
         }
     }
 }

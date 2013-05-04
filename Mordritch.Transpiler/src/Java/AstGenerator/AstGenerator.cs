@@ -14,7 +14,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator
 {
     public class AstGenerator : Parser
     {
-        public IList<IAstNode> Parse(IList<IInputElement> inputElements)
+        public IList<IAstNode> Parse(IList<IInputElement> inputElements, string source)
         {
             DataSource = new InputElementDataSource(inputElements);
 

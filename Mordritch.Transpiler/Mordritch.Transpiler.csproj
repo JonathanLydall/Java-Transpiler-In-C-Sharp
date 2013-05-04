@@ -59,6 +59,40 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Compilers\CompilerWarning.cs" />
+    <Compile Include="src\Compilers\ICompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\AssertStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\BracketedExpressionCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\CaseStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\CatchStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassInitializerDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassInstantiationExpressionCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassTypeCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\JumpStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\LabelStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\MethodCallExpressionCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\IdentifierExpressionCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ImportDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\IfElseStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\MethodArgumentCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\MethodDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\PackageDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ReturnStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\SimpleStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\StaticInitializerDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\SwitchDefaultStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ThrowStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\TryStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\TypeCastExpressionCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\VariableDeclarationCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\WhileLoopCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\DoWhileLoopCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ForLoopCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\VariableAssignmentCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\SwitchStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\PrimitiveMapper.cs" />
+    <Compile Include="src\Compilers\TypeScript\TypeScriptCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\TypeScriptUtils.cs" />
     <Compile Include="src\Java\AstGenerator\Assigments\VariableAssignment.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -66,8 +100,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Java\AstGenerator\AstNode.cs" />
+    <Compile Include="src\Java\AstGenerator\ControlStructures\Loops\DoWhileLoop.cs" />
     <Compile Include="src\Java\AstGenerator\ControlStructures\Loops\ForLoop.cs" />
     <Compile Include="src\Java\AstGenerator\ControlStructures\Loops\ForLoopInitializer.cs" />
+    <Compile Include="src\Java\AstGenerator\ControlStructures\Statements\CatchStatement.cs" />
+    <Compile Include="src\Java\AstGenerator\ControlStructures\Statements\TryStatement.cs" />
     <Compile Include="src\Java\AstGenerator\ControlStructures\Statements\SwitchStatement.cs" />
     <Compile Include="src\Java\AstGenerator\ControlStructures\Loops\WhileLoop.cs" />
     <Compile Include="src\Java\AstGenerator\Declarations\ClassInitializerDeclaration.cs">
@@ -81,9 +118,18 @@
     <Compile Include="src\Java\AstGenerator\Declarations\PackageDeclaration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\Java\AstGenerator\Declarations\StaticInitializerDeclaration.cs" />
     <Compile Include="src\Java\AstGenerator\Declarations\VariableDeclaration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\Java\AstGenerator\Expressions\ArrayInitializationExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\BracketedExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\ClassInstantiationExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\IAstNode.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\IdentifierExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\MethodCallExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\ParameterExpression.cs" />
+    <Compile Include="src\Java\AstGenerator\Expressions\TypeCastExpression.cs" />
     <Compile Include="src\Java\AstGenerator\IAstNode.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -100,10 +146,14 @@
     <Compile Include="src\Java\AstGenerator\Parsers\ClassTypeParser.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\Java\AstGenerator\Parsers\ClassInstantiationExpressionParser.cs" />
+    <Compile Include="src\Java\AstGenerator\Parsers\StaticInitializerDeclarationParser.cs" />
+    <Compile Include="src\Java\AstGenerator\Parsers\TryStatementParser.cs" />
+    <Compile Include="src\Java\AstGenerator\Parsers\DoWhileLoopParser.cs" />
+    <Compile Include="src\Java\AstGenerator\Parsers\SimpleStatementParser.cs" />
     <Compile Include="src\Java\AstGenerator\Parsers\SwitchStatementParser.cs" />
     <Compile Include="src\Java\AstGenerator\Parsers\WhileLoopParser.cs" />
     <Compile Include="src\Java\AstGenerator\Parsers\ForLoopParser.cs" />
-    <Compile Include="src\Java\AstGenerator\Parsers\FunctionCallParser.cs" />
     <Compile Include="src\Java\AstGenerator\Parsers\MethodDeclarationParser.cs" />
     <Compile Include="src\Java\AstGenerator\Parsers\VariableDeclarationParser.cs">
       <SubType>Code</SubType>
@@ -144,25 +194,20 @@
     <Compile Include="src\Java\AstGenerator\Statements\AssertStatement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\Java\AstGenerator\Statements\BracketedStatement.cs" />
     <Compile Include="src\Java\AstGenerator\Statements\CaseStatement.cs" />
-    <Compile Include="src\Java\AstGenerator\Statements\FunctionCallStatement.cs" />
     <Compile Include="src\Java\AstGenerator\ControlStructures\Statements\IfElseStatement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\Java\AstGenerator\Statements\IFunctionCallParameter.cs" />
     <Compile Include="src\Java\AstGenerator\Statements\JumpStatement.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Java\AstGenerator\Statements\LabelStatement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\Java\AstGenerator\Statements\MethodFunctionCallParamater.cs" />
-    <Compile Include="src\Java\AstGenerator\Statements\Operator.cs" />
     <Compile Include="src\Java\AstGenerator\Statements\ReturnStatement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\Java\AstGenerator\Statements\SimpleFunctionCallParameter.cs" />
+    <Compile Include="src\Java\AstGenerator\Statements\SimpleStatement.cs" />
     <Compile Include="src\Java\AstGenerator\Statements\SwitchDefaultStatement.cs" />
     <Compile Include="src\Java\AstGenerator\Statements\SynchronizedStatement.cs">
       <SubType>Code</SubType>
@@ -170,16 +215,13 @@
     <Compile Include="src\Java\AstGenerator\Statements\ThrowStatement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\Java\AstGenerator\Statements\ValueStatement.cs" />
     <Compile Include="src\Java\AstGenerator\Types\ClassType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\Java\AstGenerator\Types\InterfaceType.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Java\Common\BooleanLiterals.cs" />
     <Compile Include="src\Java\Common\Primitives.cs" />
     <Compile Include="src\Java\Common\Keywords.cs" />
+    <Compile Include="src\Java\Common\JavaUtils.cs" />
     <Compile Include="src\Java\Tokenizer\InputElements\InputElementClassifier.cs" />
     <Compile Include="src\Java\Tokenizer\InputElements\InputElementTypes\CommentInputElement.cs" />
     <Compile Include="src\Java\Tokenizer\InputElements\InputElementTypes\IInputElement.cs" />
@@ -230,7 +272,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\Compilers\JavaScript\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

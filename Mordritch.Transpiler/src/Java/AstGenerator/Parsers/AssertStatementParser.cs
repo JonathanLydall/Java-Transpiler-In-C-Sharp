@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 {
@@ -16,7 +18,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         
         public override IAstNode ImplementationSpecificParse()
         {
-            AssertKeyword(Keywords.Assert);
+            Debug.Assert(CurrentInputElement.Data == Keywords.Assert);
             MoveToNextInputElement();
 
             ProcessCondition();
@@ -25,8 +27,9 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             {
                 ProcessMessage();
             }
-            
-            AssertSeperator(";");
+
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextInputElement();
 
             return _assertStatement;
@@ -36,7 +39,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         {
             _assertStatement.Message = new List<IInputElement>();
 
-            AssertTokenData(":");
+            Debug.Assert(CurrentInputElement is TokenInputElement);
+            Debug.Assert(CurrentInputElement.Data == ":");
             MoveToNextToken();
 
             while (CurrentInputElement.Data != ";")

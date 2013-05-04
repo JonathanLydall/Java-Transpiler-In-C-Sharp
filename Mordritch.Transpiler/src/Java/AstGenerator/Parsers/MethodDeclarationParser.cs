@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
+using System.Diagnostics;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 {
@@ -19,9 +20,69 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
         {
             GetStart();
             GetArgument();
-            _methodDeclaration.Body = ParseBody();
+
+            if (CurrentInputElement.Data == Keywords.Throws)
+            {
+                GetThrows();
+            }
+
+            if (_methodDeclaration.Modifiers.Any(x => x.Data == Keywords.Abstract) && CurrentInputElement.Data == ";")
+            {
+                MoveToNextToken();
+            }
+            else
+            {
+                _methodDeclaration.Body = ParseBody();
+            }
 
             return _methodDeclaration;
+        }
+
+        public static bool IsMatch(Parser parser)
+        {
+            if (parser.CurrentInputElement.Data == ")" && parser.NextNonWhiteSpaceInputElement.Data == "{")
+            {
+                return true;
+            }
+
+            // Catches pattern like: public void checkSessionLock() throws MinecraftException
+            if (
+                parser.CurrentInputElement.Data == ")" &&
+                parser.ForwardToken(1).Data == Keywords.Throws &&
+                parser.ForwardToken(2) is TokenInputElement &&
+                parser.ForwardToken(3).Data == "{")
+            {
+                return true;
+            }
+
+
+            var buffer = parser.GetBufferElements();
+
+            /*
+             * TODO: A more correct way to solve this problem would be for the parser to be aware of its current context,
+             * like if it's in the context of parsing a class, or being inside of a method. However, this is something
+             * I only thought of in hindsight, so hopefully for now I can get away with doing it this way.
+             * 
+             * By the way, without catching the abstract keyword, it was being mis-recognized as a simple statement.
+             */
+            if (
+                ((parser.CurrentInputElement.Data == ")" && parser.NextNonWhiteSpaceInputElement.Data == ";") ||
+                (parser.CurrentInputElement.Data == "." && parser.PreviousNonWhiteSpaceInputElement.Data == ")")) &&
+                buffer.Any(x => x.Data == Keywords.Abstract))
+            {
+                return true;
+            }
+
+
+            return false;
+        }
+
+        private void GetThrows()
+        {
+            Debug.Assert(CurrentInputElement.Data == Keywords.Throws);
+            MoveToNextToken();
+            _methodDeclaration.ThrowsType = (TokenInputElement)CurrentInputElement;
+            MoveToNextToken();
         }
 
         private void GetArgument()
@@ -29,7 +90,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             var arguments = new List<IList<IInputElement>>();
             var currentArgument = new List<IInputElement>();
 
-            AssertSeperator("(");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "(");
             MoveToNextToken();
 
             //no arguments
@@ -99,28 +161,45 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
         private void GetStart()
         {
-            //Is a class constructor, EG: protected ClassName(int par1)
-            if (IsMethodModifier(CurrentInputElement) && IsWhiteSpaceElement(ForwardInputElement(1)) && IsIdentifier(ForwardInputElement(2)) && IsSeperator(ForwardInputElement(3)) && ForwardInputElement(3).Data == "(")
+            while (
+                IsMethodModifier(CurrentInputElement) ||
+                CurrentInputElement.Data == Keywords.Public ||
+                CurrentInputElement.Data == Keywords.Private)
             {
                 _methodDeclaration.Modifiers.Add((TokenInputElement)CurrentInputElement);
                 MoveToNextToken();
+            }
+
+            // Is it a constructor? EG: public <Class Name>()
+            if (
+                CurrentInputElement is TokenInputElement &&
+                ForwardToken(1).Data == "(")
+            {
                 _methodDeclaration.Name = (TokenInputElement)CurrentInputElement;
-                MoveToNextInputElement();
-                AssertSeperator("(");
+                MoveToNextToken();
                 return;
             }
 
-            while (!(IsSeperator(ForwardInputElement(3)) && ForwardInputElement(3).Data == "("))
-            {
-                _methodDeclaration.Modifiers.Add((TokenInputElement)CurrentInputElement);
-                MoveToNextToken();
-            }
-
+            Debug.Assert(CurrentInputElement is TokenInputElement);
             _methodDeclaration.ReturnType = (TokenInputElement)CurrentInputElement;
             MoveToNextToken();
+
+            while (CurrentInputElement.Data == "[")
+            {
+                Debug.Assert(CurrentInputElement.Data == "[");
+                MoveToNextToken();
+                
+                Debug.Assert(CurrentInputElement.Data == "]");
+                MoveToNextToken();
+                
+                _methodDeclaration.ReturnArrayDepth++;
+            }
+
+            Debug.Assert(CurrentInputElement is TokenInputElement);
             _methodDeclaration.Name = (TokenInputElement)CurrentInputElement;
             MoveToNextToken();
-            AssertSeperator("(");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "(");
         }
     }
 }

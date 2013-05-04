@@ -1,7 +1,9 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -22,46 +24,16 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 ProcessInitialization();
             }
 
-            AssertSeperator(";");
+            Debug.Assert(CurrentInputElement is SeperatorToken);
+            Debug.Assert(CurrentInputElement.Data == ";");
             MoveToNextToken();
 
             return _variableDeclaration;
         }
 
-        private void ProcessInitialization()
-        {
-            AssertOperator("=");
-            MoveToNextInputElement();
-
-            _variableDeclaration.HasInitialization = true;
-
-            if (IsWhiteSpace)
-            {
-                MoveToNextInputElement();
-            }
-
-            while (CurrentInputElement.Data != ";")
-            {
-                _variableDeclaration.AssignedValue.Add(CurrentInputElement);
-                MoveToNextInputElement();
-            }
-        }
-
-        private void ProcessVariableName()
-        {
-            AssertIdentifier();
-            _variableDeclaration.VariableName = CurrentInputElement;
-            MoveToNextInputElement();
-
-            if (IsWhiteSpace)
-            {
-                MoveToNextInputElement();
-            }
-        }
-        
         private void ProcessModifiers()
         {
-            while ((!IsPrimitive(CurrentInputElement) && !IsIdentifier(CurrentInputElement)) || IsWhiteSpace || IsComment)
+            while ((!IsPrimitive(CurrentInputElement) && !(CurrentInputElement is IdentifierToken)) || IsWhiteSpace || IsComment)
             {
                 if (IsWhiteSpace)
                 {
@@ -82,7 +54,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
         private void ProcessVariableType()
         {
-            if (!IsPrimitive(CurrentInputElement) && !IsIdentifier(CurrentInputElement))
+            if (!IsPrimitive(CurrentInputElement) && !(CurrentInputElement is IdentifierToken))
             {
                 throw new Exception(string.Format("Expected primitive or identifier, instead found '{0}'.", CurrentInputElement.Data));
             }
@@ -90,17 +62,44 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             _variableDeclaration.VariableType = CurrentInputElement;
             MoveToNextInputElement();
 
-            if (CurrentInputElement.Data == "[")
+            while (CurrentInputElement.Data == "[")
             {
-                _variableDeclaration.IsArray = true;
+                _variableDeclaration.ArrayCount++;
                 MoveToNextInputElement();
 
-                AssertSeperator("]");
+                Debug.Assert(CurrentInputElement is SeperatorToken);
+                Debug.Assert(CurrentInputElement.Data == "]");
                 MoveToNextInputElement();
             }
 
-            AssertWhiteSpace();
+            Debug.Assert(CurrentInputElement is WhiteSpaceInputElement);
             MoveToNextInputElement();
+        }
+
+        private void ProcessVariableName()
+        {
+            Debug.Assert(CurrentInputElement is IdentifierToken);
+            _variableDeclaration.VariableName = CurrentInputElement;
+            MoveToNextInputElement();
+
+            if (IsWhiteSpace)
+            {
+                MoveToNextInputElement();
+            }
+        }
+
+        private void ProcessInitialization()
+        {
+            Debug.Assert(CurrentInputElement is OperatorToken);
+            Debug.Assert(CurrentInputElement.Data == "=");
+            MoveToNextToken();
+
+            _variableDeclaration.HasInitialization = true;
+
+            while (CurrentInputElement.Data != ";")
+            {
+                _variableDeclaration.AssignedValue.Add(ParseExpression());
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
     public class ForLoopInitializer
     {
         public IInputElement InitializedType = null;
+
+        public OperatorToken OperatorToken = null;
 
         public IInputElement VariableName = null;
 

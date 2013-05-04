@@ -8,13 +8,19 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 {
     public class WhileLoop : AstNode
     {
-        public IList<IInputElement> Condition = new List<IInputElement>();
+        public IList<IAstNode> Condition = new List<IAstNode>();
 
         public IList<IAstNode> Body = new List<IAstNode>();
 
         public override string DebugOut()
         {
-            return string.Format("while ({0}) {{...", Condition.Select(x => x.Data).Aggregate((x, y) => x + " " + y));
+            var condition =
+                Condition
+                    .Select(x => x.DebugOut())
+                    .Aggregate((x, y) => x + y);
+            
+
+            return string.Format("while ({0}) {{...", condition);
         }
     }
 }

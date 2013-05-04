@@ -14,7 +14,11 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
         public override string DebugOut()
         {
-            throw new NotImplementedException();
+            var message = Message.Select(x => x.Data).Aggregate((x, y) => x + " " + y);
+
+            var condition = Condition.Select(x => x.Data).Aggregate((x, y) => x + " " + y);
+
+            return string.Format("assert({0}, {1});", condition, message);
         }
     }
 }

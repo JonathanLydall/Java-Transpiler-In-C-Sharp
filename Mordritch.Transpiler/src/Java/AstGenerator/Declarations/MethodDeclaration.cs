@@ -14,13 +14,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
 
         public TokenInputElement ReturnType = null;
 
-        public IList<IAstNode> Body = new List<IAstNode>();
+        public IList<IAstNode> Body = null;
 
         public TokenInputElement ThrowsType = null;
 
         public TokenInputElement Name = null;
 
         public IList<TokenInputElement> Modifiers = new List<TokenInputElement>();
+
+        public int ReturnArrayDepth = 0;
 
         public override string DebugOut()
         {
