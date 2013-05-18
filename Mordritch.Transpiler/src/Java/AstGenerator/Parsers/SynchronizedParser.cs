@@ -18,7 +18,12 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
         public override IAstNode ImplementationSpecificParse()
         {
-            Debug.Assert(CurrentInputElement.Data == Keywords.Synchronized);
+            while (CurrentInputElement.Data == Keywords.Synchronized)
+            {
+                _synchronizedStatement.Modifiers.Add(CurrentInputElement);
+                MoveToNextToken();
+            }
+            
             MoveToNextInputElement();
 
             ProcessLockObject();

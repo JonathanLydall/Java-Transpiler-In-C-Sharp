@@ -19,6 +19,20 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _variableDeclaration = variableDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            var variableName = _variableDeclaration.VariableName.Data;
+            var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
+            var array = string.Empty;
+
+            for (var a = 0; a < _variableDeclaration.ArrayCount; a++)
+            {
+                array += "[]";
+            }
+
+            var lineToAdd = string.Format("{0}: {1}{2};", variableName, variableType, array);
+        }
+
         public void Compile()
         {
             var isClassTypeContext = _compiler.GetCurrentContextFromStack() is ClassType;
@@ -47,7 +61,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 array += "[]";
             }
 
-            var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType);
+            var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
 
             var variableName = _variableDeclaration.VariableName.Data;
 

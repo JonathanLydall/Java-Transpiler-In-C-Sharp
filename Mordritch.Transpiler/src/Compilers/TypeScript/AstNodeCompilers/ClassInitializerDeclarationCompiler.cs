@@ -18,6 +18,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _classInitializerDeclaration = classInitializerDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            // TODO: I don't think we even parse initializers properly
+            throw new NotImplementedException();
+        }
+
         public void Compile()
         {
             // TODO: I don't think we even parse initializers properly

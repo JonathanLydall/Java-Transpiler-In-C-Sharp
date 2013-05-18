@@ -14,6 +14,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private static string Bool = "bool";
 
+        private static string Void = "void";
+
         private static IDictionary<string, string> _map = new Dictionary<string, string>
         {
             { Primitives.Boolean, Bool },
@@ -24,7 +26,21 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             { Primitives.Int, Number },
             { Primitives.Long, Number },
             { Primitives.Short, Number },
-            { "String", String }
+            { "String", String },
+            { Void, Void }
+        };
+
+        private static IDictionary<string, string> _isTypeOfMap = new Dictionary<string, string>
+        {
+            { Primitives.Boolean, "boolean" },
+            { Primitives.Byte, "number" },
+            { Primitives.Char, "number" },
+            { Primitives.Double, "number" },
+            { Primitives.Float, "number" },
+            { Primitives.Int, "number" },
+            { Primitives.Long, "number" },
+            { Primitives.Short, "number" },
+            { "String", "string" }
         };
         
         public static bool IsPrimitive(string type)
@@ -40,6 +56,16 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             }
 
             return _map[type];
+        }
+
+        public static string IsTypeOfMap(string type)
+        {
+            if (IsPrimitive(type) && type != Void)
+            {
+                return _isTypeOfMap[type];
+            }
+
+            return null;
         }
     }
 }

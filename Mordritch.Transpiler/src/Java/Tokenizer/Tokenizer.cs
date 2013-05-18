@@ -94,13 +94,15 @@ namespace Mordritch.Transpiler.Java.Tokenizer
                     IsHexCharacter(forwardChar4) &&
                     IsHexCharacter(forwardChar5))
                 {
-                    newData.Add(
-                        Convert.ToChar(
-                            string.Format(@"\u{0}{1}{2}{3}",
-                                Convert.ToString(forwardChar2),
-                                Convert.ToString(forwardChar3),
-                                Convert.ToString(forwardChar4),
-                                Convert.ToString(forwardChar5))));
+                    var unicodeNumberString = 
+                        string.Format("{0}{1}{2}{3}",
+                        Convert.ToString(forwardChar2),
+                        Convert.ToString(forwardChar3),
+                        Convert.ToString(forwardChar4),
+                        Convert.ToString(forwardChar5));
+                    var unicodeNumber = int.Parse(unicodeNumberString, System.Globalization.NumberStyles.HexNumber);
+                    
+                    newData.Add(Convert.ToChar(unicodeNumber));
                     i += 5;
                 }
                 else

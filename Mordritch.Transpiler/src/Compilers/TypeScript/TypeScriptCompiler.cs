@@ -13,13 +13,15 @@ using Mordritch.Transpiler.Java.AstGenerator.ControlStructures.Statements;
 using Mordritch.Transpiler.Java.AstGenerator.ControlStructures;
 using Mordritch.Transpiler.Java.AstGenerator;
 
+using Mordritch.Transpiler.Java.Common;
+
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
+using Mordritch.Transpiler.Java.Tokenizer.InputElements.LiteralTypes;
 
 using Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers;
 using Mordritch.Transpiler.Compilers.TypeScript;
-using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
-using Mordritch.Transpiler.Java.Tokenizer.InputElements.LiteralTypes;
-using Mordritch.Transpiler.Java.Common;
+using Mordritch.Transpiler.src.Compilers.TypeScript;
 
 namespace Mordritch.Transpiler.Compilers.TypeScript
 {
@@ -54,6 +56,29 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return instance.GetOutput();
         }
 
+        public static string GenerateDefinition(IList<IAstNode> data)
+        {
+            var instance = new TypeScriptCompiler();
+            instance.AddLine("module Mordritch {");
+            instance.IncreaseIndentation();
+            {
+                instance.CompileDefinition(data);
+            }
+            instance.DecreaseIndentation();
+            instance.AddLine("}");
+            return instance.GetOutput();
+        }
+
+        public IList<IAstNode> GetFullContextStack()
+        {
+            return _contextStack;
+        }
+        
+        public int GetContextStackSize()
+        {
+            return _contextStack.Count;
+        }
+        
         public void AddToContextStack(IAstNode astNode)
         {
             _contextStack.Add(astNode);
@@ -184,10 +209,22 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.Compile();
         }
 
+        public void CompileClassInitializerDeclarationDefinition(ClassInitializerDeclaration classInitializerDeclaration)
+        {
+            var compiler = new ClassInitializerDeclarationCompiler(this, classInitializerDeclaration);
+            compiler.GenerateDefinition();
+        }
+
         public void CompileImportDeclaration(ImportDeclaration importDeclaration)
         {
             var compiler = new ImportDeclarationCompiler(this, importDeclaration);
             compiler.Compile();
+        }
+
+        public void CompileImportDeclarationDefinition(ImportDeclaration importDeclaration)
+        {
+            var compiler = new ImportDeclarationCompiler(this, importDeclaration);
+            compiler.GenerateDefinition();
         }
 
         public string GetMethodArgumentString(MethodArgument methodArgument)
@@ -202,10 +239,22 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.Compile();
         }
 
+        public void CompileMethodDeclarationDefinition(MethodDeclaration methodDeclaration)
+        {
+            var compiler = new MethodDeclarationCompiler(this, methodDeclaration);
+            compiler.GenerateDefinition();
+        }
+
         public void CompilePackageDeclaration(PackageDeclaration packageDeclaration)
         {
             var compiler = new PackageDeclarationCompiler(this, packageDeclaration);
             compiler.Compile();
+        }
+
+        public void CompilePackageDeclarationDefinition(PackageDeclaration packageDeclaration)
+        {
+            var compiler = new PackageDeclarationCompiler(this, packageDeclaration);
+            compiler.GenerateDefinition();
         }
 
         public void CompileAssertStatement(AssertStatement assertStatement)
@@ -256,7 +305,21 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.Compile();
         }
 
+        public void CompileVariableDeclarationDefinition(VariableDeclaration variableDeclaration)
+        {
+            var compiler = new VariableDeclarationCompiler(this, variableDeclaration);
+            compiler.GenerateDefinition();
+        }
+
         public void CompileSynchronizedStatement(SynchronizedStatement synchronizedStatement)
+        {
+            AddWarning(
+                synchronizedStatement.LockObject.First().Line,
+                synchronizedStatement.LockObject.First().Column,
+                "Synchronized Statement unsupported by TypeScript.");
+        }
+
+        public void CompileSynchronizedStatementDefinition(SynchronizedStatement synchronizedStatement)
         {
             AddWarning(
                 synchronizedStatement.LockObject.First().Line,
@@ -276,10 +339,22 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.Compile();
         }
 
+        public void CompileClassTypeDefinition(ClassType classType)
+        {
+            var compiler = new ClassTypeCompiler(this, classType);
+            compiler.GenerateDefinition();
+        }
+
         public void CompileStaticInitializerDeclaration(StaticInitializerDeclaration staticInitializerDeclaration)
         {
             var compiler = new StaticInitializerDeclarationCompiler(this, staticInitializerDeclaration);
             compiler.Compile();
+        }
+
+        public void CompileStaticInitializerDeclarationDefinition(StaticInitializerDeclaration staticInitializerDeclaration)
+        {
+            var compiler = new StaticInitializerDeclarationCompiler(this, staticInitializerDeclaration);
+            compiler.GenerateDefinition();
         }
 
         public string GetInnerExpressionString(IList<IAstNode> condition)
@@ -292,6 +367,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         public string GetValueString(IList<IInputElement> inputElements)
         {
+            //if (inputElements.First().Data == Keywords.New)
+            //{
+            //    return GetClassInstantiationExpressionString(inputElements);
+            //}
+            
             var returnString = new StringBuilder();
 
             foreach (var inputElement in inputElements)
@@ -369,13 +449,14 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return returnString.ToString();
         }
 
-        public string GetTypeString(IInputElement inputElement)
+        public string GetTypeString(IInputElement inputElement, string contextDescription)
         {
             if (PrimitiveMapper.IsPrimitive(inputElement.Data))
             {
                 return PrimitiveMapper.Map(inputElement.Data);
             }
-            
+
+            OtherTypes.AddToList(inputElement, contextDescription);
             return inputElement.Data;
         }
 
@@ -387,6 +468,70 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                 .Aggregate((x, y) => x + " " + y);
         }
 
+        public void CompileDefinition(IList<IAstNode> bodyStatements)
+        {
+            foreach (var bodyStatement in bodyStatements)
+            {
+                if (bodyStatement is ImportDeclaration)
+                {
+                    CompileImportDeclarationDefinition(bodyStatement as ImportDeclaration);
+                    continue;
+                }
+
+                if (bodyStatement is StaticInitializerDeclaration)
+                {
+                    AddToContextStack(bodyStatement);
+                    CompileStaticInitializerDeclarationDefinition(bodyStatement as StaticInitializerDeclaration);
+                    RemoveFromContextStack();
+                    continue;
+                }
+
+                if (bodyStatement is ClassInitializerDeclaration)
+                {
+                    AddToContextStack(bodyStatement);
+                    CompileClassInitializerDeclarationDefinition(bodyStatement as ClassInitializerDeclaration);
+                    RemoveFromContextStack();
+                    continue;
+                }
+
+                if (bodyStatement is MethodDeclaration)
+                {
+                    AddToContextStack(bodyStatement);
+                    CompileMethodDeclarationDefinition(bodyStatement as MethodDeclaration);
+                    RemoveFromContextStack();
+                    continue;
+                }
+
+                if (bodyStatement is PackageDeclaration)
+                {
+                    CompilePackageDeclarationDefinition(bodyStatement as PackageDeclaration);
+                    continue;
+                }
+
+                if (bodyStatement is SynchronizedStatement)
+                {
+                    CompileSynchronizedStatementDefinition(bodyStatement as SynchronizedStatement);
+                    continue;
+                }
+
+                if (bodyStatement is ClassType)
+                {
+                    AddToContextStack(bodyStatement);
+                    CompileClassTypeDefinition(bodyStatement as ClassType);
+                    RemoveFromContextStack();
+                    continue;
+                }
+
+                if (bodyStatement is VariableDeclaration)
+                {
+                    CompileVariableDeclarationDefinition(bodyStatement as VariableDeclaration);
+                    continue;
+                }
+
+                throw new Exception(string.Format("Unknown statement type: {0}", bodyStatement.GetType().Name));
+            }
+        }
+        
         public void CompileBody(IList<IAstNode> bodyStatements)
         {
             foreach (var bodyStatement in bodyStatements)
@@ -565,7 +710,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             }
 
         }
-        public string GetExpressionString(IAstNode expression)
+        public string GetExpressionString(IAstNode expression, IAstNode previousExpression = null)
         {
             if (expression is BracketedExpression)
             {
@@ -574,7 +719,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             if (expression is IdentifierExpression)
             {
-                return GetIdentifierExpressionString(expression as IdentifierExpression);
+                return GetIdentifierExpressionString(expression as IdentifierExpression, previousExpression);
             }
 
             if (expression is TypeCastExpression)
@@ -611,9 +756,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return compiler.GetBracketedExpressionString();
         }
 
-        public string GetIdentifierExpressionString(IdentifierExpression identifierExpression)
+        public string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null)
         {
-            var compiler = new IdentifierExpressionCompiler(this, identifierExpression);
+            var compiler = new IdentifierExpressionCompiler(this, identifierExpression, previousExpression);
             return compiler.GetIdentifierExpressionString();
         }
 

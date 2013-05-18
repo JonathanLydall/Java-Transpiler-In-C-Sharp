@@ -27,7 +27,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _compiler.CompileBody(_doWhileLoop.Body);
             }
             _compiler.DecreaseIndentation();
-            _compiler.AddLine(string.Format("}} do ({1});", _compiler.GetInnerExpressionString(_doWhileLoop.Condition)));
+            _compiler.AddLine(string.Format("}} do ({0});", _compiler.GetInnerExpressionString(_doWhileLoop.Condition)));
             _compiler.AddBlankLine();
         }
     }

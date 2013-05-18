@@ -20,9 +20,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            var returnExpressions = _returnStatement.ReturnValue
-                .Select(x => _compiler.GetExpressionString(x))
-                .Aggregate((x, y) => x + " " + y);
+            var returnExpressions = _returnStatement.ReturnValue.Count == 0
+                ? string.Empty
+                : _returnStatement.ReturnValue
+                    .Select(x => _compiler.GetExpressionString(x))
+                    .Aggregate((x, y) => x + " " + y);
 
             _compiler.AddLine(string.Format("return {0};", returnExpressions));
         }

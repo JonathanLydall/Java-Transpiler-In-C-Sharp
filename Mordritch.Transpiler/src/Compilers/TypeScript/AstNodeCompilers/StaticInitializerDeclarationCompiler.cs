@@ -18,10 +18,15 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _staticInitializerDeclaration = staticInitializerDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            // Nothing to do here, move along.
+        }
+
         public void Compile()
         {
             // TODO: Static initializers aren't yet (2012-04-29) supported by TypeScript, so the below pattern is a hack, however, the feature has been requested: https://typescript.codeplex.com/workitem/862
-            // This hack below will work, however, it needs to have implemented that this is the last part compiled of the class or it may not work right.
+            // This hack below will work, however, if this is not called as the last part of the class, it may cause a runtime error.
 
             _compiler.AddBlankLine();
             _compiler.AddWarning(

@@ -15,7 +15,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
         public IInputElement VariableName = null;
 
-        public IList<IInputElement> AssignedValue = new List<IInputElement>();
+        public IList<IAstNode> AssignedValue = new List<IAstNode>();
 
         public string DebugOut()
         {
@@ -26,7 +26,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
             var assignedValue
                 = AssignedValue
-                    .Select(x => x.Data)
+                    .Select(x => x.DebugOut())
                     .Aggregate((x, y) => x + " " + y);
 
             return string.Format("{0}{1} = {2}", initializedType, VariableName.Data, assignedValue);

@@ -25,7 +25,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     .Select(x => _compiler.GetExpressionString(x))
                     .Aggregate((x, y) => x + y);
 
-            var castTarget = _compiler.GetTypeString(_typeCastExpression.CastTarget);
+            var castTarget = _compiler.GetTypeString(_typeCastExpression.CastTarget, "GetTypeCastExpressionString");
 
             return string.Format("<{0}>{1}", castTarget, innerExpressions);
         }

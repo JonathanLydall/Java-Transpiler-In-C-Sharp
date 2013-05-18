@@ -21,12 +21,60 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _methodDeclaration = methodDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            var className = GetClassName();
+            var methodName = _methodDeclaration.Name.Data;
+            var skipCompile = className != null & Excluder.ShouldExclude(className, methodName) != null;
+            var potentiallyCommented = skipCompile ? "// " : string.Empty;
+
+            if (skipCompile)
+            {
+                Excluder.IsExcluding = true;
+            }
+
+            var methodArguments = GetArguments();
+            var returnType = GetReturnType();
+            var arrayDepth = GetArrayDepth();
+
+
+            if (isConstructorMethod())
+            {
+                _compiler.AddLine(string.Format("{0}constructor({1});", potentiallyCommented, methodArguments));
+            }
+            else
+            {
+                _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4};", potentiallyCommented, methodName, methodArguments, returnType, arrayDepth));
+            }
+
+            if (skipCompile)
+            {
+                Excluder.IsExcluding = false;
+            }
+        }
+
         public void Compile()
         {
+            var methodName = _methodDeclaration.Name.Data;
+            var className = GetClassName();
+            var skipCompile = className != null & Excluder.ShouldExclude(className, methodName) != null;
+
+            _compiler.AddBlankLine();
+            if (skipCompile)
+            {
+                _compiler.AddWarning(
+                    _methodDeclaration.Name.Line,
+                    _methodDeclaration.Name.Column,
+                    string.Format("Excluded methodDeclaration {0}: {1}", methodName, Excluder.ShouldExclude(className, methodName)));
+
+                Excluder.IsExcluding = true;
+
+                _compiler.AddLine("/*");
+            }            
+            
             var modifiers = GetModifiers();
             var methodArguments = GetArguments();
             var returnType = GetReturnType();
-            var methodName = _methodDeclaration.Name.Data;
             var arrayDepth = GetArrayDepth();
 
             if (_methodDeclaration.ThrowsType != null)
@@ -51,8 +99,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 return;
             }
 
-            _compiler.AddBlankLine();
-
             if (isConstructorMethod())
             {
                 _compiler.AddLine(string.Format("constructor({0}) {{", methodArguments));
@@ -68,6 +114,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             }
             _compiler.DecreaseIndentation();
             _compiler.AddLine("}");
+            if (skipCompile)
+            {
+                _compiler.AddLine("*/");
+                Excluder.IsExcluding = false;
+            }
             _compiler.AddBlankLine();
         }
 
@@ -79,6 +130,15 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 parentContext != null &&
                 parentContext is ClassType &&
                 (parentContext as ClassType).Name == _methodDeclaration.Name.Data;
+        }
+
+        private string GetClassName()
+        {
+            var parentContext = _compiler.GetPreviousContextFromStack(1);
+
+            return parentContext != null && parentContext is ClassType
+                ? (parentContext as ClassType).Name
+                : null;
         }
 
         private string GetArrayDepth()
@@ -128,7 +188,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             return 
                 _methodDeclaration.ReturnType == null
                     ? string.Empty
-                    : _compiler.GetTypeString(_methodDeclaration.ReturnType);
+                    : _compiler.GetTypeString(_methodDeclaration.ReturnType, "MethodDeclarationCompiler -> GetReturnType");
         }
     }
 }

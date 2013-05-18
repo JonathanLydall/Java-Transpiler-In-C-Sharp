@@ -7,6 +7,8 @@ namespace Mordritch.Transpiler
 {
     public static class Utils
     {
+        public static bool LoggingEnabled = true;
+        
         public static int Indent = 0;
         
         public static void Pause()
@@ -22,6 +24,11 @@ namespace Mordritch.Transpiler
 
         public static void Log(string data, ConsoleColor textColor)
         {
+            if (!LoggingEnabled)
+            {
+                return;
+            }
+
             var originalColor = Console.ForegroundColor;
             Console.ForegroundColor = textColor;
             Log(data);

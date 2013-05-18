@@ -85,31 +85,27 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             {
                 var initializer = new ForLoopInitializer();
 
-                if (ForwardToken(1) is OperatorToken && CurrentInputElement is IdentifierToken)
-                {
-                    initializer.VariableName = CurrentInputElement;
-                    MoveToNextToken();
-                }
-                else if (ForwardToken(2) is OperatorToken && ForwardToken(1) is IdentifierToken)
+                if (ForwardToken(1).Data != "." && !(ForwardToken(1) is OperatorToken))
                 {
                     initializer.InitializedType = CurrentInputElement;
                     MoveToNextToken();
-                    initializer.VariableName = CurrentInputElement;
-                    MoveToNextToken();
-                }
-                else
-                {
-                    throw new Exception("Expected pattern 'type variableName <operator>...' or 'variableName <operator>...'");
                 }
 
+                while (!(CurrentInputElement is OperatorToken))
+                {
+                    initializer.VariableName = CurrentInputElement; // TODO: Needs serious fix
+                    MoveToNextToken();
+                }
+                
                 Debug.Assert(CurrentInputElement is OperatorToken);
                 initializer.OperatorToken = CurrentInputElement as OperatorToken;
                 MoveToNextToken();
 
                 while (CurrentInputElement.Data != "," && CurrentInputElement.Data != ";")
                 {
-                    initializer.AssignedValue.Add(CurrentInputElement);
-                    MoveToNextToken();
+                    //initializer.AssignedValue.Add(CurrentInputElement);
+                    //MoveToNextToken();
+                    initializer.AssignedValue.Add(ParseExpression());
                 }
 
                 if (CurrentInputElement.Data == ",")

@@ -18,6 +18,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _importDeclaration = importDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            Compile();
+        }
+
         public void Compile()
         {
             // TODO: TypeScript doesn't have exact imports, but we may want to do something like it perhaps.

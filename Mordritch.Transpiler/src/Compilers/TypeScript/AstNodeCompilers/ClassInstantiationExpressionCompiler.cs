@@ -21,7 +21,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public string GetClassInstantiationExpressionString()
         {
-            var className = _compiler.GetTypeString(_classInstantiationExpression.ClassName);
+            var className = _compiler.GetTypeString(_classInstantiationExpression.ClassName, "GetClassInstantiationExpressionString");
 
             var initializationData = _classInstantiationExpression.InitializationData.Count == 0
                 ? string.Empty
@@ -58,9 +58,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var returnString = new StringBuilder();
 
+            IAstNode previousExpresion = null;
+
             foreach (var expression in parameter)
             {
-                returnString.Append(_compiler.GetExpressionString(expression));
+                returnString.Append(_compiler.GetExpressionString(expression, previousExpresion));
+                previousExpresion = expression;
             }
 
             return returnString.ToString();

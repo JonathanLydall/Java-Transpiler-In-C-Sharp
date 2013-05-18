@@ -360,7 +360,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
             }
 
             if (
-                (CurrentInputElement is IdentifierToken || CurrentInputElement.Data == Keywords.Super) &&
+                (CurrentInputElement is IdentifierToken || CurrentInputElement.Data == Keywords.Super || CurrentInputElement.Data == Keywords.This) &&
                 ForwardInputElement(1).Data == "(")
             {
                 return ParseExpressionMethodCall();

@@ -25,7 +25,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _throwStatement.ExceptionInstance.First().Column,
                 "Throw statement's not fully support by TypeScript transpiler, original is: " + _throwStatement.DebugOut());
 
-            _compiler.AddLine("throw new Error(\"See above comment for more details on this exception.\")");
+            _compiler.AddLine("throw new Error(\"See above comment for more details on this exception.\");");
         }
     }
 }

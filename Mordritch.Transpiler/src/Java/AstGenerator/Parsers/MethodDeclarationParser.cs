@@ -134,6 +134,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                         continue;
                     }
 
+                    if (argument[i].Data == "[")
+                    {
+                        i++;
+                        Debug.Assert(argument[i].Data == "]");
+                        methodArgument.ArrayDepth++;
+                        continue;
+                    }
+
                     if (argument.Count >= i + 2 && argument[i].Data == "." && argument[i + 1].Data == "." && argument[i + 2].Data == ".")
                     {
                         methodArgument.IsVariableArity = true;
@@ -153,7 +161,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                         continue;
                     }
 
-                    throw new Exception("Enexpected token.");
+                    throw new Exception("Unexpected token.");
                 }
                 _methodDeclaration.Arguments.Add(methodArgument);
             }

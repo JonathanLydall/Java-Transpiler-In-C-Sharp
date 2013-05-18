@@ -18,6 +18,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _packageDeclaration = packageDeclaration;
         }
 
+        public void GenerateDefinition()
+        {
+            Compile();
+        }
+
         public void Compile()
         {
             var content = _packageDeclaration.Content == null || _packageDeclaration.Content.Count == 0

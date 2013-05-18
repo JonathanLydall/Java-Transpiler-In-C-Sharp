@@ -90,7 +90,7 @@ namespace Mordritch.Transpiler.Compilers
 
         string GetBracketedExpressionString(BracketedExpression bracketedExpression);
 
-        string GetIdentifierExpressionString(IdentifierExpression identifierExpression);
+        string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null);
 
         string GetMethodCallExpressionString(MethodCallExpression methodCallExpression);
 
@@ -98,7 +98,7 @@ namespace Mordritch.Transpiler.Compilers
 
         string GetInnerExpressionString(IList<IAstNode> condition);
 
-        string GetExpressionString(IAstNode expressionString);
+        string GetExpressionString(IAstNode expression, IAstNode previousExpression = null);
 
         string GetArrayInitializationExpressionString(ArrayInitializationExpression arrayInitialization);
 
@@ -106,8 +106,30 @@ namespace Mordritch.Transpiler.Compilers
 
         string GetSimpleStatementString(SimpleStatement simpleStatement);
 
-        string GetTypeString(IInputElement inputElement);
+        string GetTypeString(IInputElement inputElement, string contextDescription);
 
         string GetValueString(IList<IInputElement> inputElements);
+
+        void CompileStaticInitializerDeclarationDefinition(StaticInitializerDeclaration staticInitializerDeclaration);
+
+        void CompileClassInitializerDeclarationDefinition(ClassInitializerDeclaration classInitializerDeclaration);
+
+        void CompileMethodDeclarationDefinition(MethodDeclaration methodDeclaration);
+
+        void CompilePackageDeclarationDefinition(PackageDeclaration packageDeclaration);
+
+        void CompileSynchronizedStatementDefinition(SynchronizedStatement synchronizedStatement);
+
+        void CompileClassTypeDefinition(ClassType classType);
+
+        void CompileVariableDeclarationDefinition(VariableDeclaration variableDeclaration);
+
+        void CompileImportDeclarationDefinition(ImportDeclaration importDeclaration);
+
+        void CompileDefinition(IList<IAstNode> bodyStatements);
+
+        int GetContextStackSize();
+
+        IList<IAstNode> GetFullContextStack();
     }
 }

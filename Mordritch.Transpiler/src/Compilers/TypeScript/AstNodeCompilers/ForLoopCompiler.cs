@@ -53,12 +53,18 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             foreach (var initializer in _forLoop.Initializers)
             {
+                var initializedValue = initializer.AssignedValue
+                    .Select(x => _compiler.GetExpressionString(x))
+                    .Aggregate((x, y) => x + y);
+                
                 initializers.Add(
                     string.Format("{0}{1} = {2}",
                         initializer.VariableName.Data,
-                        initializer.InitializedType == null ? string.Empty : string.Format(": {0}", _compiler.GetTypeString(initializer.InitializedType)),
-                        _compiler.GetValueString(initializer.AssignedValue)));
+                        initializer.InitializedType == null ? string.Empty : string.Format(": {0}", _compiler.GetTypeString(initializer.InitializedType, "ForLoop -> GetInitializersString")),
+                        initializedValue));
             }
+
+
 
             var varString = _forLoop.Initializers.Any(x => x.InitializedType != null)
                 ? "var "

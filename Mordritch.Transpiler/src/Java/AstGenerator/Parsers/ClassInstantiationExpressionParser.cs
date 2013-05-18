@@ -54,7 +54,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 Debug.Assert(CurrentInputElement.Data == ")");
                 MoveToNextToken();
             }
-            else if (CurrentInputElement.Data != ";")
+            else if (CurrentInputElement.Data != ";" && CurrentInputElement.Data != ")")
             {
                 throw new Exception("Unexpected pattern.");
             }

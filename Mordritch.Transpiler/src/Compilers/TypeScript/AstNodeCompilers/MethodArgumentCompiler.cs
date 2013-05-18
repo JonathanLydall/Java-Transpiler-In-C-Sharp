@@ -49,7 +49,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     description);
             }
 
-            return string.Format("{0}: {1}", argumentName, _compiler.GetTypeString(_methodArgument.Type));
+            var arraySize = string.Empty;
+            for (var i = 0; i < _methodArgument.ArrayDepth; i++)
+            {
+                arraySize += "[]";
+            }
+
+            return string.Format("{0}: {1}{2}", argumentName, _compiler.GetTypeString(_methodArgument.Type, "GetMethodArgumentString"), arraySize);
         }
     }
 }
