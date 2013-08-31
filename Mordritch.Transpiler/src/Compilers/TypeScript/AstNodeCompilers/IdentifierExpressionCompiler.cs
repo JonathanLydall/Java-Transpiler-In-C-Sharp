@@ -50,49 +50,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             }
 
 
-            var scope = GetScopeClarifier();
+            var scope = _compiler.GetScopeClarifier(_identifierExpression.Token.Data, _previousExpression);
             return scope + _identifierExpression.Token.Data;
-        }
-
-        private string GetScopeClarifier()
-        {
-            var stack = _compiler.GetFullContextStack();
-            var classTypeItem = stack.LastOrDefault(x => x is ClassType);
-            
-            if (classTypeItem == null)
-            {
-                return string.Empty;
-            }
-
-            if (_previousExpression is IdentifierExpression &&
-                (_previousExpression as IdentifierExpression).Token is SeperatorToken &&
-                ((_previousExpression as IdentifierExpression).Token as SeperatorToken).Data == ".")
-            {
-                return string.Empty;
-            }
-
-            var classType = classTypeItem as ClassType;
-            var identifierName = _identifierExpression.Token.Data;
-
-            var staticVariables = classType.Body
-                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
-                .Select(x => ((VariableDeclaration)x).VariableName.Data).ToArray();
-
-            var variables = classType.Body
-                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.All(y => y.Data != Keywords.Static))
-                .Select(x => ((VariableDeclaration)x).VariableName.Data).ToArray();
-
-            if (staticVariables.Any(x => x == identifierName))
-            {
-                return string.Format("{0}.", classType.Name);
-            }
-
-            if (staticVariables.Any(x => x == identifierName))
-            {
-                return "this.";
-            }
-
-            return string.Empty;
         }
     }
 }

@@ -25,31 +25,23 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         public void Compile()
         {
             string variableName = string.Empty;
-            IInputElement previousElement = null;
+            string previousElement = null;
             foreach (var inputElement in _variableAssignment.VariableName)
             {
-                if (previousElement == null || previousElement.Data != ".")
-                {
-                    variableName += string.Format("{0}{1}", ClarifyScope(inputElement.Data), inputElement.Data);
-                }
-                else {
-                    variableName += inputElement.Data;
-                }
-                previousElement = inputElement;
+                variableName += string.Format("{0}{1}", _compiler.GetScopeClarifier(inputElement.Data, previousElement), inputElement.Data);
+                previousElement = inputElement.Data;
             }
 
             var assignmentOperator = string.Format(" {0} ", _variableAssignment.AssignmentOperator == null ? string.Empty : _variableAssignment.AssignmentOperator.Data);
 
             var assignedValue = _variableAssignment.AssignmentOperator == null
                 ? string.Empty
-                : _variableAssignment.AssignedValue
-                    .Select(x => _compiler.GetExpressionString(x))
-                    .Aggregate((x, y) => x + y);
+                : _compiler.GetInnerExpressionString(_variableAssignment.AssignedValue);
 
             _compiler.AddLine(string.Format("{0}{1}{2};", variableName, assignmentOperator, assignedValue));
         }
 
-        private string ClarifyScope(string identifierName)
+        private string ClarifyScope_old(string identifierName)
         {
             if (identifierName.Contains("["))
             {

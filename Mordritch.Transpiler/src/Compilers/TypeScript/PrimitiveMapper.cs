@@ -12,13 +12,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private static string String = "string";
 
-        private static string Bool = "bool";
+        private static string Boolean = "boolean";
 
         private static string Void = "void";
 
         private static IDictionary<string, string> _map = new Dictionary<string, string>
         {
-            { Primitives.Boolean, Bool },
+            { Primitives.Boolean, Boolean },
             { Primitives.Byte, Number },
             { Primitives.Char, Number },
             { Primitives.Double, Number },
@@ -26,7 +26,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             { Primitives.Int, Number },
             { Primitives.Long, Number },
             { Primitives.Short, Number },
-            { "String", String },
+            { Primitives.String, String },
             { Void, Void }
         };
 
@@ -40,7 +40,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             { Primitives.Int, "number" },
             { Primitives.Long, "number" },
             { Primitives.Short, "number" },
-            { "String", "string" }
+            { Primitives.String, "string" }
         };
         
         public static bool IsPrimitive(string type)

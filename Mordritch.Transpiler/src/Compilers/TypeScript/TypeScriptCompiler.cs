@@ -43,26 +43,32 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private bool _previousLineEndedWithOpeningCurlyBrace = false;
 
-        public static string Compile(IList<IAstNode> data)
+        private static IDictionary<string, IList<IAstNode>> _sourceFiles;
+
+        public static string Compile(IDictionary<string, IList<IAstNode>> sourceFiles, string file)
         {
+            _sourceFiles = sourceFiles;
+            
             var instance = new TypeScriptCompiler();
             instance.AddLine("module Mordritch {");
             instance.IncreaseIndentation();
             {
-                instance.CompileBody(data);
+                instance.CompileBody(_sourceFiles[file]);
             }
             instance.DecreaseIndentation();
             instance.AddLine("}");
             return instance.GetOutput();
         }
 
-        public static string GenerateDefinition(IList<IAstNode> data)
+        public static string GenerateDefinition(IDictionary<string, IList<IAstNode>> sourceFiles, string file)
         {
+            _sourceFiles = sourceFiles;
+
             var instance = new TypeScriptCompiler();
             instance.AddLine("module Mordritch {");
             instance.IncreaseIndentation();
             {
-                instance.CompileDefinition(data);
+                instance.CompileDefinition(_sourceFiles[file]);
             }
             instance.DecreaseIndentation();
             instance.AddLine("}");
@@ -357,21 +363,23 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.GenerateDefinition();
         }
 
-        public string GetInnerExpressionString(IList<IAstNode> condition)
+        public string GetInnerExpressionString(IList<IAstNode> expressionList)
         {
             // TODO: The output formatting here is likely not very neat, nevertheless it should work.
-            return condition
-                .Select(x => GetExpressionString(x))
+            
+            IAstNode previousExpression = null;
+            var returnList = new List<string>();
+            foreach (var astNode in expressionList) {
+                returnList.Add(GetExpressionString(astNode, previousExpression));
+                previousExpression = astNode;
+            }
+            
+            return returnList
                 .Aggregate((x, y) => x + " " + y);
         }
 
         public string GetValueString(IList<IInputElement> inputElements)
         {
-            //if (inputElements.First().Data == Keywords.New)
-            //{
-            //    return GetClassInstantiationExpressionString(inputElements);
-            //}
-            
             var returnString = new StringBuilder();
 
             foreach (var inputElement in inputElements)
@@ -729,7 +737,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             if (expression is MethodCallExpression)
             {
-                return GetMethodCallExpressionString(expression as MethodCallExpression);
+                return GetMethodCallExpressionString(expression as MethodCallExpression, previousExpression);
             }
 
             if (expression is ClassInstantiationExpression)
@@ -752,8 +760,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         public string GetBracketedExpressionString(BracketedExpression bracketedExpression)
         {
-            var compiler = new BracketedExpressionCompiler(this, bracketedExpression);
-            return compiler.GetBracketedExpressionString();
+            return string.Format("({0})", GetInnerExpressionString(bracketedExpression.InnerExpressions));
         }
 
         public string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null)
@@ -768,9 +775,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return compiler.GetTypeCastExpressionString();
         }
 
-        public string GetMethodCallExpressionString(MethodCallExpression methodCallExpression)
+        public string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IAstNode previousExpression)
         {
-            var compiler = new MethodCallExpressionCompiler(this, methodCallExpression);
+            var compiler = new MethodCallExpressionCompiler(this, methodCallExpression, previousExpression);
             return compiler.GetMethodCallExpressionString();
         }
 
@@ -800,6 +807,140 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                     .Aggregate((x, y) => x + " " + y);
 
             return returnString;
+        }
+
+        //private struct CachedScopeClarifierIdentifier
+        //{
+        //    public ClassType ClassTypeInstance { get; set; }
+
+        //    public string IdentifierName { get; set; }
+
+        //    public string ScopeClarifier { get; set; }
+        //}
+
+        //private static IList<CachedScopeClarifierIdentifier> cachedScopeClarifierIdentifiers = new List<CachedScopeClarifierIdentifier>();
+
+        private static IDictionary<string, string> cachedScopeClarifierIdentifiers = new Dictionary<string, string>();
+
+        public string GetScopeClarifier(string identifierName, IAstNode previousExpression)
+        {
+            if (previousExpression is IdentifierExpression &&
+                (previousExpression as IdentifierExpression).Token is SeperatorToken &&
+                ((previousExpression as IdentifierExpression).Token as SeperatorToken).Data == ".")
+            {
+                return string.Empty;
+            }
+
+            return GetScopeClarifier(identifierName);
+        }
+
+        public string GetScopeClarifier(string identifierName, string previousExpression)
+        {
+            if (previousExpression == ".")
+            {
+                return string.Empty;
+            }
+
+            return GetScopeClarifier(identifierName);
+        }
+
+        private string GetScopeClarifier(string identifierName)
+        {
+            if (identifierName == "tnt")
+            {
+                var j = 0;
+            }
+            
+            var stack = GetFullContextStack();
+            var classTypeItem = stack.LastOrDefault(x => x is ClassType);
+
+            if (classTypeItem == null)
+            {
+                return string.Empty;
+            }
+
+            var classType = classTypeItem as ClassType;
+            var keyName = classType.Name + "." + identifierName;
+
+            if (cachedScopeClarifierIdentifiers.ContainsKey(keyName))
+            {
+                return cachedScopeClarifierIdentifiers[keyName];
+            }
+
+            var staticMembers = classType.Body
+                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
+                .Select(x => ((VariableDeclaration)x).VariableName.Data)
+                .ToList();
+
+            var members = classType.Body
+                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.All(y => y.Data != Keywords.Static))
+                .Select(x => ((VariableDeclaration)x).VariableName.Data)
+                .ToList();
+
+            staticMembers = staticMembers.Union(classType.Body
+                    .Where(x => x is MethodDeclaration && ((MethodDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
+                    .Select(x => ((MethodDeclaration)x).Name.Data)
+                    .ToList())
+                .ToList();
+
+            members = members.Union(classType.Body
+                    .Where(x => x is MethodDeclaration && ((MethodDeclaration)x).Modifiers.Any(y => y.Data != Keywords.Static))
+                    .Select(x => ((MethodDeclaration)x).Name.Data)
+                    .ToList())
+                .ToList();
+
+            if (staticMembers.Any(x => x == identifierName))
+            {
+                cachedScopeClarifierIdentifiers.Add(keyName, string.Format("{0}.", classType.Name));
+                return string.Format("{0}.", classType.Name);
+            }
+
+            var parentClassName = classType.Extends;
+            while (parentClassName != null && _sourceFiles.ContainsKey(parentClassName))
+            {
+                var parentClass = _sourceFiles[parentClassName].First(x => x is ClassType) as ClassType;
+
+                staticMembers = staticMembers.Union(parentClass.Body
+                        .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
+                        .Select(x => ((VariableDeclaration)x).VariableName.Data)
+                        .ToList())
+                    .ToList();
+
+                staticMembers = staticMembers.Union(parentClass.Body
+                        .Where(x => x is MethodDeclaration && ((MethodDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
+                        .Select(x => ((MethodDeclaration)x).Name.Data)
+                        .ToList())
+                    .ToList();
+
+                members = members.Union(parentClass.Body
+                        .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.All(y => y.Data != Keywords.Static))
+                        .Select(x => ((VariableDeclaration)x).VariableName.Data)
+                        .ToList())
+                    .ToList();
+
+                members = members.Union(parentClass.Body
+                        .Where(x => x is MethodDeclaration && ((MethodDeclaration)x).Modifiers.Any(y => y.Data != Keywords.Static))
+                        .Select(x => ((MethodDeclaration)x).Name.Data)
+                        .ToList())
+                    .ToList();
+
+                if (staticMembers.Any(x => x == identifierName))
+                {
+                    cachedScopeClarifierIdentifiers.Add(keyName, string.Format("{0}.", parentClass.Name));
+                    return string.Format("{0}.", parentClass.Name);
+                }
+
+                parentClassName = parentClass.Extends;
+            }
+
+            if (staticMembers.Any(x => x == identifierName))
+            {
+                cachedScopeClarifierIdentifiers.Add(keyName, "this.");
+                return "this.";
+            }
+
+            cachedScopeClarifierIdentifiers.Add(keyName, string.Empty);
+            return string.Empty;
         }
     }
 }

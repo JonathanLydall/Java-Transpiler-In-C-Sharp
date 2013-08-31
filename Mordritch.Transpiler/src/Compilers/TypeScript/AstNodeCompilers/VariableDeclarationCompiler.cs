@@ -21,6 +21,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void GenerateDefinition()
         {
+            var className = GetClassName();
+            var methodName = _variableDeclaration.VariableName.Data;
+            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
+
             var variableName = _variableDeclaration.VariableName.Data;
             var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
             var array = string.Empty;
@@ -30,18 +34,27 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 array += "[]";
             }
 
-            var lineToAdd = string.Format("{0}: {1}{2};", variableName, variableType, array);
+            var commmentedOut = skipCompile ? "// " : string.Empty;
+            var lineToAdd = string.Format("{0}{1}: {2}{3};", commmentedOut, variableName, variableType, array);
+            _compiler.AddLine(lineToAdd);
+        }
+
+        private string GetClassName()
+        {
+            var parentContext = _compiler.GetPreviousContextFromStack(0);
+
+            return parentContext != null && parentContext is ClassType
+                ? (parentContext as ClassType).Name
+                : null;
         }
 
         public void Compile()
         {
             var isClassTypeContext = _compiler.GetCurrentContextFromStack() is ClassType;
-            
+
             var assignedValue = !_variableDeclaration.HasInitialization
                 ? string.Empty
-                : " = " + _variableDeclaration.AssignedValue
-                    .Select(x => _compiler.GetExpressionString(x))
-                    .Aggregate((x, y) => x + y);
+                : " = " + _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
 
             var modifiers = _variableDeclaration.Modifiers.Count == 0 || _variableDeclaration.Modifiers.All(x => TypeScriptUtils.Modifiers.All(tsm => x.Data != tsm))
                 ? string.Empty

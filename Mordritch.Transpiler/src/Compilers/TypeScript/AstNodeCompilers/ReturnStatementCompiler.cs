@@ -1,4 +1,5 @@
-﻿using Mordritch.Transpiler.Java.AstGenerator.Statements;
+﻿using Mordritch.Transpiler.Java.AstGenerator;
+using Mordritch.Transpiler.Java.AstGenerator.Statements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +21,21 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            var returnExpressions = _returnStatement.ReturnValue.Count == 0
-                ? string.Empty
-                : _returnStatement.ReturnValue
-                    .Select(x => _compiler.GetExpressionString(x))
-                    .Aggregate((x, y) => x + " " + y);
+            if (_returnStatement.ReturnValue.Count == 0)
+            {
+                _compiler.AddLine("return;");
+                return;
+            }
+
+            var returnExpressionList = new List<string>();
+            IAstNode previousExpression = null;
+            foreach (var returnValue in _returnStatement.ReturnValue)
+            {
+                returnExpressionList.Add(_compiler.GetExpressionString(returnValue, previousExpression));
+                previousExpression = returnValue;
+            }
+
+            var returnExpressions = returnExpressionList.Aggregate((x, y) => x + " " + y);
 
             _compiler.AddLine(string.Format("return {0};", returnExpressions));
         }

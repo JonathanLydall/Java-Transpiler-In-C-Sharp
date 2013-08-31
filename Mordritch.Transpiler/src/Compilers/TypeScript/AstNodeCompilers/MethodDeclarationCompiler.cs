@@ -25,7 +25,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var className = GetClassName();
             var methodName = _methodDeclaration.Name.Data;
-            var skipCompile = className != null & Excluder.ShouldExclude(className, methodName) != null;
+            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
             var potentiallyCommented = skipCompile ? "// " : string.Empty;
 
             if (skipCompile)
@@ -57,7 +57,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var methodName = _methodDeclaration.Name.Data;
             var className = GetClassName();
-            var skipCompile = className != null & Excluder.ShouldExclude(className, methodName) != null;
+            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
+            var skipBody = className != null && Excluder.ShouldExcludeBody(className, methodName) != null;
+
+            var isAbstractMethod = false;
 
             _compiler.AddBlankLine();
             if (skipCompile)
@@ -91,12 +94,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             if (_methodDeclaration.Body == null)
             {
                 Debug.Assert(_methodDeclaration.Modifiers.Any(x => x.Data == Keywords.Abstract), "Unexpected null body, without abstract keyword.");
-                _compiler.AddWarning(
-                    _methodDeclaration.Name.Line,
-                    _methodDeclaration.Name.Column,
-                    string.Format("Abstract method unsupported by TypeScript: {0}{1}({2}): {3};", modifiers, methodName, methodArguments, returnType)
-                );
-                return;
+                isAbstractMethod = true;
             }
 
             if (isConstructorMethod())
@@ -110,7 +108,18 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             _compiler.IncreaseIndentation();
             {
-                _compiler.CompileBody(_methodDeclaration.Body);
+                if (skipBody)
+                {
+                    _compiler.AddWarning(_methodDeclaration.Name.Line, _methodDeclaration.Name.Column, "Skipped compiling body of method declaration as per entry in ExcludeBodyOnly.csv.");
+                }
+                else if (isAbstractMethod)
+                {
+                    _compiler.AddLine(@"throw new Error(""This was an abstract method in the Java source code and should not be called unless overridden in a derived class first."");");
+                }
+                else
+                {
+                    _compiler.CompileBody(_methodDeclaration.Body);
+                }
             }
             _compiler.DecreaseIndentation();
             _compiler.AddLine("}");
@@ -156,7 +165,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         private string GetModifiers()
         {
             var allowedModifiers = new[] { 
-                Keywords.Abstract,
                 Keywords.Private,
                 Keywords.Public,
                 Keywords.Static };

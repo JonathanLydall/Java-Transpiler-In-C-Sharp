@@ -64,7 +64,6 @@
     <Compile Include="src\Compilers\Excluder.cs" />
     <Compile Include="src\Compilers\ICompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\AssertStatementCompiler.cs" />
-    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\BracketedExpressionCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\CaseStatementCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\CatchStatementCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassInitializerDeclarationCompiler.cs" />
@@ -254,6 +253,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Resources\Exclusions.csv" />
+    <None Include="Resources\ExcludeBodyOnly.csv" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">

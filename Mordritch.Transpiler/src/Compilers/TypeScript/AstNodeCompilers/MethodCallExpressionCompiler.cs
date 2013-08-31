@@ -2,6 +2,7 @@
 using Mordritch.Transpiler.Java.AstGenerator.Expressions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -13,10 +14,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private MethodCallExpression _methodCallExpression;
 
-        public MethodCallExpressionCompiler(ICompiler compiler, MethodCallExpression methodCallExpression)
+        private IAstNode _previousExpression;
+
+        public MethodCallExpressionCompiler(ICompiler compiler, MethodCallExpression methodCallExpression, IAstNode previousExpression)
         {
             _compiler = compiler;
             _methodCallExpression = methodCallExpression;
+            _previousExpression = previousExpression;
         }
 
         public string GetMethodCallExpressionString()
@@ -29,16 +33,20 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             var methodIdentifier = _methodCallExpression.MethodIdentifier.Data;
 
-            return string.Format("{0}({1})", methodIdentifier, parameters);
+            var scopeClarifier = _compiler.GetScopeClarifier(methodIdentifier, _previousExpression);
+
+            return string.Format("{0}{1}({2})", scopeClarifier, methodIdentifier, parameters);
         }
 
         private string GetParameterString(IList<IAstNode> parameter)
         {
             var returnString = new StringBuilder();
-            
+
+            IAstNode previousExpression = null;
             foreach (var expression in parameter)
             {
-                returnString.Append(_compiler.GetExpressionString(expression));
+                returnString.Append(_compiler.GetExpressionString(expression, previousExpression));
+                previousExpression = expression;
             }
 
             return returnString.ToString();

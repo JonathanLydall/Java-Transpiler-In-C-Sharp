@@ -40,7 +40,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            var accessModifiers = _classType.AccessModifierPublic ? "export" : string.Empty;
+            //var accessModifiers = _classType.AccessModifierPublic || (!_classType.AccessModifierPrivate && _classType.ModifierFinal) ? "export" : string.Empty;
+            var accessModifiers = "export"; //Always export for TypeScript
 
             var modifiers = _classType.ModifierStatic
                 ? "static "
@@ -99,7 +100,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 .Select(x => x as MethodDeclaration)
                 .ToList();
 
-
+            _compiler.AddToContextStack(constructors.First());
             _compiler.AddLine(string.Format("constructor({0}) {{", GetConstructorParameters(constructors)));
             _compiler.IncreaseIndentation();
             {
@@ -127,7 +128,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     _compiler.IncreaseIndentation();
                     {
                         _compiler.AddLine(string.Format("// Original: constructor({0})", GetOriginalConstructorArguments(constructor)));
-                        
+                        GenerateConstructorToVariables(constructor);
+
                         _compiler.CompileBody(constructor.Body);
 
                         _compiler.AddBlankLine();
@@ -141,6 +143,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _compiler.AddLine(@"throw new Error(""Unrecognized constructor called."")");
             }
             _compiler.DecreaseIndentation();
+            _compiler.RemoveFromContextStack();
             _compiler.AddLine("}");
             _compiler.AddBlankLine();
         }
@@ -152,6 +155,22 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 : constructor.Arguments
                     .Select(x => _compiler.GetMethodArgumentString(x))
                     .Aggregate((x, y) => x + ", " + y);
+        }
+
+        private void GenerateConstructorToVariables(MethodDeclaration constructor)
+        {
+            if (constructor.Arguments == null || constructor.Arguments.Count == 0)
+            {
+                return;
+            }
+
+            var arguments = constructor.Arguments.Select(x => _compiler.GetMethodArgumentString(x)).ToList();
+            var parNumber = 1;
+            foreach (var argument in arguments)
+            {
+                _compiler.AddLine(string.Format("var {0} = par{1};", argument, parNumber++));
+            }
+            _compiler.AddBlankLine();
         }
 
         private string GetParametersAreOfRightType(IList<MethodDeclaration> constructors, MethodDeclaration constructor)
@@ -206,7 +225,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         private void CompileJavaClassExtensions()
         {
             _compiler.AddLine("// Used to provide certain Class features provided by Java and used by the Minecraft source code:");
-            _compiler.AddLine(string.Format("public static class: any = {0}; public static newInstance(): any {{ return new {0}.class(); }}", _classType.Name));
+            _compiler.AddLine(string.Format("public static class: any = {0}; public static newInstance(): {0} {{ return new {0}.class(); }} public getClass(): {0} {{ return {0}.class; }}", _classType.Name));
             _compiler.AddBlankLine();
         }
     }

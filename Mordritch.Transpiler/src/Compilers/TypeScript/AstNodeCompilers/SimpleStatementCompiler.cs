@@ -20,9 +20,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            var expressions = _simpleStatement.Expressions
-                .Select(x => _compiler.GetExpressionString(x))
-                .Aggregate((x, y) => x + " " + y);
+            var expressions = _compiler.GetInnerExpressionString(_simpleStatement.Expressions);
 
             _compiler.AddLine(string.Format("{0};", expressions));
         }

@@ -92,7 +92,7 @@ namespace Mordritch.Transpiler.Compilers
 
         string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null);
 
-        string GetMethodCallExpressionString(MethodCallExpression methodCallExpression);
+        string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IAstNode previousExpression = null);
 
         string GetTypeCastExpressionString(TypeCastExpression typeCastExpression);
 
@@ -131,5 +131,9 @@ namespace Mordritch.Transpiler.Compilers
         int GetContextStackSize();
 
         IList<IAstNode> GetFullContextStack();
+
+        string GetScopeClarifier(string identifierName, IAstNode previousExpression);
+
+        string GetScopeClarifier(string identifierName, string previousExpression);
     }
 }

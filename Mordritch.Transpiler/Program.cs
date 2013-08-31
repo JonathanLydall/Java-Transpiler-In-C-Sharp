@@ -17,6 +17,8 @@ namespace Mordritch.Transpiler
 {
     class Program
     {
+        private static IDictionary<string, IList<IAstNode>> _sourceFiles = new Dictionary<string, IList<IAstNode>>();
+        
         const string basePath = @"D:\Users\Jonathan Lydall\Downloads\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
         //static string basePath = @"C:\Users\jonathan.lydall.ZA\Desktop\New folder (2)\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
 
@@ -24,80 +26,147 @@ namespace Mordritch.Transpiler
 
         const string destinationSubFolder = "minecraft";
 
-        //static string fileName = basePath + @"BlockDoor.java";
-        //static string fileName = basePath + @"Block.java";
-        //static string fileName = basePath + @"Direction.java";
-        //static string fileName = basePath + @"World.java";
-        //static string fileName = basePath + @"BlockLeaves.java";
-        //static string fileName = basePath + @"EntityLiving.java";
-        
+        static string[] _definitionList = new[] {
+                "World",
+                "Chunk",
+                "ChunkCoordinates",
+                "NBTTagShort",
+                "NBTTagLong",
+                "NBTTagList",
+                "NBTTagIntArray",
+                "NBTTagInt",
+                "NBTTagFloat",
+                "NBTTagEnd",
+                "NBTTagDouble",
+                //"NBTTagCompound",
+                "NBTTagByteArray",
+                "NBTTagByte",
+                "NBTTagString",
+                "NBTBase",
+            };
+
+        static string[] _transpileSearchPatterns = new[] {
+                //"Inventory*.java",
+                "Block*.java",
+                "Material*.java",
+                "TileEntity*.java",
+                "CreativeTab*.java"
+            };
+
+        static string[] _transpileIndividualFiles = new[]
+            {
+                "AxisAlignedBB",
+                "AABBLocalPool",
+                "AABBPool",
+                "ChunkPosition",
+                "Container",
+                "Direction",
+                "Entity",
+                "EntityBoat",
+                "EntityFallingSand",
+                "EntityFireworkRocket",
+                "EntityItem",
+                "EntityMinecart",
+                "EntityMinecartContainer",
+                "EntityMinecartChest",
+                "EntityMinecartHopper",
+                "EntityMinecartEmpty",
+                "EntityMinecartFurnace",
+                "EntityMinecartMobSpawner",
+                "EntityMinecartTNT",
+                "ExtendedBlockStorage",
+                "Facing",
+                "GameRules",
+                "GameRuleValue",
+                "MathHelper",
+                "MapColor",
+                "MobSpawnerBaseLogic",
+                "MovingObjectPosition",
+                "NextTickListEntry",
+                "NibbleArray",
+                "PositionImpl",
+                "RedstoneUpdateInfo",
+                "Slot",
+                "Vec3",
+                "Vec3Pool",
+                //"ItemStack",
+                "WeightedRandomMinecart",
+                "WorldGenBigTree",
+                "WorldGenForest",
+                "WorldGenHugeTrees",
+                "WorldGenerator",
+                "WorldGenTaiga2",
+                "WorldGenTrees",
+                //"WorldServer"
+            };
+
         static void Main(string[] args)
         {
             Utils.LoggingEnabled = false;
             OtherTypes.BasePath = basePath;
 
-            //Transpile(basePath + "Block.java", destinationPath + @"\minecraft\Block.ts");
-            
-            CompileAll();
+            ParseAll();
+
+            //TranspileSingleFile("WorldServer");
+
+            CompileAllClasses();
             //GenerateAllDefinitions();
             
             //OtherTypes.DumpList();
 
-            //var blockfiles = Directory.GetFiles(basePath, "*.java");
-            //foreach (var file in blockfiles)
-            //{
-            //    if (
-            //        file.Contains("WorldGenDungeons") ||
-            //        file.Contains("Enum") ||
-            //        file.Contains("NBT") ||
-            //        file.Contains("SpawnerAnimals") ||
-            //        file.Contains("IntCache") ||
-            //        file.Contains("TcpMasterThread"))
-            //    {
-            //        continue;
-            //    }
-            //    Console.WriteLine("Processing {0}...", file);
-            //    GetParsedData(file);
-            //}
-
             Utils.Pause();
+        }
+
+        static void TranspileSingleFile(string file)
+        {
+            Console.WriteLine("Transpiling {0}...", file);
+            Transpile(file);
+        }
+
+        static void ParseAll()
+        {
+            var fileList = GetCompilerFileList();
+
+            //UpdateProjectFile(fileList);
+            //GenerateIncludeFile(fileList);
+
+            foreach (var file in fileList)
+            {
+                Console.WriteLine("Parsing {0}...", file);
+                _sourceFiles.Add(file, GetParsedData(string.Format("{0}{1}.java", basePath, file)));
+            }
+
+            foreach (var file in _definitionList)
+            {
+                Console.WriteLine("Parsing {0}...", file);
+                _sourceFiles.Add(file, GetParsedData(string.Format("{0}{1}.java", basePath, file)));
+            }
+        }
+
+        static void CompileAllClasses()
+        {
+            var fileList = GetCompilerFileList();
+
+            foreach (var file in fileList)
+            {
+                Console.WriteLine("Transpiling {0}...", file);
+                Transpile(file);
+            }
         }
 
         static void GenerateAllDefinitions()
         {
-            var files = new[] {
-                "World",
-                "Chunk"
-            };
-
-            foreach (var file in files)
+            foreach (var file in _definitionList)
             {
-                GenerateDefinition(basePath + @"\" + file + ".java", destinationPath + @"\minecraft.d\" + file + ".d.ts");
+                Console.WriteLine("Generating Type Definition for {0}...", file);
+                GenerateDefinition(file);
             }
-
         }
 
-        static void CompileAll()
+        static List<string> GetCompilerFileList()
         {
-            var fileSearchPatterns = new[] {
-                "Block*.java",
-                "Material*.java",
-                "TileEntity*.java",
-                "CreativeTab*.java",
-                "Entity*.java"
-            };
-
-            var miscellaneousFiles = new[]
-            {
-                "MapColor",
-                "Direction",
-                "ExtendedBlockStorage",
-                "NibbleArray",
-                "MathHelper",
-            };
-
             var files = new List<string>();
-            foreach (var pattern in fileSearchPatterns)
+            foreach (var pattern in _transpileSearchPatterns)
             {
                 files = files.Union(Directory.GetFiles(basePath, pattern)).ToList();
             }
@@ -106,22 +175,11 @@ namespace Mordritch.Transpiler
                 .Select(x => GetFileName(x))
                 .ToList();
 
-            fileList = fileList.Union(miscellaneousFiles).ToList();
+            fileList = fileList.Union(_transpileIndividualFiles).ToList();
 
             OtherTypes.ToBeCompiledList = fileList;
 
-            UpdateProjectFile(fileList);
-            GenerateIncludeFile(fileList);
-
-            foreach (var file in fileList)
-            {
-                Console.WriteLine("Processing {0}...", file);
-                Transpile(
-                    string.Format("{0}{1}.java", basePath, file),
-                    string.Format(@"{0}\{1}\{2}.ts", destinationPath, destinationSubFolder, file));
-
-                File.Create(string.Format(@"{0}\{1}\{2}.js", destinationPath, destinationSubFolder, file));
-            }
+            return fileList;
         }
 
         static string GetFileName(string file)
@@ -130,10 +188,10 @@ namespace Mordritch.Transpiler
             return fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
         }
 
-        static void Transpile(string sourceFile, string destinationFile)
+        static void Transpile(string file)
         {
-            var parsedData = GetParsedData(sourceFile);
-            var compiled = TypeScriptCompiler.Compile(parsedData);
+            var compiled = TypeScriptCompiler.Compile(_sourceFiles, file);
+            var destinationFile = string.Format(@"{0}\{1}\{2}", destinationPath, destinationSubFolder, file);
 
             compiled =
                 @"/// <reference path=""..\Includes.ts"" />" +
@@ -141,20 +199,23 @@ namespace Mordritch.Transpiler
                 Environment.NewLine +
                 compiled;
 
-            File.WriteAllText(destinationFile, compiled);
+            File.WriteAllText(destinationFile + ".ts", compiled);
+            File.Create(destinationFile + ".js");
         }
 
-        static void GenerateDefinition(string sourceFile, string destinationFile)
+        static void GenerateDefinition(string file)
         {
-            var parsedData = GetParsedData(sourceFile);
-            var compiled = TypeScriptCompiler.GenerateDefinition(parsedData);
+            var compiled = TypeScriptCompiler.GenerateDefinition(_sourceFiles, file);
+            var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", destinationPath, file);
 
             compiled =
                 @"/// <reference path=""..\Includes.ts"" />" +
                 Environment.NewLine +
                 Environment.NewLine +
                 compiled;
-            File.WriteAllText(destinationFile, compiled);
+
+            File.WriteAllText(destinationFile + ".ts", compiled);
+            File.Create(destinationFile + ".js");
         }
 
         static IList<IAstNode> GetParsedData(string sourceFile)
@@ -182,7 +243,7 @@ namespace Mordritch.Transpiler
             var file = string.Format(@"{0}\Includes.ts", destinationPath);
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(@"/// <reference path=""manualIncludes\_ManualIncludes.ts"" />");
-            stringBuilder.AppendLine(@"/// <reference path=""IncludesInterfaces.ts"" />");
+            stringBuilder.AppendLine(@"/// <reference path=""minecraft.interfaces\_includes.ts"" />");
 
             foreach (var entry in list)
             {
