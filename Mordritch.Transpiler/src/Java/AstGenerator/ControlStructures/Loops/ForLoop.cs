@@ -38,5 +38,26 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
             
             return string.Format("for ({0};{1};{2}) {{...", initializers, condition, counterExpressions);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            foreach (var forLoopInitializer in Initializers)
+            {
+                returnList = returnList.Union(forLoopInitializer.GetUsedTypes()).ToList();
+            }
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Condition)).ToList();
+
+            foreach (var simpleStatement in CounterExpressions)
+            {
+                returnList = returnList.Union(simpleStatement.GetUsedTypes()).ToList();
+            }
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+
+            return returnList;
+        }
     }
 }

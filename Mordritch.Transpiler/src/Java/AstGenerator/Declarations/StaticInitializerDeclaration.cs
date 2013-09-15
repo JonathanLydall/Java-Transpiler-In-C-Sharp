@@ -16,5 +16,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
         {
             return "static {...";
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+
+            return returnList;
+        }
     }
 }

@@ -34,5 +34,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Expressions
 
             return Token.Data;
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            AddUsedTypeIfIdentifierToken(Token, returnList);
+
+            return returnList;
+        }
     }
 }

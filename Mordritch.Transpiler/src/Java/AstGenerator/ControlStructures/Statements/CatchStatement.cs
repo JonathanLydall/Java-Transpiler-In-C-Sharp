@@ -26,5 +26,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures.Statements
             
             return string.Format("catch ({0} {1}) {{...", exceptionTypes, exceptionName);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromInputElements(ExceptionTypes)).ToList();
+
+            return returnList;
+        }
     }
 }

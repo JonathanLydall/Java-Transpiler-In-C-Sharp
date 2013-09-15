@@ -20,5 +20,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
             return string.Format("assert({0}, {1});", condition, message);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromInputElements(Condition)).ToList();
+
+            return returnList;
+        }
     }
 }

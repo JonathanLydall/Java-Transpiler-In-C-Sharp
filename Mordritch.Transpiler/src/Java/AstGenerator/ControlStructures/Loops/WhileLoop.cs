@@ -22,5 +22,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
             return string.Format("while ({0}) {{...", condition);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Condition)).ToList();
+
+            return returnList;
+        }
     }
 }

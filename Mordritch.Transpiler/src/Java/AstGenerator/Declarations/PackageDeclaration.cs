@@ -21,5 +21,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
             
             return string.Format("package {0};", content);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            // Not really applicable here.
+            //returnList = returnList.Union(GetUsedTypesFromInputElements(Content)).ToList();
+
+            return returnList;
+        }
     }
 }

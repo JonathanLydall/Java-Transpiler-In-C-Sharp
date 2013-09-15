@@ -25,7 +25,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            // TODO: TypeScript doesn't have exact imports, but we may want to do something like it perhaps.
+            var className = _importDeclaration.Content.Split('.').Last();
+
+            _compiler.AddLine(string.Format("import {0} = Mordritch.{1};", className, _importDeclaration.Content));
+
         }
     }
 }

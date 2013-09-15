@@ -18,5 +18,20 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures.Statements
         {
             return "try {...";
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(TryBody)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(FinallyBody)).ToList();
+
+            foreach (var catchStatement in CatchStatements)
+            {
+                returnList = returnList.Union(catchStatement.GetUsedTypes()).ToList();
+            }
+
+            return returnList;
+        }
     }
 }

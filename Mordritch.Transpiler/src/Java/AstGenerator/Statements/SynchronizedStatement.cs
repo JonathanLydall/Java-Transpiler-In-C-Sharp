@@ -19,5 +19,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
             var syncedStatement = LockObject.Select(x => x.Data).Aggregate((x, y) => x + y);
             return string.Format("synchronized {0} {{...", syncedStatement);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+
+            return returnList;
+        }
     }
 }

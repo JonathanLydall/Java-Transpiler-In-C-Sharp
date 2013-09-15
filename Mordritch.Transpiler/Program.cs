@@ -26,77 +26,192 @@ namespace Mordritch.Transpiler
 
         const string destinationSubFolder = "minecraft";
 
-        static string[] _definitionList = new[] {
+        static string[] _definitionList = new string[] {
                 "World",
                 "Chunk",
-                "ChunkCoordinates",
-                "NBTTagShort",
-                "NBTTagLong",
-                "NBTTagList",
-                "NBTTagIntArray",
-                "NBTTagInt",
-                "NBTTagFloat",
-                "NBTTagEnd",
-                "NBTTagDouble",
-                //"NBTTagCompound",
-                "NBTTagByteArray",
-                "NBTTagByte",
-                "NBTTagString",
-                "NBTBase",
+                //"NBTTagShort",
+                //"NBTTagLong",
+                //"NBTTagList",
+                //"NBTTagIntArray",
+                //"NBTTagInt",
+                //"NBTTagFloat",
+                //"NBTTagEnd",
+                //"NBTTagDouble",
+                ////"NBTTagCompound",
+                //"NBTTagByteArray",
+                //"NBTTagByte",
+                //"NBTTagString",
+                //"NBTBase",
             };
 
-        static string[] _transpileSearchPatterns = new[] {
+        static string[] _transpileSearchPatterns = new string[] {
                 //"Inventory*.java",
-                "Block*.java",
-                "Material*.java",
-                "TileEntity*.java",
-                "CreativeTab*.java"
+                //"Block*.java",
+                //"Material*.java",
+                //"TileEntity*.java",
+                //"CreativeTab*.java"
             };
 
-        static string[] _transpileIndividualFiles = new[]
+        static string[] _parseOnlyFiles = new string[]
             {
+                "Block",
+                "BlockContainer",
+
+                "Vec3",
+
+                "EntityCreature",
+                "EntityGolem",
+                "EntityIronGolem",
+                "EntitySnowman",
+
+                "EntityFallingSand",
+                "TileEntityComparator",
+
+                "ChunkCoordinates",
+                "ChunkPosition",
+            };
+
+        static string[] _transpileIndividualFiles = new string[]
+            {
+                "BlockBasePressurePlate",
+                "BlockBookshelf",
+                "BlockBreakable",
+                "BlockButton",
+                "BlockButtonStone",
+                "BlockButtonWood",
+                "BlockCake",
+                "BlockClay",
+                "BlockCloth",
+                "BlockComparator",
+                "BlockDirectional",
+                "BlockDirt",
+                "BlockDoor",
+                "BlockFence",
+                "BlockFenceGate",
+                "BlockFire",
+                "BlockGlass",
+                "BlockGlowStone",
+                "BlockGrass",
+                "BlockGravel",
+                "BlockHalfSlab",
+                "BlockLeaves",
+                "BlockLeavesBase",
+                "BlockLever",
+                "BlockLog",
+                "BlockNetherrack",
+                "BlockObsidian",
+                "BlockOre",
+                "BlockOreStorage",
+                "BlockPistonBase",
+                "BlockPistonExtension",
+                "BlockPistonMoving",
+                "BlockPressurePlate",
+                "BlockPressurePlateWeighted",
+                "BlockPumpkin",
+                "BlockRedstoneLogic",
+                "BlockRedstoneOre",
+                "BlockRedstoneRepeater",
+                "BlockRedstoneTorch",
+                "BlockRedstoneWire",
+                "BlockSand",
+                "BlockSandStone",
+                "BlockSign",
+                "BlockSnow",
+                "BlockSnowBlock",
+                "BlockSoulSand",
+                "BlockSponge",
+                "BlockStairs",
+                "BlockStep",
+                "BlockStone",
+                "BlockStoneBrick",
+                "BlockTorch",
+                "BlockWall",
+                "BlockWood",
+
+                "Material",
+                "MaterialLiquid",
+                "MaterialLogic",
+                "MaterialPortal",
+                "MaterialTransparent",
+                "MaterialWeb",
+
+                "MapColor",
+
+                "StepSound",
+                "StepSoundAnvil",
+                "StepSoundSand",
+                "StepSoundStone",
+
+                "RedstoneUpdateInfo",
+
                 "AxisAlignedBB",
                 "AABBLocalPool",
                 "AABBPool",
-                "ChunkPosition",
-                "Container",
-                "Direction",
-                "Entity",
-                "EntityBoat",
-                "EntityFallingSand",
-                "EntityFireworkRocket",
-                "EntityItem",
-                "EntityMinecart",
-                "EntityMinecartContainer",
-                "EntityMinecartChest",
-                "EntityMinecartHopper",
-                "EntityMinecartEmpty",
-                "EntityMinecartFurnace",
-                "EntityMinecartMobSpawner",
-                "EntityMinecartTNT",
-                "ExtendedBlockStorage",
-                "Facing",
-                "GameRules",
-                "GameRuleValue",
-                "MathHelper",
-                "MapColor",
-                "MobSpawnerBaseLogic",
-                "MovingObjectPosition",
-                "NextTickListEntry",
-                "NibbleArray",
-                "PositionImpl",
-                "RedstoneUpdateInfo",
-                "Slot",
-                "Vec3",
+
                 "Vec3Pool",
+                "MovingObjectPosition",
+
+                "Facing",
+
+                "Direction",
+
+
+                //"Entity", // Made manually
+
+                //"MathHelper", // Made manually
+                //"TileEntity", // Made manually
+                //"TileEntitySign", // Made manually
+                //"TileEntityPiston", // Made manually
+
+                //"NBTBase", // Made manually
+                //"NBTTagByte", // Made manually
+                //"NBTTagByteArray", // Made manually
+                //"NBTTagCompound", // Made manually
+                //"NBTTagDouble", // Made manually
+                //"NBTTagEnd", // Made manually
+                //"NBTTagFloat", // Made manually
+                //"NBTTagInt", // Made manually
+                //"NBTTagIntArray", // Made manually
+                //"NBTTagList", // Made manually
+                //"NBTTagLong", // Made manually
+                //"NBTTagShort", // Made manually
+                //"NBTTagString", // Made manually
+
+
+                //"AxisAlignedBB",
+                //"Container",
+                //"EntityBoat",
+                //"EntityFallingSand",
+                //"EntityFireworkRocket",
+                //"EntityItem",
+                //"EntityMinecart",
+                //"EntityMinecartContainer",
+                //"EntityMinecartChest",
+                //"EntityMinecartHopper",
+                //"EntityMinecartEmpty",
+                //"EntityMinecartFurnace",
+                //"EntityMinecartMobSpawner",
+                //"EntityMinecartTNT",
+                //"ExtendedBlockStorage",
+                //"GameRules",
+                //"GameRuleValue",
+                //"MathHelper",
+                //"MapColor",
+                //"MobSpawnerBaseLogic",
+                //"NextTickListEntry",
+                //"NibbleArray",
+                //"PositionImpl",
+                //"RedstoneUpdateInfo",
+                //"Slot",
+                //"WeightedRandomMinecart",
+                //"WorldGenBigTree",
+                //"WorldGenForest",
+                //"WorldGenHugeTrees",
+                //"WorldGenerator",
+                //"WorldGenTaiga2",
+                //"WorldGenTrees",
+
                 //"ItemStack",
-                "WeightedRandomMinecart",
-                "WorldGenBigTree",
-                "WorldGenForest",
-                "WorldGenHugeTrees",
-                "WorldGenerator",
-                "WorldGenTaiga2",
-                "WorldGenTrees",
                 //"WorldServer"
             };
 
@@ -106,6 +221,7 @@ namespace Mordritch.Transpiler
             OtherTypes.BasePath = basePath;
 
             ParseAll();
+            //DumpUsedTypes(_sourceFiles.First().Value);
 
             //TranspileSingleFile("WorldServer");
 
@@ -127,25 +243,28 @@ namespace Mordritch.Transpiler
         {
             var fileList = GetCompilerFileList();
 
-            //UpdateProjectFile(fileList);
-            //GenerateIncludeFile(fileList);
+            fileList = fileList.Union(_parseOnlyFiles).ToList();
 
             foreach (var file in fileList)
             {
                 Console.WriteLine("Parsing {0}...", file);
-                _sourceFiles.Add(file, GetParsedData(string.Format("{0}{1}.java", basePath, file)));
+                var parsedData = GetParsedData(string.Format("{0}{1}.java", basePath, file));
+                _sourceFiles.Add(file, parsedData);
             }
 
             foreach (var file in _definitionList)
             {
                 Console.WriteLine("Parsing {0}...", file);
-                _sourceFiles.Add(file, GetParsedData(string.Format("{0}{1}.java", basePath, file)));
+                var parsedData = GetParsedData(string.Format("{0}{1}.java", basePath, file));
+                _sourceFiles.Add(file, parsedData);
             }
         }
 
         static void CompileAllClasses()
         {
             var fileList = GetCompilerFileList();
+
+            UpdateProjectFile(fileList);
 
             foreach (var file in fileList)
             {
@@ -193,12 +312,6 @@ namespace Mordritch.Transpiler
             var compiled = TypeScriptCompiler.Compile(_sourceFiles, file);
             var destinationFile = string.Format(@"{0}\{1}\{2}", destinationPath, destinationSubFolder, file);
 
-            compiled =
-                @"/// <reference path=""..\Includes.ts"" />" +
-                Environment.NewLine +
-                Environment.NewLine +
-                compiled;
-
             File.WriteAllText(destinationFile + ".ts", compiled);
             File.Create(destinationFile + ".js");
         }
@@ -207,12 +320,6 @@ namespace Mordritch.Transpiler
         {
             var compiled = TypeScriptCompiler.GenerateDefinition(_sourceFiles, file);
             var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", destinationPath, file);
-
-            compiled =
-                @"/// <reference path=""..\Includes.ts"" />" +
-                Environment.NewLine +
-                Environment.NewLine +
-                compiled;
 
             File.WriteAllText(destinationFile + ".ts", compiled);
             File.Create(destinationFile + ".js");
@@ -238,19 +345,15 @@ namespace Mordritch.Transpiler
             TypeScriptProject.GenerateTypeScriptReferences(list, project, folder);
         }
 
-        static void GenerateIncludeFile(IList<string> list)
+        static void DumpUsedTypes(IList<IAstNode> astNodes)
         {
-            var file = string.Format(@"{0}\Includes.ts", destinationPath);
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(@"/// <reference path=""manualIncludes\_ManualIncludes.ts"" />");
-            stringBuilder.AppendLine(@"/// <reference path=""minecraft.interfaces\_includes.ts"" />");
-
-            foreach (var entry in list)
+            foreach (var node in astNodes)
             {
-                stringBuilder.AppendLine(string.Format(@"/// <reference path=""minecraft\{0}.ts"" />", entry));
+                foreach (var type in node.GetUsedTypes())
+                {
+                    Console.WriteLine("    {0}", type);
+                }
             }
-
-            File.WriteAllText(file, stringBuilder.ToString());
         }
 
         //private static void dumpTokens(IList<Java.Tokenizer.InputElements.InputElementTypes.IInputElement> inputElements)

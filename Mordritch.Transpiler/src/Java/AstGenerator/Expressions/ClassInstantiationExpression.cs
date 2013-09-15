@@ -54,5 +54,25 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Expressions
 
             return string.Format("new {0}{1}", className, extraData);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            AddUsedTypeIfIdentifierToken(ClassName, returnList);
+
+            foreach (var arraySize in ArraySizes)
+            {
+                returnList = returnList.Union(GetUsedTypesFromAstNodes(arraySize)).ToList();
+            }
+
+#warning This is will return locally defined variables too.
+            foreach (var initializationData in InitializationData)
+            {
+                returnList = returnList.Union(GetUsedTypesFromAstNodes(initializationData)).ToList();
+            }
+
+            return returnList;
+        }
     }
 }

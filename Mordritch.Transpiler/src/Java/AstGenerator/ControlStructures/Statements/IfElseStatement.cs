@@ -24,5 +24,21 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
             return string.Format("if ({0}) {{...", condition);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Condition)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(ElseBody)).ToList();
+
+            foreach (var conditionalElse in ConditionalElses)
+            {
+                returnList = returnList.Union(conditionalElse.GetUsedTypes()).ToList();
+            }
+
+            return returnList;
+        }
     }
 }

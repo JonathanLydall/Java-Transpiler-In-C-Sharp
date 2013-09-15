@@ -221,6 +221,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Java\Common\BooleanLiterals.cs" />
+    <Compile Include="src\Java\Common\JavaLangPackages.cs" />
     <Compile Include="src\Java\Common\Primitives.cs" />
     <Compile Include="src\Java\Common\Keywords.cs" />
     <Compile Include="src\Java\Common\JavaUtils.cs" />

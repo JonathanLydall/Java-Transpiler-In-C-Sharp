@@ -74,5 +74,24 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Types
 
             return string.Format("{0} {1}class {2}{3}{4} {{...", accessModifiers, modifiers, Name, extends, implements);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            if (Implements.Count > 0)
+            {
+                returnList = returnList.Union(Implements).ToList();
+            }
+
+            if (Extends != null)
+            {
+                returnList.Add(Extends);
+            }
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+
+            return returnList;
+        }
     }
 }

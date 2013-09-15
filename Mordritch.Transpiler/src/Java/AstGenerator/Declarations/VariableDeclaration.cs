@@ -42,5 +42,16 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Declarations
 
             return string.Format("{0}{1} {2}{3}{4};", modifiers, VariableType.Data, VariableName.Data, array, assignedValue);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(AssignedValue)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromInputElements(Modifiers)).ToList();
+            AddUsedTypeIfIdentifierToken(VariableType, returnList);
+
+            return returnList;
+        }
     }
 }

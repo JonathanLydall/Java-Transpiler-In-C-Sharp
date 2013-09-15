@@ -21,5 +21,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
             return string.Format("switch ({0}) {{...", controlStatement);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Body)).ToList();
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(ControlStatement)).ToList();
+
+            return returnList;
+        }
     }
 }

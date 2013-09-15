@@ -16,6 +16,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private static string Void = "void";
 
+        private static string Any = "any";
+
         private static IDictionary<string, string> _map = new Dictionary<string, string>
         {
             { Primitives.Boolean, Boolean },
@@ -27,6 +29,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             { Primitives.Long, Number },
             { Primitives.Short, Number },
             { Primitives.String, String },
+            { Primitives.Object, Any },
             { Void, Void }
         };
 
@@ -40,7 +43,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             { Primitives.Int, "number" },
             { Primitives.Long, "number" },
             { Primitives.Short, "number" },
-            { Primitives.String, "string" }
+            { Primitives.String, "string" },
+            { Primitives.Object, "any" }
         };
         
         public static bool IsPrimitive(string type)

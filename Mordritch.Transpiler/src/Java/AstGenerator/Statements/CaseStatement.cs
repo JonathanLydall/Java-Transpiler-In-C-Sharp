@@ -19,5 +19,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
             return string.Format("case {0}:", caseValue);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromInputElements(CaseValue)).ToList();
+
+            return returnList;
+        }
     }
 }

@@ -10,6 +10,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator
     {
         string DebugOut();
 
+        IList<string> GetUsedTypes();
+
         CommentInputElement PreComment { get; set; }
 
         CommentInputElement PostComment { get; set; }

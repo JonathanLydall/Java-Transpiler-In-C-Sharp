@@ -24,5 +24,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Expressions
 
             return string.Format("({0}){1}", castTarget, innerExpressions);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(InnerExpressions)).ToList();
+            AddUsedTypeIfIdentifierToken(CastTarget, returnList);
+
+            return returnList;
+        }
     }
 }

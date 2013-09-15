@@ -45,34 +45,89 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private static IDictionary<string, IList<IAstNode>> _sourceFiles;
 
+        public IList<IAstNode> ParsedFile { get; set; }
+
+        public TypeScriptCompiler(IList<IAstNode> parsedFile)
+        {
+            ParsedFile = parsedFile;
+        }
+
+        public void AddJavaDotLangImports()
+        {
+            var usedTypes = new List<string>();
+            foreach (var astNode in ParsedFile)
+            {
+                usedTypes = usedTypes.Union(astNode.GetUsedTypes()).ToList();
+            }
+
+            var javaLangTypes = usedTypes.Where(x => JavaLangPackages.Contains(x));
+            foreach (var usedType in javaLangTypes)
+            {
+                Console.WriteLine("    Adding usedType {0}", usedType);
+                AddLine(string.Format("import {0} = java.lang.{0};", usedType));
+            }
+        }
+
         public static string Compile(IDictionary<string, IList<IAstNode>> sourceFiles, string file)
         {
             _sourceFiles = sourceFiles;
-            
-            var instance = new TypeScriptCompiler();
-            instance.AddLine("module Mordritch {");
-            instance.IncreaseIndentation();
+
+            var parsedFile = _sourceFiles[file];
+            var packageDeclarationContent = GetPackageDeclararion(parsedFile);
+            var instance = new TypeScriptCompiler(parsedFile);
+
+            if (packageDeclarationContent != null)
             {
-                instance.CompileBody(_sourceFiles[file]);
+                instance.AddLine(string.Format("module Mordritch.{0} {{", packageDeclarationContent));
+                instance.IncreaseIndentation();
             }
-            instance.DecreaseIndentation();
-            instance.AddLine("}");
+
+            instance.AddJavaDotLangImports();
+            instance.CompileBody(parsedFile);
+
+            if (packageDeclarationContent != null)
+            {
+                instance.DecreaseIndentation();
+                instance.AddLine("}");
+            }
+
             return instance.GetOutput();
         }
 
         public static string GenerateDefinition(IDictionary<string, IList<IAstNode>> sourceFiles, string file)
         {
-            _sourceFiles = sourceFiles;
+            var parsedFile = _sourceFiles[file];
+            var packageDeclarationContent = GetPackageDeclararion(parsedFile);
+            var instance = new TypeScriptCompiler(parsedFile);
 
-            var instance = new TypeScriptCompiler();
-            instance.AddLine("module Mordritch {");
-            instance.IncreaseIndentation();
+            if (packageDeclarationContent != null)
             {
-                instance.CompileDefinition(_sourceFiles[file]);
+                instance.AddLine(string.Format("module Mordritch.{0} {{", packageDeclarationContent));
+                instance.IncreaseIndentation();
             }
-            instance.DecreaseIndentation();
-            instance.AddLine("}");
+
+            instance.CompileDefinition(_sourceFiles[file]);
+
+            if (packageDeclarationContent != null)
+            {
+                instance.DecreaseIndentation();
+                instance.AddLine("}");
+            }
+
             return instance.GetOutput();
+        }
+
+        private static string GetPackageDeclararion(IList<IAstNode> parsedFile)
+        {
+            var packageDeclaration = parsedFile.FirstOrDefault(x => x is PackageDeclaration) as PackageDeclaration;
+            return
+                packageDeclaration == null ||
+                packageDeclaration.Content == null ||
+                packageDeclaration.Content.Count == 0
+                    ? null
+                    : packageDeclaration.Content
+                        .Select(x => x.Data)
+                        .Aggregate((x, y) => x + y);
         }
 
         public IList<IAstNode> GetFullContextStack()
@@ -463,6 +518,16 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             {
                 return PrimitiveMapper.Map(inputElement.Data);
             }
+            else if (inputElement.Data == "Map")
+            {
+                //TODO: Put this somewhere else
+                return "java.util.Map";
+            }
+            else if (inputElement.Data == "Set")
+            {
+                //TODO: Put this somewhere else
+                return "java.util.Set";
+            }
 
             OtherTypes.AddToList(inputElement, contextDescription);
             return inputElement.Data;
@@ -846,11 +911,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private string GetScopeClarifier(string identifierName)
         {
-            if (identifierName == "tnt")
-            {
-                var j = 0;
-            }
-            
             var stack = GetFullContextStack();
             var classTypeItem = stack.LastOrDefault(x => x is ClassType);
 

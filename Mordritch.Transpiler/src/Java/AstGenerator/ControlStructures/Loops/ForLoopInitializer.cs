@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 {
-    public class ForLoopInitializer
+    public class ForLoopInitializer : AstNode
     {
         public IInputElement InitializedType = null;
 
@@ -17,7 +17,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
 
         public IList<IAstNode> AssignedValue = new List<IAstNode>();
 
-        public string DebugOut()
+        public override string DebugOut()
         {
             var initializedType
                 = InitializedType != null
@@ -30,6 +30,16 @@ namespace Mordritch.Transpiler.Java.AstGenerator.ControlStructures
                     .Aggregate((x, y) => x + " " + y);
 
             return string.Format("{0}{1} = {2}", initializedType, VariableName.Data, assignedValue);
+        }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(AssignedValue)).ToList();
+            AddUsedTypeIfIdentifierToken(InitializedType, returnList);
+
+            return returnList;
         }
     }
 }

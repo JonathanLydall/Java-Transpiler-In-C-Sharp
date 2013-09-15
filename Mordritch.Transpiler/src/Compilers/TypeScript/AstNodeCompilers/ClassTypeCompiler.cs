@@ -28,6 +28,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 ? string.Empty
                 : " extends " + _classType.Extends;
 
+            _compiler.AddBlankLine();
+
             _compiler.AddLine(string.Format("export interface {0} {{", name));
             _compiler.IncreaseIndentation();
             {
@@ -57,6 +59,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             var name = _classType.Name;
 
+            _compiler.AddBlankLine();
             _compiler.AddLine(string.Format("{0} {1}class {2}{3}{4} {{", accessModifiers, modifiers, name, extends, implements));
             _compiler.IncreaseIndentation();
             {

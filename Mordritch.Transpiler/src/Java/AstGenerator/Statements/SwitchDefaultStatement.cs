@@ -12,5 +12,11 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
         {
             return "default:";
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+            return returnList;
+        }
     }
 }

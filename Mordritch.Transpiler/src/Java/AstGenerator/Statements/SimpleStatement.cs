@@ -23,5 +23,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
 
             return string.Format("{0};", expressions);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(Expressions)).ToList();
+
+            return returnList;
+        }
     }
 }

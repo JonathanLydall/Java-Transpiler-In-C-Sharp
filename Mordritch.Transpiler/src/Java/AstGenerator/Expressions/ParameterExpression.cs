@@ -17,5 +17,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Expressions
 
             return nodes;
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(AstNodes)).ToList();
+
+            return returnList;
+        }
     }
 }

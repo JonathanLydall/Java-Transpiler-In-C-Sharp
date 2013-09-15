@@ -36,5 +36,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Assignments
 
             return string.Format("{0}{1}{2};", variableName, assignmentOperator, assignedValue);
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromAstNodes(AssignedValue)).ToList();
+
+            return returnList;
+        }
     }
 }

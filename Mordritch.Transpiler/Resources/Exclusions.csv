@@ -4,7 +4,7 @@ Block	getPlayerRelativeBlockHardness
 Block	dropBlockAsItemWithChance	
 Block	dropBlockAsItem_do	
 Block	dropXpOnBlockBreak	
-Block	damageDropped	
+//Block	damageDropped	
 Block	getExplosionResistance	We will want to re-add this if we add simulations of explosions
 Block	collisionRayTrace	
 Block	isVecInsideYZBounds	
@@ -32,7 +32,7 @@ Block	fillWithRain
 Block	canDropFromExplosion	We might want to re-add this if we add simulations of explosions
 //Block	getAxisAlignedBB	
 Block	getLocalizedName	
-Block	getUnlocalizedName	
+//Block	getUnlocalizedName	
 Block	idDropped	
 TileEntity	getDescriptionPacket	
 //TileEntityPiston	updatePushedObjects	Commented out as it refers to AxisAlignedBB. We might need this later for certain kinds of simulation. This seems to look for other entities and then has an effect on them.
@@ -143,3 +143,7 @@ BlockPortal	updateTick
 BlockPressurePlate	func_94351_d	Unknown purpose, used for detecting entities on the pressure plate perhaps?
 BlockPressurePlateWeighted	func_94351_d	Unknown purpose, used for detecting entities on the pressure plate perhaps?
 EntityMinecart	interact	
+BlockFire	initializeBlock	
+BlockFire	updateTick
+BlockFire	onBlockAdded
+BlockPumpkin	onBlockAdded

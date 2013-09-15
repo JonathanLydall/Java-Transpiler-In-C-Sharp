@@ -15,6 +15,8 @@ namespace Mordritch.Transpiler.Java.Common
         public static string Int = "int";
         public static string Long = "long";
         public static string Short = "short";
+        public static string String = "String";
+        public static string Object = "Object";
 
         public static string[] AsList = 
         {
@@ -26,6 +28,8 @@ namespace Mordritch.Transpiler.Java.Common
             Int,
             Long,
             Short,
+            String,
+            Object
         };
     }
 }

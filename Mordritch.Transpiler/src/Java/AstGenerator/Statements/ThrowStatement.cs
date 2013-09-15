@@ -14,5 +14,14 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Statements
         {
             return ExceptionInstance.Select(x => x.Data).Aggregate((x, y) => x + " " + y) + ";";
         }
+
+        public override IList<string> GetUsedTypes()
+        {
+            var returnList = new List<string>();
+
+            returnList = returnList.Union(GetUsedTypesFromInputElements(ExceptionInstance)).ToList();
+
+            return returnList;
+        }
     }
 }
