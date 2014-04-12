@@ -39,6 +39,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 methodIdentifier = string.Format("{0}.{1}", Keywords.This, ConstructorCompiler.CONSTRUCTOR_DISPATCHER_FUNCTION_NAME);
             }
 
+            if (methodIdentifier == Keywords.Super)
+            {
+                methodIdentifier = string.Format("{0}.{1}", Keywords.Super, ConstructorCompiler.CONSTRUCTOR_DISPATCHER_FUNCTION_NAME);
+            }
+
             var scopeClarifier = _compiler.GetScopeClarifier(methodIdentifier, _previousExpression);
 
             return string.Format("{0}{1}({2})", scopeClarifier, methodIdentifier, parameters);
