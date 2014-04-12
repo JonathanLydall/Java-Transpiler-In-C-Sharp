@@ -4,9 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mordritch.Transpiler.src.Compilers;
+using Mordritch.Transpiler.src;
+
 
 namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 {
+    // TODO: This is common for both fields and variables, they should instead be split
     public class VariableDeclarationCompiler
     {
         private ICompiler _compiler;
@@ -21,10 +25,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void GenerateDefinition()
         {
-            var className = GetClassName();
-            var methodName = _variableDeclaration.VariableName.Data;
-            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
-
+            if (IsField())
+            {
+                GenerateFieldDefinition();
+                return;
+            }
+            
             var variableName = _variableDeclaration.VariableName.Data;
             var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
             var array = string.Empty;
@@ -34,53 +40,116 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 array += "[]";
             }
 
-            var commmentedOut = skipCompile ? "// " : string.Empty;
-            var lineToAdd = string.Format("{0}{1}: {2}{3};", commmentedOut, variableName, variableType, array);
-            _compiler.AddLine(lineToAdd);
+            _compiler.AddLine(string.Format("{0}: {1}{2};", variableName, variableType, array));
         }
 
-        private string GetClassName()
+        private void GenerateFieldDefinition()
         {
-            var parentContext = _compiler.GetPreviousContextFromStack(0);
+            var fieldName = _variableDeclaration.VariableName.Data;
+            var fieldType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
+            var array = string.Empty;
 
-            return parentContext != null && parentContext is ClassType
-                ? (parentContext as ClassType).Name
-                : null;
+            for (var a = 0; a < _variableDeclaration.ArrayCount; a++)
+            {
+                array += "[]";
+            }
+
+            var lineToAdd = IsFieldExcluded()
+                ? string.Format("// {0}: {1}{2};", fieldName, fieldType, array)
+                : string.Format("{0}: {1}{2};", fieldName, fieldType, array);
+
+            _compiler.AddLine(lineToAdd);
         }
 
         public void Compile()
         {
-            var isClassTypeContext = _compiler.GetCurrentContextFromStack() is ClassType;
-
-            var assignedValue = !_variableDeclaration.HasInitialization
-                ? string.Empty
-                : " = " + _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
-
-            var modifiers = _variableDeclaration.Modifiers.Count == 0 || _variableDeclaration.Modifiers.All(x => TypeScriptUtils.Modifiers.All(tsm => x.Data != tsm))
-                ? string.Empty
-                : _variableDeclaration.Modifiers
-                    .Where(x => TypeScriptUtils.Modifiers.Any(tsm => x.Data == tsm))
-                    .Select(x => x.Data)
-                    .Aggregate((x, y) => x + " " + y) + " ";
-
-            if (!isClassTypeContext)
+            if (IsField())
             {
-                modifiers += "var ";
+                CompileField();
+                return;
             }
+            
+            var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
+            var variableName = _variableDeclaration.VariableName.Data;
+            var arrayString = GetArrayString();
+            var assignedValue = _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
 
+            var lineToAdd = _variableDeclaration.HasInitialization
+                ? string.Format("var {0}: {1}{2} = {3};", variableName, variableType, arrayString, assignedValue)
+                : string.Format("var {0}: {1}{2};", variableName, variableType, arrayString);
+
+            _compiler.AddLine(lineToAdd);
+        }
+
+        private void CompileField()
+        {
+            var modifiers = GetModifiers();
+            var fieldName = _variableDeclaration.VariableName.Data;
+            var fieldType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
+            var arrayString = GetArrayString();
+            var assignedValue = _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
+
+            var lineToAdd = _variableDeclaration.HasInitialization
+                ? string.Format("{0}{1}: {2}{3} = {4};", modifiers, fieldName, fieldType, arrayString, assignedValue)
+                : string.Format("{0}{1}: {2}{3};", modifiers, fieldName, fieldType, arrayString);
+
+            if (IsFieldExcluded())
+            {
+                var className = GetClassName();
+                var fieldComment = JavaClassMetadata.GetClass(className).GetField(fieldName).GetComment();
+
+                _compiler.AddBlankLine();
+                _compiler.AddLine(string.Format("//Manually excluded field: {0}", fieldComment));
+                _compiler.BeginCommentingOut();
+                _compiler.AddLine(lineToAdd);
+                _compiler.EndCommentingOut();
+            }
+            else
+            {
+                _compiler.AddLine(lineToAdd);
+            }
+        }
+
+        private string GetArrayString()
+        {
             var array = string.Empty;
             for (var a = 0; a < _variableDeclaration.ArrayCount; a++)
             {
                 array += "[]";
             }
 
-            var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
+            return array;
+        }
 
-            var variableName = _variableDeclaration.VariableName.Data;
+        private string GetModifiers()
+        {
+            if (_variableDeclaration.Modifiers.Count == 0 ||
+                _variableDeclaration.Modifiers.All(x => TypeScriptUtils.Modifiers.All(y => x.Data != y)))
+            {
+                return string.Empty;
+            }
+            
+            return _variableDeclaration.Modifiers
+                .Where(x => TypeScriptUtils.Modifiers.Any(y => x.Data == y))
+                .Select(x => x.Data)
+                .Aggregate((x, y) => x + " " + y) + " ";
+        }
 
-            var lineToAdd = string.Format("{0}{1}: {2}{3}{4};", modifiers, variableName, variableType, array, assignedValue);
+        private bool IsField()
+        {
+            return _compiler.GetCurrentContextFromStack() is ClassType;
+        }
 
-            _compiler.AddLine(lineToAdd);
+        private bool IsFieldExcluded()
+        {
+            var className = GetClassName();
+            var fieldName = _variableDeclaration.VariableName.Data;
+            return JavaClassMetadata.GetClass(className).GetField(fieldName).NeedsExclusion();
+        }
+
+        private string GetClassName()
+        {
+            return ((ClassType)_compiler.GetPreviousContextFromStack(0)).Name;
         }
     }
 }

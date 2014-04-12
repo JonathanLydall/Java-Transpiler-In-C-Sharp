@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Mordritch.Transpiler.Compilers
 {
-    public class Excluder
+    public class Excluder_DELETING
     {
         private static IList<Fields> _contents;
 

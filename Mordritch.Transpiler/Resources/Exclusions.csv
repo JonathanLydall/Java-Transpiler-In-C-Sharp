@@ -34,86 +34,88 @@ Block	canDropFromExplosion	We might want to re-add this if we add simulations of
 Block	getLocalizedName	
 //Block	getUnlocalizedName	
 Block	idDropped	
+Block	getSeedItem	
+Block	getCropItem
 TileEntity	getDescriptionPacket	
 //TileEntityPiston	updatePushedObjects	Commented out as it refers to AxisAlignedBB. We might need this later for certain kinds of simulation. This seems to look for other entities and then has an effect on them.
 TileEntityBeacon	addEffectsToPlayers	Commented out as it refers to AxisAlignedBB. Exact impact unknown
 BlockBasePressurePlate	func_94352_a	Unknown effect however uses AxisAlignedBB
-World	getBiomeGenForCoords	
-World	getWorldChunkManager	
-World	WorldChunkManager	
-World	World	
-World	createChunkProvider	
-World	initialize	
-//World	getSavedLightValue	
-World	setLightValue	
-World	rayTraceBlocks	
-World	rayTraceBlocks_do	
-World	rayTraceBlocks_do_do	
-World	removePlayerEntityDangerously	
-World	getCollidingBoundingBoxes	
-World	getAllCollidingBoundingBoxes	
-World	checkIfAABBIsClear	
-//World	checkIfAABBIsClearExcludingEntity	
-World	isAABBNonEmpty	
-World	isAnyLiquid	
-World	isBoundingBoxBurning	
-World	handleMaterialAcceleration	
-World	isMaterialInBB	
-World	isAABBInMaterial	
-World	createExplosion	
-World	newExplosion	
-World	getBlockDensity	
-World	extinguishFire	
-World	updateLightByType	
-//World	func_94576_a	
-//World	getEntitiesWithinAABB	
-//World	selectEntitiesWithinAABB	
-World	findNearestEntityWithinAABB	
-World	getEntityByID	
-World	countEntities	
-World	addLoadedEntities	
-World	unloadEntities	
-World	getPathEntityToEntity	
-World	getEntityPathToXYZ	
-World	getClosestPlayerToEntity	
-World	getClosestPlayer	
-World	getClosestVulnerablePlayerToEntity	
-World	getClosestVulnerablePlayer	
-World	getPlayerEntityByName	
-World	getSpawnPoint	
-World	canMineBlock	
-World	getSaveHandler	
-World	getWorldInfo	
-//World	getEntitiesWithinAABBExcludingEntity	
-World	func_98179_a	
-World	getChunkProvider	
-World	getGameRules	
-World	setItemData	
-World	loadItemData	
-World	getWorldVec3Pool	
-World	getCurrentDate	
-World	func_96441_U	
-World	func_98180_V	
-World	addWorldInfoToCrashReport	
-//World	provider	
-World	saveHandler	
-//World	worldInfo	
-World	mapStorage	
-World	villageCollectionObj	
-World	villageSiegeObj	
-//World	theProfiler	
-//World	vecPool	
-World	theCalendar	
-World	field_96442_D	
-World	field_98181_L	
-World	activeChunkSet	
-World	func_85174_u
-World	calculateInitialSkylight
-World	setAllowedSpawnTypes
-World	calculateInitialWeather
-World	setActivePlayerChunksAndCheckLight
-World	moodSoundAndLightCheck
-World	tickBlocksAndAmbiance
+//World	getBiomeGenForCoords	
+//World	getWorldChunkManager	
+//World	WorldChunkManager	
+//World	World	
+//World	createChunkProvider	
+//World	initialize	
+////World	getSavedLightValue	
+//World	setLightValue	
+//World	rayTraceBlocks	
+//World	rayTraceBlocks_do	
+//World	rayTraceBlocks_do_do	
+//World	removePlayerEntityDangerously	
+//World	getCollidingBoundingBoxes	
+//World	getAllCollidingBoundingBoxes	
+//World	checkIfAABBIsClear	
+////World	checkIfAABBIsClearExcludingEntity	
+//World	isAABBNonEmpty	
+//World	isAnyLiquid	
+//World	isBoundingBoxBurning	
+//World	handleMaterialAcceleration	
+//World	isMaterialInBB	
+//World	isAABBInMaterial	
+//World	createExplosion	
+//World	newExplosion	
+//World	getBlockDensity	
+//World	extinguishFire	
+//World	updateLightByType	
+////World	func_94576_a	
+////World	getEntitiesWithinAABB	
+////World	selectEntitiesWithinAABB	
+//World	findNearestEntityWithinAABB	
+//World	getEntityByID	
+//World	countEntities	
+//World	addLoadedEntities	
+//World	unloadEntities	
+//World	getPathEntityToEntity	
+//World	getEntityPathToXYZ	
+//World	getClosestPlayerToEntity	
+//World	getClosestPlayer	
+//World	getClosestVulnerablePlayerToEntity	
+//World	getClosestVulnerablePlayer	
+//World	getPlayerEntityByName	
+//World	getSpawnPoint	
+//World	canMineBlock	
+//World	getSaveHandler	
+//World	getWorldInfo	
+////World	getEntitiesWithinAABBExcludingEntity	
+//World	func_98179_a	
+//World	getChunkProvider	
+//World	getGameRules	
+//World	setItemData	
+//World	loadItemData	
+//World	getWorldVec3Pool	
+//World	getCurrentDate	
+//World	func_96441_U	
+//World	func_98180_V	
+//World	addWorldInfoToCrashReport	
+////World	provider	
+//World	saveHandler	
+////World	worldInfo	
+//World	mapStorage	
+//World	villageCollectionObj	
+//World	villageSiegeObj	
+////World	theProfiler	
+////World	vecPool	
+//World	theCalendar	
+//World	field_96442_D	
+//World	field_98181_L	
+//World	activeChunkSet	
+//World	func_85174_u
+//World	calculateInitialSkylight
+//World	setAllowedSpawnTypes
+//World	calculateInitialWeather
+//World	setActivePlayerChunksAndCheckLight
+//World	moodSoundAndLightCheck
+//World	tickBlocksAndAmbiance
 Chunk	getSavedLightValue	
 Chunk	setLightValue	
 //Chunk	getEntitiesWithinAABBForEntity	References AxisAlignedBB
@@ -128,8 +130,6 @@ BlockBrewingStand	breakBlock
 BlockBrewingStand	func_94328_b_	Unknown functionality, likely irrelevant to Redstone Simulation
 BlockCactus	onEntityCollidedWithBlock	Merely used to damage entities which collide with Cactuses, not relevant for us.
 BlockCauldron	onBlockActivated	Seems only to apply to making and doing stuff with items, all of which is out of scope
-Block	getSeedItem	
-Block	getCropItem
 BlockChest	breakBlock	We won't handle a chest breaking in our scope, will be treated like a normal block breaking.
 BlockChest	onBlockActivated	Not doing chest functionality at this time.
 BlockChest	func_94442_h_	Not doing chest functionality at this time.
@@ -147,3 +147,8 @@ BlockFire	initializeBlock
 BlockFire	updateTick
 BlockFire	onBlockAdded
 BlockPumpkin	onBlockAdded
+BlockRedstoneOre	onBlockClicked	Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.
+BlockRedstoneOre	onEntityWalking	Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.
+BlockRedstoneOre	onBlockActivated	Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.
+BlockRedstoneOre	glow	Uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.
+BlockRedstoneOre	sparkle	Needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.

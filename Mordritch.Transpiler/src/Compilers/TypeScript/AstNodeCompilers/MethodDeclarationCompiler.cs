@@ -1,6 +1,8 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
 using Mordritch.Transpiler.Java.Common;
+using Mordritch.Transpiler.src;
+using Mordritch.Transpiler.src.Compilers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,12 +27,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var className = GetClassName();
             var methodName = _methodDeclaration.Name.Data;
-            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
+            var classInheritanceStack = _compiler.GetClassInheritanceStack(className);
+            var skipCompile = className != null && JavaClassMetadata.GetClass(className).GetMethod(methodName).NeedsExclusion(classInheritanceStack);
             var potentiallyCommented = skipCompile ? "// " : string.Empty;
 
             if (skipCompile)
             {
-                Excluder.IsExcluding = true;
+                _compiler.BeginCommentingOut();
             }
 
             var methodArguments = GetArguments();
@@ -38,7 +41,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             var arrayDepth = GetArrayDepth();
 
 
-            if (isConstructorMethod())
+            if (IsConstructorMethod())
             {
                 _compiler.AddLine(string.Format("{0}constructor({1});", potentiallyCommented, methodArguments));
             }
@@ -49,7 +52,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             if (skipCompile)
             {
-                Excluder.IsExcluding = false;
+                _compiler.EndCommentingOut();
             }
         }
 
@@ -57,8 +60,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var methodName = _methodDeclaration.Name.Data;
             var className = GetClassName();
-            var skipCompile = className != null && Excluder.ShouldExclude(className, methodName) != null;
-            var skipBody = className != null && Excluder.ShouldExcludeBody(className, methodName) != null;
+            var methodDetail = JavaClassMetadata.GetClass(className).GetMethod(methodName);
+            var classInheritanceStack = _compiler.GetClassInheritanceStack(className);
+
+            var skipCompile = className != null && methodDetail.NeedsExclusion(classInheritanceStack);
+            var skipBody = className != null && methodDetail.NeedsBodyOnlyExclusion();
+            var needsExtension = methodDetail.NeedsExtending();
+            var comment = skipCompile ? methodDetail.GetExclusionComment(classInheritanceStack) : methodDetail.GetComment(classInheritanceStack);
 
             var isAbstractMethod = false;
 
@@ -68,14 +76,29 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _compiler.AddWarning(
                     _methodDeclaration.Name.Line,
                     _methodDeclaration.Name.Column,
-                    string.Format("Excluded methodDeclaration {0}: {1}", methodName, Excluder.ShouldExclude(className, methodName)));
+                    string.Format("Excluded methodDeclaration {0}: {1}", methodName, comment));
 
-                Excluder.IsExcluding = true;
+                _compiler.BeginCommentingOut();
+            }
 
-                _compiler.AddLine("/*");
-            }            
+            if (needsExtension)
+            {
+                _compiler.AddLine("// Method below needs to be implemented manually in extended class.");
+                _compiler.AddLine("// Forced to be public.");
+                _compiler.AddLine(string.Format("// {0}", comment));
+            }
+
+            var dependantMethods = methodDetail.GetDependantMethods();
+            if (dependantMethods != null)
+            {
+                _compiler.AddLine(string.Format("// Forced public due to dependancy by: {0}", dependantMethods.Aggregate((x, y) => x + ", " + y)));
+            }
+
+            var forcePublic =
+                    needsExtension ||
+                    dependantMethods != null;
             
-            var modifiers = GetModifiers();
+            var modifiers = GetModifiers(forcePublic);
             var methodArguments = GetArguments();
             var returnType = GetReturnType();
             var arrayDepth = GetArrayDepth();
@@ -91,13 +114,18 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     description);
             }
 
+            if (skipBody)
+            {
+                _compiler.AddWarning(_methodDeclaration.Name.Line, _methodDeclaration.Name.Column, string.Format("Excluded body for method '{0}': {1}", methodName, comment));
+            }
+
             if (_methodDeclaration.Body == null)
             {
                 Debug.Assert(_methodDeclaration.Modifiers.Any(x => x.Data == Keywords.Abstract), "Unexpected null body, without abstract keyword.");
                 isAbstractMethod = true;
             }
 
-            if (isConstructorMethod())
+            if (IsConstructorMethod())
             {
                 _compiler.AddLine(string.Format("constructor({0}) {{", methodArguments));
             }
@@ -110,11 +138,20 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             {
                 if (skipBody)
                 {
-                    _compiler.AddWarning(_methodDeclaration.Name.Line, _methodDeclaration.Name.Column, "Skipped compiling body of method declaration as per entry in ExcludeBodyOnly.csv.");
+                    _compiler.BeginCommentingOut();
+                    _compiler.CompileBody(_methodDeclaration.Body);
+                    _compiler.EndCommentingOut();
                 }
                 else if (isAbstractMethod)
                 {
                     _compiler.AddLine(@"throw new Error(""This was an abstract method in the Java source code and should not be called unless overridden in a derived class first."");");
+                }
+                else if (needsExtension)
+                {
+                    _compiler.AddLine("throw new Error(\"This method needs manual implementation in the extension of this class.\");");
+                    _compiler.BeginCommentingOut();
+                    _compiler.CompileBody(_methodDeclaration.Body);
+                    _compiler.EndCommentingOut();
                 }
                 else
                 {
@@ -125,13 +162,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddLine("}");
             if (skipCompile)
             {
-                _compiler.AddLine("*/");
-                Excluder.IsExcluding = false;
+                _compiler.EndCommentingOut();
             }
             _compiler.AddBlankLine();
         }
 
-        private bool isConstructorMethod()
+        private bool IsConstructorMethod()
         {
             var parentContext = _compiler.GetPreviousContextFromStack(1);
             
@@ -162,7 +198,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             return arrayString;
         }
 
-        private string GetModifiers()
+        private string GetModifiers(bool forcePublic)
         {
             var allowedModifiers = new[] { 
                 Keywords.Private,
@@ -176,7 +212,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     ? string.Empty
                     : _methodDeclaration.Modifiers
                         .Where(x => allowedModifiers.Any(m => m == x.Data))
-                        .Select(x => x.Data)
+                        .Select(x => x.Data == Keywords.Private && forcePublic ? Keywords.Public : x.Data)
                         .Aggregate((x, y) => x + " " + y) + " ";
         }
 

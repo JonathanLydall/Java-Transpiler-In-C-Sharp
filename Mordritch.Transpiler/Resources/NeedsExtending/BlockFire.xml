@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>BlockFire</Name>
+  <Action>Compile</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>initializeBlock</Name>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>updateTick</Name>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>onBlockAdded</Name>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>tryToCatchBlockOnFire</Name>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>

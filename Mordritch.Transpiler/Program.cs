@@ -12,305 +12,142 @@ using Mordritch.Transpiler.Compilers.TypeScript;
 using Mordritch.Transpiler.Utilities;
 using Mordritch.Transpiler.src.Compilers.TypeScript;
 using Mordritch.Transpiler.Compilers;
+using Mordritch.Transpiler.src.Utilities;
+using Mordritch.Transpiler.src.Compilers;
+using Mordritch.Transpiler.src;
+using Mordritch.Transpiler.Contracts;
+using System.Diagnostics;
 
 namespace Mordritch.Transpiler
 {
     class Program
     {
         private static IDictionary<string, IList<IAstNode>> _sourceFiles = new Dictionary<string, IList<IAstNode>>();
+
+        //private static string _javaSourceFilesPath = @"D:\Users\Jonathan Lydall\Downloads\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
+        //private static string _javaClassMetadataFilesPath = @"D:\Users\Jonathan Lydall\Documents\Visual Studio 2012\Projects\Transpiler\Mordritch.Transpiler\Resources\NeedsExtending";
+        //private static string _projectFile = @"D:\Users\Jonathan Lydall\Documents\visual studio 2012\Projects\McSim\McSim\McSim.csproj";
+        //private static string _projectTranspiledSubfolder = @"net\minecraft\src\Transpiled";
+        //private static string _projectTranspiledButExtendedSubfolder = @"net\minecraft\src\TranspiledButExtended";
+
+        private static string _javaSourceFilesPath;
+        private static string _singleClassToCompile;
+        private static string _javaClassMetadataFilesPath;
+        private static string _projectFile;
+        private static string _projectTranspiledSubfolder;
+        private static string _projectTranspiledButExtendedSubfolder;
         
-        const string basePath = @"D:\Users\Jonathan Lydall\Downloads\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
-        //static string basePath = @"C:\Users\jonathan.lydall.ZA\Desktop\New folder (2)\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
-
-        const string destinationPath = @"D:\Users\Jonathan Lydall\Documents\visual studio 2012\Projects\McSim\McSim\";
-
-        const string destinationSubFolder = "minecraft";
-
-        static string[] _definitionList = new string[] {
-                "World",
-                "Chunk",
-                //"NBTTagShort",
-                //"NBTTagLong",
-                //"NBTTagList",
-                //"NBTTagIntArray",
-                //"NBTTagInt",
-                //"NBTTagFloat",
-                //"NBTTagEnd",
-                //"NBTTagDouble",
-                ////"NBTTagCompound",
-                //"NBTTagByteArray",
-                //"NBTTagByte",
-                //"NBTTagString",
-                //"NBTBase",
-            };
-
-        static string[] _transpileSearchPatterns = new string[] {
-                //"Inventory*.java",
-                //"Block*.java",
-                //"Material*.java",
-                //"TileEntity*.java",
-                //"CreativeTab*.java"
-            };
-
-        static string[] _parseOnlyFiles = new string[]
-            {
-                "Block",
-                "BlockContainer",
-
-                "Vec3",
-
-                "EntityCreature",
-                "EntityGolem",
-                "EntityIronGolem",
-                "EntitySnowman",
-
-                "EntityFallingSand",
-                "TileEntityComparator",
-
-                "ChunkCoordinates",
-                "ChunkPosition",
-            };
-
-        static string[] _transpileIndividualFiles = new string[]
-            {
-                "BlockBasePressurePlate",
-                "BlockBookshelf",
-                "BlockBreakable",
-                "BlockButton",
-                "BlockButtonStone",
-                "BlockButtonWood",
-                "BlockCake",
-                "BlockClay",
-                "BlockCloth",
-                "BlockComparator",
-                "BlockDirectional",
-                "BlockDirt",
-                "BlockDoor",
-                "BlockFence",
-                "BlockFenceGate",
-                "BlockFire",
-                "BlockGlass",
-                "BlockGlowStone",
-                "BlockGrass",
-                "BlockGravel",
-                "BlockHalfSlab",
-                "BlockLeaves",
-                "BlockLeavesBase",
-                "BlockLever",
-                "BlockLog",
-                "BlockNetherrack",
-                "BlockObsidian",
-                "BlockOre",
-                "BlockOreStorage",
-                "BlockPistonBase",
-                "BlockPistonExtension",
-                "BlockPistonMoving",
-                "BlockPressurePlate",
-                "BlockPressurePlateWeighted",
-                "BlockPumpkin",
-                "BlockRedstoneLogic",
-                "BlockRedstoneOre",
-                "BlockRedstoneRepeater",
-                "BlockRedstoneTorch",
-                "BlockRedstoneWire",
-                "BlockSand",
-                "BlockSandStone",
-                "BlockSign",
-                "BlockSnow",
-                "BlockSnowBlock",
-                "BlockSoulSand",
-                "BlockSponge",
-                "BlockStairs",
-                "BlockStep",
-                "BlockStone",
-                "BlockStoneBrick",
-                "BlockTorch",
-                "BlockWall",
-                "BlockWood",
-
-                "Material",
-                "MaterialLiquid",
-                "MaterialLogic",
-                "MaterialPortal",
-                "MaterialTransparent",
-                "MaterialWeb",
-
-                "MapColor",
-
-                "StepSound",
-                "StepSoundAnvil",
-                "StepSoundSand",
-                "StepSoundStone",
-
-                "RedstoneUpdateInfo",
-
-                "AxisAlignedBB",
-                "AABBLocalPool",
-                "AABBPool",
-
-                "Vec3Pool",
-                "MovingObjectPosition",
-
-                "Facing",
-
-                "Direction",
-
-
-                //"Entity", // Made manually
-
-                //"MathHelper", // Made manually
-                //"TileEntity", // Made manually
-                //"TileEntitySign", // Made manually
-                //"TileEntityPiston", // Made manually
-
-                //"NBTBase", // Made manually
-                //"NBTTagByte", // Made manually
-                //"NBTTagByteArray", // Made manually
-                //"NBTTagCompound", // Made manually
-                //"NBTTagDouble", // Made manually
-                //"NBTTagEnd", // Made manually
-                //"NBTTagFloat", // Made manually
-                //"NBTTagInt", // Made manually
-                //"NBTTagIntArray", // Made manually
-                //"NBTTagList", // Made manually
-                //"NBTTagLong", // Made manually
-                //"NBTTagShort", // Made manually
-                //"NBTTagString", // Made manually
-
-
-                //"AxisAlignedBB",
-                //"Container",
-                //"EntityBoat",
-                //"EntityFallingSand",
-                //"EntityFireworkRocket",
-                //"EntityItem",
-                //"EntityMinecart",
-                //"EntityMinecartContainer",
-                //"EntityMinecartChest",
-                //"EntityMinecartHopper",
-                //"EntityMinecartEmpty",
-                //"EntityMinecartFurnace",
-                //"EntityMinecartMobSpawner",
-                //"EntityMinecartTNT",
-                //"ExtendedBlockStorage",
-                //"GameRules",
-                //"GameRuleValue",
-                //"MathHelper",
-                //"MapColor",
-                //"MobSpawnerBaseLogic",
-                //"NextTickListEntry",
-                //"NibbleArray",
-                //"PositionImpl",
-                //"RedstoneUpdateInfo",
-                //"Slot",
-                //"WeightedRandomMinecart",
-                //"WorldGenBigTree",
-                //"WorldGenForest",
-                //"WorldGenHugeTrees",
-                //"WorldGenerator",
-                //"WorldGenTaiga2",
-                //"WorldGenTrees",
-
-                //"ItemStack",
-                //"WorldServer"
-            };
+        private static bool _pauseOnExit = false;
 
         static void Main(string[] args)
         {
+            Debugger.Launch();
+            CommandLineParser.AddOption("javaSourceFilesPath", "Folder containing Java source files.", x => _javaSourceFilesPath = x, true);
+            CommandLineParser.AddOption("singleClassToCompile", "Only compile this one class, although all other files will be parsed.", x => _singleClassToCompile = x);
+            CommandLineParser.AddOption("javaClassMetadataFilesPath", "Folder containing XML files describing which Java classes, methods and fields to compile, ignore or extend.", x => _javaClassMetadataFilesPath = x, true);
+            CommandLineParser.AddOption("projectFile", "Path the Visual Studio project file which compiles TypeScript files.", x => _projectFile = x, true);
+            CommandLineParser.AddOption("projectTranspiledSubfolder", "Subfolder in the Visual Studio project root in which Transpiled files are placed.", x => _projectTranspiledSubfolder = x, true);
+            CommandLineParser.AddOption("projectTranspiledButExtendedSubfolder", "Subfolder in the Visual Studio project root in which Transpiled files are placed.", x => _projectTranspiledButExtendedSubfolder = x, true);
+
+            CommandLineParser.AddFlagOption("pauseOnExit", "Shows 'Press any key to continue.' before the program exits, allowing you to review any output.", () => _pauseOnExit = true);
+
+            try
+            {
+                CommandLineParser.Parse(args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Utils.ConditionalPause(_pauseOnExit);
+                return;
+            }
+            
+            JavaClassMetadata.Load(_javaClassMetadataFilesPath);
+            
             Utils.LoggingEnabled = false;
-            OtherTypes.BasePath = basePath;
+            OtherTypes.BasePath = _javaSourceFilesPath;
 
             ParseAll();
+
+            if (string.IsNullOrEmpty(_singleClassToCompile))
+            {
+                TranspileAll();
+                TranspileClassesNeedingExtending();
+                //GenerateAllDefinitions();
+            }
+            else
+            {
+                //TranspileSingleFile("Chunk");
+                TranspileSingleFile(_singleClassToCompile);
+            }
+
             //DumpUsedTypes(_sourceFiles.First().Value);
-
-            //TranspileSingleFile("WorldServer");
-
-            CompileAllClasses();
-            //GenerateAllDefinitions();
-            
             //OtherTypes.DumpList();
 
-            Utils.Pause();
+            Utils.ConditionalPause(_pauseOnExit);
         }
 
         static void TranspileSingleFile(string file)
         {
-            Console.WriteLine("Transpiling {0}...", file);
-            Transpile(file);
+            if (JavaClassMetadata.GetClass(file).NeedsExtending())
+            {
+                Console.WriteLine("Transpiling {0} for extending...", file);
+                Transpile(file, _projectTranspiledButExtendedSubfolder);
+            }
+            else
+            {
+                Console.WriteLine("Transpiling {0}...", file);
+                Transpile(file, _projectTranspiledSubfolder);
+            }
         }
 
         static void ParseAll()
         {
-            var fileList = GetCompilerFileList();
-
-            fileList = fileList.Union(_parseOnlyFiles).ToList();
-
+            var fileList = JavaClassMetadata.GetFilesToParse().Select(x => x.Name);
+            
             foreach (var file in fileList)
             {
                 Console.WriteLine("Parsing {0}...", file);
-                var parsedData = GetParsedData(string.Format("{0}{1}.java", basePath, file));
-                _sourceFiles.Add(file, parsedData);
-            }
-
-            foreach (var file in _definitionList)
-            {
-                Console.WriteLine("Parsing {0}...", file);
-                var parsedData = GetParsedData(string.Format("{0}{1}.java", basePath, file));
+                var parsedData = GetParsedData(string.Format(@"{0}\{1}.java", _javaSourceFilesPath, file));
                 _sourceFiles.Add(file, parsedData);
             }
         }
 
-        static void CompileAllClasses()
+        static void TranspileAll()
         {
-            var fileList = GetCompilerFileList();
+            var fileList = JavaClassMetadata.GetFilesToTranspile()
+                .Select(x => x.Name)
+                .ToList();
 
-            UpdateProjectFile(fileList);
+            UpdateProjectFile(fileList, _projectTranspiledSubfolder);
 
             foreach (var file in fileList)
             {
                 Console.WriteLine("Transpiling {0}...", file);
-                Transpile(file);
+                Transpile(file, _projectTranspiledSubfolder);
             }
         }
 
-        static void GenerateAllDefinitions()
+        static void TranspileClassesNeedingExtending()
         {
-            foreach (var file in _definitionList)
-            {
-                Console.WriteLine("Generating Type Definition for {0}...", file);
-                GenerateDefinition(file);
-            }
-        }
-
-        static List<string> GetCompilerFileList()
-        {
-            var files = new List<string>();
-            foreach (var pattern in _transpileSearchPatterns)
-            {
-                files = files.Union(Directory.GetFiles(basePath, pattern)).ToList();
-            }
-
-            var fileList = files
-                .Select(x => GetFileName(x))
+            var fileList = JavaClassMetadata.GetFilesNeedingExtending()
+                .Select(x => x.Name)
                 .ToList();
 
-            fileList = fileList.Union(_transpileIndividualFiles).ToList();
-
-            OtherTypes.ToBeCompiledList = fileList;
-
-            return fileList;
+            UpdateProjectFile(fileList, _projectTranspiledButExtendedSubfolder);
+            
+            foreach (var file in fileList)
+            {
+                Console.WriteLine("Transpiling {0} for extending...", file);
+                Transpile(file, _projectTranspiledButExtendedSubfolder);
+            }
         }
-
-        static string GetFileName(string file)
-        {
-            var fileInfo = new FileInfo(file);
-            return fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
-        }
-
-        static void Transpile(string file)
+        
+        static void Transpile(string file, string subFolder)
         {
             var compiled = TypeScriptCompiler.Compile(_sourceFiles, file);
-            var destinationFile = string.Format(@"{0}\{1}\{2}", destinationPath, destinationSubFolder, file);
+            var projectPath = Path.GetDirectoryName(_projectFile);
+            var destinationFile = string.Format(@"{0}\{1}\{2}", projectPath, subFolder, file);
 
             File.WriteAllText(destinationFile + ".ts", compiled);
             File.Create(destinationFile + ".js");
@@ -319,7 +156,8 @@ namespace Mordritch.Transpiler
         static void GenerateDefinition(string file)
         {
             var compiled = TypeScriptCompiler.GenerateDefinition(_sourceFiles, file);
-            var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", destinationPath, file);
+            var projectPath = Path.GetDirectoryName(_projectFile);
+            var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", projectPath, file);
 
             File.WriteAllText(destinationFile + ".ts", compiled);
             File.Create(destinationFile + ".js");
@@ -337,12 +175,9 @@ namespace Mordritch.Transpiler
             return parsedData;
         }
 
-        static void UpdateProjectFile(IList<string> list)
+        static void UpdateProjectFile(IList<string> list, string subFolderName)
         {
-            var folder = "minecraft";
-            var project = @"D:\users\jonathan lydall\documents\visual studio 2012\Projects\McSim\McSim\McSim.csproj";
-
-            TypeScriptProject.GenerateTypeScriptReferences(list, project, folder);
+            TypeScriptProject.GenerateTypeScriptReferences(list, _projectFile, subFolderName);
         }
 
         static void DumpUsedTypes(IList<IAstNode> astNodes)

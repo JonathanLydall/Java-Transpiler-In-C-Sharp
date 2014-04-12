@@ -1,0 +1,511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>World</Name>
+  <Action>Compile</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>onBlockActivated</Name>
+      <Comments>Needs manual conversion to handle bitwise operations on bools.</Comments>
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBiomeGenForCoords</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getWorldChunkManager</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>createChunkProvider</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>initialize</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getSavedLightValue</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setLightValue</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>rayTraceBlocks</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>rayTraceBlocks_do</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>rayTraceBlocks_do_do</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>removePlayerEntityDangerously</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getCollidingBoundingBoxes</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getAllCollidingBoundingBoxes</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>checkIfAABBIsClear</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>checkIfAABBIsClearExcludingEntity</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isAABBNonEmpty</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isAnyLiquid</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBoundingBoxBurning</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>handleMaterialAcceleration</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isMaterialInBB</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isAABBInMaterial</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>createExplosion</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>newExplosion</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockDensity</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>extinguishFire</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>updateLightByType</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>findNearestEntityWithinAABB</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getEntityByID</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>countEntities</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>addLoadedEntities</Name>
+      <Comments>Only relates to loading / unloading textures</Comments>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>unloadEntities</Name>
+      <Comments>Only relates to loading / unloading textures</Comments>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getPathEntityToEntity</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getEntityPathToXYZ</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getClosestPlayerToEntity</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getClosestPlayer</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getClosestVulnerablePlayerToEntity</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getClosestVulnerablePlayer</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getPlayerEntityByName</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getSpawnPoint</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>canMineBlock</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getSaveHandler</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getWorldInfo</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_98179_a</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getChunkProvider</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getGameRules</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setItemData</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>loadItemData</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getWorldVec3Pool</Name>
+      <Comments />
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getCurrentDate</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_96441_U</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_98180_V</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>addWorldInfoToCrashReport</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>saveHandler</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>mapStorage</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>villageCollectionObj</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>villageSiegeObj</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>theCalendar</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>field_96442_D</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>field_98181_L</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>activeChunkSet</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_85174_u</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>calculateInitialSkylight</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setAllowedSpawnTypes</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>calculateInitialWeather</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setActivePlayerChunksAndCheckLight</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>moodSoundAndLightCheck</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>tickBlocksAndAmbiance</Name>
+      <Comments>Imported from exclusions.csv</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94576_a</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getEntitiesWithinAABB</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>selectEntitiesWithinAABB</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getEntitiesWithinAABBExcludingEntity</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>provider</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>worldInfo</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>theProfiler</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>vecPool</Name>
+      <Comments>Imported from exclusions.csv, was commented out</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockId</Name>
+      <Comments />
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>World</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields>
+    <FieldDetail>
+      <Name>chunkProvider</Name>
+      <Comments>Uses IChunkProvider</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>worldInfo</Name>
+      <Comments>Uses WorldInfo</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>mapStorage</Name>
+      <Comments>Uses MapStorage</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>villageCollectionObj</Name>
+      <Comments>Uses VillageCollection</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>villageSiegeObj</Name>
+      <Comments>Uses VillageSiege</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>theProfiler</Name>
+      <Comments>Uses Profiler</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>field_96442_D</Name>
+      <Comments>Uses Scoreboard</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>theCalendar</Name>
+      <Comments>Uses the Calender type which is not yet implemented.</Comments>
+      <Action>Exclude</Action>
+    </FieldDetail>
+  </ExcludedFields>
+</JavaClass>

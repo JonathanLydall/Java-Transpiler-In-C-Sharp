@@ -22,6 +22,7 @@ using Mordritch.Transpiler.Java.Tokenizer.InputElements.LiteralTypes;
 using Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers;
 using Mordritch.Transpiler.Compilers.TypeScript;
 using Mordritch.Transpiler.src.Compilers.TypeScript;
+using Mordritch.Transpiler.src.Utilities;
 
 namespace Mordritch.Transpiler.Compilers.TypeScript
 {
@@ -47,9 +48,36 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         public IList<IAstNode> ParsedFile { get; set; }
 
+        private bool _isCommentingOut;
+
+        private int _isCommentingOutCounter = 0;
+
+        private int _isCommentingOutIndentation;
+
         public TypeScriptCompiler(IList<IAstNode> parsedFile)
         {
             ParsedFile = parsedFile;
+        }
+
+        public IList<string> GetClassInheritanceStack(string className)
+        {
+            var returnList = new List<string> { className };
+            var parentClass = className;
+
+            while (!string.IsNullOrEmpty(className) && _sourceFiles.ContainsKey(parentClass))
+            {
+                var classDetails = _sourceFiles[parentClass].FirstOrDefault(x => x is ClassType) as ClassType;
+                if (classDetails == null || string.IsNullOrEmpty(classDetails.Extends))
+                {
+                    className = null;
+                    continue;
+                }
+
+                parentClass = classDetails.Extends;
+                returnList.Add(parentClass);
+            }
+
+            return returnList;
         }
 
         public void AddJavaDotLangImports()
@@ -140,12 +168,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return _contextStack.Count;
         }
         
-        public void AddToContextStack(IAstNode astNode)
+        public void PushToContextStack(IAstNode astNode)
         {
             _contextStack.Add(astNode);
         }
 
-        public void RemoveFromContextStack()
+        public void PopFromContextStack()
         {
             _contextStack.Remove(_contextStack.Last());
         }
@@ -185,6 +213,36 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             _warnings.Add(new CompilerWarning(line, column, description));
         }
 
+        public string GetOutput()
+        {
+            return _stringBuilder.ToString();
+        }
+
+        public void BeginCommentingOut()
+        {
+            if (_isCommentingOut)
+            {
+                _isCommentingOutCounter++;
+                return;
+            }
+            
+            _isCommentingOut = true;
+            _isCommentingOutIndentation = _indentation;
+            SetIndentationString();
+        }
+
+        public void EndCommentingOut()
+        {
+            if (_isCommentingOutCounter > 0)
+            {
+                _isCommentingOutCounter--;
+                return;
+            }
+
+            _isCommentingOut = false;
+            SetIndentationString();
+        }
+
         public void IncreaseIndentation()
         {
             _indentation++;
@@ -202,17 +260,17 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             SetIndentationString();
         }
 
-        public string GetOutput()
-        {
-            return _stringBuilder.ToString();
-        }
-
         private void SetIndentationString()
         {
             _indentationString = string.Empty;
             for (var i = 0; i < _indentation; i++)
             {
                 _indentationString += _indenter;
+
+                if (_isCommentingOut && i + 1 == _isCommentingOutIndentation)
+                {
+                    _indentationString += "//";
+                }
             }
         }
 
@@ -428,6 +486,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                 returnList.Add(GetExpressionString(astNode, previousExpression));
                 previousExpression = astNode;
             }
+
+            if (returnList.Count == 0)
+            {
+                return string.Empty;
+            }
             
             return returnList
                 .Aggregate((x, y) => x + " " + y);
@@ -529,7 +592,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                 return "java.util.Set";
             }
 
-            OtherTypes.AddToList(inputElement, contextDescription);
+            if (!_isCommentingOut)
+            {
+                OtherTypes.AddToList(inputElement, contextDescription);
+            }
             return inputElement.Data;
         }
 
@@ -553,25 +619,25 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is StaticInitializerDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileStaticInitializerDeclarationDefinition(bodyStatement as StaticInitializerDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is ClassInitializerDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileClassInitializerDeclarationDefinition(bodyStatement as ClassInitializerDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is MethodDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileMethodDeclarationDefinition(bodyStatement as MethodDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -589,9 +655,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is ClassType)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileClassTypeDefinition(bodyStatement as ClassType);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -617,73 +683,73 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is DoWhileLoop)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileDoWhileLoop(bodyStatement as DoWhileLoop);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is StaticInitializerDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileStaticInitializerDeclaration(bodyStatement as StaticInitializerDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is ForLoop)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileForLoop(bodyStatement as ForLoop);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is WhileLoop)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileWhileLoop(bodyStatement as WhileLoop);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is CatchStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileCatchStatement(bodyStatement as CatchStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is IfElseStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileIfElseStatement(bodyStatement as IfElseStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is SwitchStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileSwitchStatement(bodyStatement as SwitchStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is TryStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileTryStatement(bodyStatement as TryStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
                 if (bodyStatement is ClassInitializerDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileClassInitializerDeclaration(bodyStatement as ClassInitializerDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -695,9 +761,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is MethodDeclaration)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileMethodDeclaration(bodyStatement as MethodDeclaration);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -715,9 +781,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is CaseStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileCaseStatement(bodyStatement as CaseStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -741,9 +807,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is SwitchDefaultStatement)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileSwitchDefaultStatement(bodyStatement as SwitchDefaultStatement);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 
@@ -767,9 +833,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 if (bodyStatement is ClassType)
                 {
-                    AddToContextStack(bodyStatement);
+                    PushToContextStack(bodyStatement);
                     CompileClassType(bodyStatement as ClassType);
-                    RemoveFromContextStack();
+                    PopFromContextStack();
                     continue;
                 }
 

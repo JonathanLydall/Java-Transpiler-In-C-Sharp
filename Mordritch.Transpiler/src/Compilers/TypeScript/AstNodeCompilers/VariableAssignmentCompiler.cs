@@ -40,48 +40,5 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             _compiler.AddLine(string.Format("{0}{1}{2};", variableName, assignmentOperator, assignedValue));
         }
-
-        private string ClarifyScope_old(string identifierName)
-        {
-            if (identifierName.Contains("["))
-            {
-                identifierName = identifierName.Substring(0, identifierName.IndexOf("["));
-            }
-            
-            if (identifierName.Contains("."))
-            {
-                return string.Empty;
-            }
-
-            var stack = _compiler.GetFullContextStack();
-            var classTypeItem = stack.LastOrDefault(x => x is ClassType);
-
-            if (classTypeItem == null)
-            {
-                return string.Empty;
-            }
-
-            var classType = classTypeItem as ClassType;
-
-            var staticVariables = classType.Body
-                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.Any(y => y.Data == Keywords.Static))
-                .Select(x => ((VariableDeclaration)x).VariableName.Data).ToArray();
-
-            var variables = classType.Body
-                .Where(x => x is VariableDeclaration && ((VariableDeclaration)x).Modifiers.All(y => y.Data != Keywords.Static))
-                .Select(x => ((VariableDeclaration)x).VariableName.Data).ToArray();
-
-            if (staticVariables.Any(x => x == identifierName))
-            {
-                return string.Format("{0}.", classType.Name);
-            }
-
-            if (staticVariables.Any(x => x == identifierName))
-            {
-                return "this.";
-            }
-
-            return string.Empty;
-        }
     }
 }

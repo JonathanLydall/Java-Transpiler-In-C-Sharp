@@ -9,6 +9,7 @@ using Mordritch.Transpiler.Java.AstGenerator.Statements;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
+using Mordritch.Transpiler.src.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,9 @@ namespace Mordritch.Transpiler.Compilers
 {
     public interface ICompiler
     {
-        void AddToContextStack(IAstNode astNode);
+        void PushToContextStack(IAstNode astNode);
 
-        void RemoveFromContextStack();
+        void PopFromContextStack();
 
         IAstNode GetCurrentContextFromStack();
 
@@ -135,5 +136,11 @@ namespace Mordritch.Transpiler.Compilers
         string GetScopeClarifier(string identifierName, IAstNode previousExpression);
 
         string GetScopeClarifier(string identifierName, string previousExpression);
+        
+        void BeginCommentingOut();
+
+        void EndCommentingOut();
+
+        IList<string> GetClassInheritanceStack(string className);
     }
 }

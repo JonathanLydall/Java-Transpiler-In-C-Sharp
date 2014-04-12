@@ -1,6 +1,8 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
+using Mordritch.Transpiler.src;
+using Mordritch.Transpiler.src.Compilers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +44,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void Compile()
         {
-            //var accessModifiers = _classType.AccessModifierPublic || (!_classType.AccessModifierPrivate && _classType.ModifierFinal) ? "export" : string.Empty;
-            var accessModifiers = "export"; //Always export for TypeScript
+            var classMetadata = JavaClassMetadata.GetClass(_classType.Name);
 
             var modifiers = _classType.ModifierStatic
                 ? "static "
@@ -57,10 +58,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 ? string.Empty
                 : " extends " + _classType.Extends;
 
-            var name = _classType.Name;
+            var name = classMetadata.NeedsExtending()
+                ? string.Format("{0}_NeedsExtending", _classType.Name)
+                : _classType.Name;
 
             _compiler.AddBlankLine();
-            _compiler.AddLine(string.Format("{0} {1}class {2}{3}{4} {{", accessModifiers, modifiers, name, extends, implements));
+            _compiler.AddLine(string.Format("export {0}class {1}{2}{3} {{", modifiers, name, extends, implements));
             _compiler.IncreaseIndentation();
             {
                 CompileJavaClassExtensions();
@@ -103,7 +106,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 .Select(x => x as MethodDeclaration)
                 .ToList();
 
-            _compiler.AddToContextStack(constructors.First());
+            _compiler.AddBlankLine();
+            var constructorCompiler = new ConstructorCompiler(_compiler, constructors, _classType);
+            constructorCompiler.Compile();
+
+            return;
+
+            _compiler.PushToContextStack(constructors.First());
             _compiler.AddLine(string.Format("constructor({0}) {{", GetConstructorParameters(constructors)));
             _compiler.IncreaseIndentation();
             {
@@ -146,7 +155,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _compiler.AddLine(@"throw new Error(""Unrecognized constructor called."")");
             }
             _compiler.DecreaseIndentation();
-            _compiler.RemoveFromContextStack();
+            _compiler.PopFromContextStack();
             _compiler.AddLine("}");
             _compiler.AddBlankLine();
         }
@@ -171,7 +180,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             var parNumber = 1;
             foreach (var argument in arguments)
             {
-                _compiler.AddLine(string.Format("var {0} = par{1};", argument, parNumber++));
+                _compiler.AddLine(string.Format("var {0} = c_par{1};", argument, parNumber++));
             }
             _compiler.AddBlankLine();
         }
@@ -193,7 +202,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             return constructors
                 .First(x => x.Arguments.Count == constructors.Max(y => y.Arguments.Count))
                 .Arguments
-                .Select(x => string.Format("par{0}?: any", argumentNumber++))
+                .Select(x => string.Format("c_par{0}?: any", argumentNumber++))
                 .Aggregate((x, y) => x + ", " + y);
         }
 
@@ -204,7 +213,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             return constructors
                 .First(x => x.Arguments.Count == constructors.Max(y => y.Arguments.Count))
                 .Arguments
-                .Select(x => string.Format(@"(typeof par{0} {1} ""undefined"")", isDefinedNumber + 1, isDefinedNumber++ < constructor.Arguments.Count ? "!=" : "=="))
+                .Select(x => string.Format(@"(typeof c_par{0} {1} ""undefined"")", isDefinedNumber + 1, isDefinedNumber++ < constructor.Arguments.Count ? "!=" : "=="))
                 .Aggregate((x, y) => x + " && " + y);
         }
 
@@ -212,16 +221,16 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             if (methodArgument.ArrayDepth > 0)
             {
-                return string.Format("(par{0} instanceof Array)", count);
+                return string.Format("(c_par{0} instanceof Array)", count);
             }
 
             var type = PrimitiveMapper.IsTypeOfMap(methodArgument.Type.Data);
             if (type != null)
             {
-                return string.Format(@"(typeof par{0} == ""{1}"")", count, type);
+                return string.Format(@"(typeof c_par{0} == ""{1}"")", count, type);
             }
 
-            return string.Format(@"(typeof par{0} == ""function"" || typeof par{0} == ""object"")", count);
+            return string.Format(@"(typeof c_par{0} == ""function"" || typeof c_par{0} == ""object"")", count);
             
         }
 

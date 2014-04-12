@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>TileEntityPiston</Name>
+  <Action>Ignore</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>updatePushedObjects</Name>
+      <Comments>Commented out as it refers to AxisAlignedBB. We might need this later for certain kinds of simulation. This seems to look for other entities and then has an effect on them.</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>

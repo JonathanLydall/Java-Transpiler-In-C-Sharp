@@ -8,6 +8,9 @@ using System.Text;
 
 namespace Mordritch.Transpiler.src.Compilers.TypeScript
 {
+    /// <summary>
+    /// Used to track dependancies on types
+    /// </summary>
     public class OtherTypes
     {
         public struct UsageDetails
@@ -25,8 +28,7 @@ namespace Mordritch.Transpiler.src.Compilers.TypeScript
 
         public static void AddToList(IInputElement inputElement, string contextDescription)
         {
-            if (Excluder.IsExcluding ||
-                ToBeCompiledList.Any(x => x == inputElement.Data))
+            if (ToBeCompiledList.Any(x => x == inputElement.Data))
             {
                 return;
             }

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>BlockRedstoneOre</Name>
+  <Action>Compile</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>onBlockClicked</Name>
+      <Comments>Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>onEntityWalking</Name>
+      <Comments>Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>onBlockActivated</Name>
+      <Comments>Uses .glow() which in turn uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>glow</Name>
+      <Comments>Uses .sparkle() which in turn needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>sparkle</Name>
+      <Comments>Needs a bitwise operation on a bool, which can't be done by TypeScript and since this is all visual only, it's pointless in the simulator.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>

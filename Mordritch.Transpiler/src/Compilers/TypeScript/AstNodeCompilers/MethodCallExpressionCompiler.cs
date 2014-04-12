@@ -1,5 +1,6 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Expressions;
+using Mordritch.Transpiler.Java.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,6 +33,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     .Aggregate((x, y) => x + ", " + y);
 
             var methodIdentifier = _methodCallExpression.MethodIdentifier.Data;
+
+            if (methodIdentifier == Keywords.This)
+            {
+                methodIdentifier = string.Format("{0}.{1}", Keywords.This, ConstructorCompiler.CONSTRUCTOR_DISPATCHER_FUNCTION_NAME);
+            }
 
             var scopeClarifier = _compiler.GetScopeClarifier(methodIdentifier, _previousExpression);
 

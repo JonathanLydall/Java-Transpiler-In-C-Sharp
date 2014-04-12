@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>BlockBrewingStand</Name>
+  <Action>Ignore</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>breakBlock</Name>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94328_b_</Name>
+      <Comments>Unknown functionality, likely irrelevant to Redstone Simulation</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>
