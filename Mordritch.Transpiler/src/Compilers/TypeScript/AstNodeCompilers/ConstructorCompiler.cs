@@ -265,7 +265,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             if (_constructors.Count == 0 || _constructors.Max(x => x.Arguments.Count) == 0)
             {
-                return string.Format("c_par{0}", argumentNumber);
+                return string.Empty;
             }
 
             return _constructors
