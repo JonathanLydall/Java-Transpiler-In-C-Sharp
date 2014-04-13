@@ -1,5 +1,8 @@
-﻿using Mordritch.Transpiler.Java.AstGenerator.Declarations;
+﻿using Mordritch.Transpiler.Contracts;
+using Mordritch.Transpiler.Java.AstGenerator;
+using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
+using Mordritch.Transpiler.src;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,55 +13,104 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
     class ConstructorCompiler
     {
         public const string CONSTRUCTOR_DISPATCHER_FUNCTION_NAME = "constructor_dispatcher";
-        
-        private ICompiler _compiler;
-        private IList<MethodDeclaration> _constructors;
-        private ClassType _classType;
-        private bool _classIsExtending;
-        private string _className;
+
+        private readonly ICompiler _compiler;
+        private readonly IList<MethodDeclaration> _constructors;
+        private readonly ClassType _classType;
+        private readonly bool _classIsExtending;
+        private readonly string _concreteConstructorName;
+        private readonly JavaClass _classMetadata;
 
         public ConstructorCompiler(ICompiler compiler, IList<MethodDeclaration> constructors, ClassType classType)
         {
             _compiler = compiler;
             _constructors = constructors;
             _classType = classType;
-            _className = _classType.Name;
-            if (!string.IsNullOrEmpty(_classType.Extends))
-            {
-                _classIsExtending = true;
-            }
+            _classIsExtending = !string.IsNullOrEmpty(_classType.Extends);
+            _concreteConstructorName = string.Format("{0}Constructor", _classType.Name);
+            _classMetadata = JavaClassMetadata.GetClass(_classType.Name);
         }
 
         public void Compile()
         {
-            BuildConstructorSignatures();
-            
-            if (_constructors.Count == 1)
+            if (_classMetadata.ConstructorNeedsExclusion())
             {
-                BuildConstructorDispatcherForSingleConstructor();
+                BuildExclusionConstructor();
             }
             else
             {
-                BuildConstructorDispatcher();
+                BuildNormalConstructor();
             }
+        }
+
+        private void BuildNormalConstructor()
+        {
+            BuildConstructorSignatures();
             
+            BuildConstructor();
+
+            if (_constructors.Count == 0)
+            {
+                BuildDispatcherForNoConstructor();
+            }
+            else if (_constructors.Count == 1)
+            {
+                BuildDispatcherForSingleConstructor();
+            }
+            else
+            {
+                BuildDispatcherForMultipleConstructors();
+            }
+
             BuildConstructors();
         }
 
-        public string GetClassName()
+        private void BuildExclusionConstructor()
+        {
+            var superCall = _classIsExtending
+                ? string.Format("super(super.{0}()); ", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME)
+                : string.Empty;
+
+            _compiler.AddLine(string.Format("constructor(n?: {0}) {{ {1}}}", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME, superCall));
+            _compiler.AddLine(string.Format("public {0}(): void {{ }}", CONSTRUCTOR_DISPATCHER_FUNCTION_NAME));
+            _compiler.AddBlankLine();
+
+            _compiler.AddLine(string.Format("// Constructor marked as 'Exclude', compilation skipped: {0}", _classMetadata.ConstructorGetComment()));
+            _compiler.BeginCommentingOut();
+            {
+                BuildNormalConstructor();
+            }
+            _compiler.EndCommentingOut();
+
+        }
+
+        private string GetClassName()
         {
             return _classType.Name;
         }
 
         private void BuildConstructorSignatures()
         {
-            _compiler.AddLine(string.Format("constructor(nullConstructorObject: {0});", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME));
-            
+            if (_constructors.Count == 0)
+            {
+                _compiler.AddLine("constructor();");
+            }
+
+            BuildNullConstructorSignature();
+
             foreach (var constructor in _constructors)
             {
                 _compiler.AddLine(string.Format("constructor({0});", GetArguments(constructor)));
             }
+        }
 
+        private void BuildNullConstructorSignature()
+        {
+            _compiler.AddLine(string.Format("constructor(n: {0});", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME));
+        }
+
+        private void BuildConstructor()
+        {
             _compiler.AddLine(string.Format("constructor({0}) {{", GetConstructorParameters()));
             _compiler.IncreaseIndentation();
             {
@@ -81,7 +133,14 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddBlankLine();
         }
 
-        private void BuildConstructorDispatcherForSingleConstructor()
+        private void BuildDispatcherForNoConstructor()
+        {
+            _compiler.AddLine(string.Format("public {0}(): void {{", CONSTRUCTOR_DISPATCHER_FUNCTION_NAME));
+            _compiler.AddLine("}");
+            _compiler.AddBlankLine();
+        }
+
+        private void BuildDispatcherForSingleConstructor()
         {
             var argCount = _constructors.First().Arguments.Count;
             var constructorParms = argCount > 0
@@ -93,7 +152,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             {
                 if (argCount == 0)
                 {
-                    _compiler.AddLine(string.Format("this.constructor_{0}_0();", _className));
+                    _compiler.AddLine(string.Format("this.{0}_0();", _concreteConstructorName));
                 }
                 else
                 {
@@ -102,7 +161,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                         .Select(x => string.Format("<{0}{1}>c_par{2}", _compiler.GetTypeString(x.Type, "GetConstructorCallCastType"), GetArrayDepth(x.ArrayDepth), parNumber++))
                         .Aggregate((x, y) => x + ", " + y);
 
-                    _compiler.AddLine(string.Format("this.constructor_{0}_0({1});", _className, arguments));
+                    _compiler.AddLine(string.Format("this.{0}_0({1});", _concreteConstructorName, arguments));
                 }
             }
             _compiler.DecreaseIndentation();
@@ -110,7 +169,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddBlankLine();
         }
 
-        private void BuildConstructorDispatcher()
+        private void BuildDispatcherForMultipleConstructors()
         {
             var constructorNumber = 0;
 
@@ -142,11 +201,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                     _compiler.IncreaseIndentation();
                     {
                         var parNumber = 1;
-                        var arguments = constructor.Arguments
-                            .Select(x => string.Format("<{0}{1}>c_par{2}", _compiler.GetTypeString(x.Type, "GetConstructorCallCastType"), GetArrayDepth(x.ArrayDepth), parNumber++))
-                            .Aggregate((x, y) => x + ", " + y);
+                        var arguments = constructor.Arguments.Count != 0
+                            ? constructor.Arguments
+                                .Select(x => string.Format("<{0}{1}>c_par{2}", _compiler.GetTypeString(x.Type, "GetConstructorCallCastType"), GetArrayDepth(x.ArrayDepth), parNumber++))
+                                .Aggregate((x, y) => x + ", " + y)
+                            : string.Empty;
 
-                        _compiler.AddLine(string.Format("this.constructor_{0}_{1}({2});", _className, constructorNumber++, arguments));
+                        _compiler.AddLine(string.Format("this.{0}_{1}({2});", _concreteConstructorName, constructorNumber++, arguments));
                     }
                     _compiler.DecreaseIndentation();
 
@@ -155,7 +216,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 }
             }
 
-            _compiler.AddLine(@"throw new Error(""Unrecognized constructor called."")");
+            if (_constructors.Count > 0)
+            {
+                _compiler.AddLine(@"throw new Error(""Unrecognized constructor called."")");
+            }
 
             _compiler.DecreaseIndentation();
             _compiler.AddLine("}");
@@ -169,10 +233,35 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             {
                 _compiler.PushToContextStack(constructor);
 
-                _compiler.AddLine(string.Format("private constructor_{0}_{1}({2}): void {{", _className, constructorNumber++, GetArguments(constructor)));
+                if (_classMetadata.ConstructorNeedsExtending())
+                {
+                    _compiler.AddLine(string.Format("// Constructor marked as 'Extend', compilation skipped: {0}", _classMetadata.ConstructorGetComment()));
+                }
+                else if (_classMetadata.ConstructorNeedsBodyOnlyExclusion())
+                {
+                    _compiler.AddLine(string.Format("// Constructor marked as 'ExcludeBodyOnly', compilation skipped: {0}", _classMetadata.ConstructorGetComment()));
+                }
+
+                _compiler.AddLine(string.Format("private {0}_{1}({2}): void {{", _concreteConstructorName, constructorNumber++, GetArguments(constructor)));
                 _compiler.IncreaseIndentation();
                 {
-                    _compiler.CompileBody(constructor.Body);
+                    var commentOut = _classMetadata.ConstructorNeedsExtending() || _classMetadata.ConstructorNeedsBodyOnlyExclusion();
+
+                    if (_classMetadata.ConstructorNeedsExtending())
+                    {
+                        _compiler.AddLine("throw new Error(\"Constructor marked for 'Extend'.\");");
+                    }
+
+                    if (commentOut)
+                    {
+                        _compiler.BeginCommentingOut();
+                        _compiler.CompileBody(constructor.Body);
+                        _compiler.EndCommentingOut();
+                    }
+                    else
+                    {
+                        _compiler.CompileBody(constructor.Body);
+                    }
 
                 }
                 _compiler.DecreaseIndentation();

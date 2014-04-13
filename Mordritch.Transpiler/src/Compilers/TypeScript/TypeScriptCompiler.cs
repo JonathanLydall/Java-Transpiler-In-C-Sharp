@@ -430,6 +430,18 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             compiler.GenerateDefinition();
         }
 
+        public void CompileField(VariableDeclaration variableDeclaration)
+        {
+            var compiler = new FieldCompiler(this, variableDeclaration);
+            compiler.Compile();
+        }
+
+        public void CompileFieldDefinition(VariableDeclaration variableDeclaration)
+        {
+            var compiler = new FieldCompiler(this, variableDeclaration);
+            compiler.GenerateDefinition();
+        }
+
         public void CompileSynchronizedStatement(SynchronizedStatement synchronizedStatement)
         {
             AddWarning(
@@ -575,6 +587,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return returnString.ToString();
         }
 
+        /// <summary>
+        /// Converts a Java type to a TypeScript type, EG: int is converted to number.
+        /// </summary>
+        /// <param name="inputElement">The type to be converted.</param>
+        /// <param name="contextDescription">Used for debug purposes, when used types are logged, this string can help one find the source.</param>
+        /// <returns></returns>
         public string GetTypeString(IInputElement inputElement, string contextDescription)
         {
             if (PrimitiveMapper.IsPrimitive(inputElement.Data))
@@ -658,6 +676,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                     PushToContextStack(bodyStatement);
                     CompileClassTypeDefinition(bodyStatement as ClassType);
                     PopFromContextStack();
+                    continue;
+                }
+
+                if (bodyStatement is VariableDeclaration && GetCurrentContextFromStack() is ClassType)
+                {
+                    CompileFieldDefinition(bodyStatement as VariableDeclaration);
                     continue;
                 }
 
@@ -839,6 +863,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
                     continue;
                 }
 
+                // TODO: Is for a field, change parser to actually store it as a FieldDeclaration
+                if (bodyStatement is VariableDeclaration && GetCurrentContextFromStack() is ClassType)
+                {
+                    CompileField(bodyStatement as VariableDeclaration);
+                    continue;
+                }
+
                 if (bodyStatement is VariableDeclaration)
                 {
                     CompileVariableDeclaration(bodyStatement as VariableDeclaration);
@@ -847,8 +878,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
                 throw new Exception(string.Format("Unknown statement type: {0}", bodyStatement.GetType().Name));
             }
-
         }
+
         public string GetExpressionString(IAstNode expression, IAstNode previousExpression = null)
         {
             if (expression is BracketedExpression)

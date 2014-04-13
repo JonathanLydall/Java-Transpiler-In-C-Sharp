@@ -43,12 +43,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             if (IsConstructorMethod())
             {
-                _compiler.AddLine(string.Format("{0}constructor({1});", potentiallyCommented, methodArguments));
+                throw new InvalidOperationException("Should never be called on a constructor.");
             }
-            else
-            {
-                _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4};", potentiallyCommented, methodName, methodArguments, returnType, arrayDepth));
-            }
+
+            _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4};", potentiallyCommented, methodName, methodArguments, returnType, arrayDepth));
 
             if (skipCompile)
             {
@@ -84,7 +82,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             if (needsExtension)
             {
                 _compiler.AddLine("// Method below needs to be implemented manually in extended class.");
-                _compiler.AddLine("// Forced to be public.");
+                if (_methodDeclaration.Modifiers.Any(x => x.Data == Keywords.Private))
+                {
+                    _compiler.AddLine("// Was private, changed to be public.");
+                }
                 _compiler.AddLine(string.Format("// {0}", comment));
             }
 
@@ -125,14 +126,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 isAbstractMethod = true;
             }
 
-            if (IsConstructorMethod())
-            {
-                _compiler.AddLine(string.Format("constructor({0}) {{", methodArguments));
-            }
-            else
-            {
-                _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4} {{", modifiers, methodName, methodArguments, returnType, arrayDepth));
-            }
+            _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4} {{", modifiers, methodName, methodArguments, returnType, arrayDepth));
 
             _compiler.IncreaseIndentation();
             {

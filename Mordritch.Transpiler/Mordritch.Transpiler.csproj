@@ -71,6 +71,7 @@
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassInstantiationExpressionCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ClassTypeCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ConstructorCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\FieldCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\JumpStatementCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\LabelStatementCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\MethodCallExpressionCompiler.cs" />

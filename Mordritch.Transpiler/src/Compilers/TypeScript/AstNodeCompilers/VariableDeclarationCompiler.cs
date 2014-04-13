@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text;
 using Mordritch.Transpiler.src.Compilers;
 using Mordritch.Transpiler.src;
+using Mordritch.Transpiler.Contracts;
+using Mordritch.Transpiler.Java.Common;
 
 
 namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 {
-    // TODO: This is common for both fields and variables, they should instead be split
     public class VariableDeclarationCompiler
     {
         private ICompiler _compiler;
-
         private VariableDeclaration _variableDeclaration;
 
         public VariableDeclarationCompiler(ICompiler compiler, VariableDeclaration variableDeclaration)
@@ -25,12 +25,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         public void GenerateDefinition()
         {
-            if (IsField())
-            {
-                GenerateFieldDefinition();
-                return;
-            }
-            
             var variableName = _variableDeclaration.VariableName.Data;
             var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
             var array = string.Empty;
@@ -43,32 +37,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddLine(string.Format("{0}: {1}{2};", variableName, variableType, array));
         }
 
-        private void GenerateFieldDefinition()
-        {
-            var fieldName = _variableDeclaration.VariableName.Data;
-            var fieldType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler variableType");
-            var array = string.Empty;
-
-            for (var a = 0; a < _variableDeclaration.ArrayCount; a++)
-            {
-                array += "[]";
-            }
-
-            var lineToAdd = IsFieldExcluded()
-                ? string.Format("// {0}: {1}{2};", fieldName, fieldType, array)
-                : string.Format("{0}: {1}{2};", fieldName, fieldType, array);
-
-            _compiler.AddLine(lineToAdd);
-        }
-
         public void Compile()
         {
-            if (IsField())
-            {
-                CompileField();
-                return;
-            }
-            
             var variableType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
             var variableName = _variableDeclaration.VariableName.Data;
             var arrayString = GetArrayString();
@@ -81,35 +51,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddLine(lineToAdd);
         }
 
-        private void CompileField()
-        {
-            var modifiers = GetModifiers();
-            var fieldName = _variableDeclaration.VariableName.Data;
-            var fieldType = _compiler.GetTypeString(_variableDeclaration.VariableType, "VariableDeclarationCompiler");
-            var arrayString = GetArrayString();
-            var assignedValue = _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
-
-            var lineToAdd = _variableDeclaration.HasInitialization
-                ? string.Format("{0}{1}: {2}{3} = {4};", modifiers, fieldName, fieldType, arrayString, assignedValue)
-                : string.Format("{0}{1}: {2}{3};", modifiers, fieldName, fieldType, arrayString);
-
-            if (IsFieldExcluded())
-            {
-                var className = GetClassName();
-                var fieldComment = JavaClassMetadata.GetClass(className).GetField(fieldName).GetComment();
-
-                _compiler.AddBlankLine();
-                _compiler.AddLine(string.Format("//Manually excluded field: {0}", fieldComment));
-                _compiler.BeginCommentingOut();
-                _compiler.AddLine(lineToAdd);
-                _compiler.EndCommentingOut();
-            }
-            else
-            {
-                _compiler.AddLine(lineToAdd);
-            }
-        }
-
         private string GetArrayString()
         {
             var array = string.Empty;
@@ -119,37 +60,6 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             }
 
             return array;
-        }
-
-        private string GetModifiers()
-        {
-            if (_variableDeclaration.Modifiers.Count == 0 ||
-                _variableDeclaration.Modifiers.All(x => TypeScriptUtils.Modifiers.All(y => x.Data != y)))
-            {
-                return string.Empty;
-            }
-            
-            return _variableDeclaration.Modifiers
-                .Where(x => TypeScriptUtils.Modifiers.Any(y => x.Data == y))
-                .Select(x => x.Data)
-                .Aggregate((x, y) => x + " " + y) + " ";
-        }
-
-        private bool IsField()
-        {
-            return _compiler.GetCurrentContextFromStack() is ClassType;
-        }
-
-        private bool IsFieldExcluded()
-        {
-            var className = GetClassName();
-            var fieldName = _variableDeclaration.VariableName.Data;
-            return JavaClassMetadata.GetClass(className).GetField(fieldName).NeedsExclusion();
-        }
-
-        private string GetClassName()
-        {
-            return ((ClassType)_compiler.GetPreviousContextFromStack(0)).Name;
         }
     }
 }

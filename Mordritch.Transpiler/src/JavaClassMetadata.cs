@@ -13,6 +13,7 @@ namespace Mordritch.Transpiler.src
         private static IList<JavaClass> _javaClasses = new List<JavaClass>();
         private class FabricatedMethodDetail : MethodDetail { }
         private class FabricatedFieldDetail : FieldDetail { }
+        private const string CONSTRUCTOR_METHOD_NAME = "constructor";
         
         public static void Load(string path)
         {
@@ -107,6 +108,11 @@ namespace Mordritch.Transpiler.src
             return methodDetail.Action == MethodAction.Extend;
         }
 
+        public static bool ConstructorNeedsExtending(this JavaClass javaClass)
+        {
+            return javaClass.GetMethod(CONSTRUCTOR_METHOD_NAME).NeedsExtending();
+        }
+
         public static bool NeedsExclusion(this MethodDetail methodDetail, IEnumerable<string> classInheritanceStack)
         {
             if (methodDetail.Action == MethodAction.Exclude || methodDetail.Action == MethodAction.ExcludeAndInDerivedClasses)
@@ -120,6 +126,11 @@ namespace Mordritch.Transpiler.src
                 .Where(x => x.Methods.Any(y => y.Name == methodDetail.Name))
                 .Select(x => x.Methods.FirstOrDefault(y => y.Name == methodDetail.Name))
                 .Any(x => x.Action == MethodAction.ExcludeAndInDerivedClasses);
+        }
+
+        public static bool ConstructorNeedsExclusion(this JavaClass javaClass)
+        {
+            return javaClass.GetMethod(CONSTRUCTOR_METHOD_NAME).NeedsExclusion(new List<string>());
         }
 
         public static string GetExclusionComment(this MethodDetail methodDetail, IEnumerable<string> classInheritanceStack)
@@ -137,6 +148,11 @@ namespace Mordritch.Transpiler.src
             return string.Format("({0}) {1}", parentClass.Name, parentClass.Methods.First(x => x.Name == methodDetail.Name).Comments);
         }
 
+        public static bool ConstructorNeedsBodyOnlyExclusion(this JavaClass javaClass)
+        {
+            return javaClass.GetMethod(CONSTRUCTOR_METHOD_NAME).NeedsBodyOnlyExclusion();
+        }
+
         public static bool NeedsBodyOnlyExclusion(this MethodDetail methodDetail)
         {
             return methodDetail.Action == MethodAction.ExcludeBodyOnly;
@@ -147,6 +163,11 @@ namespace Mordritch.Transpiler.src
             return fieldDetail.Action == FieldAction.Exclude;
         }
 
+        public static bool HasDependantMethods(this MethodDetail methodDetail)
+        {
+            return methodDetail.GetDependantMethods() != null;
+        }
+
         public static IList<string> GetDependantMethods(this MethodDetail methodDetail)
         {
             var javaClass = _javaClasses.First(x => x.Methods.Contains(methodDetail));
@@ -155,6 +176,32 @@ namespace Mordritch.Transpiler.src
                 .Where(x =>
                     x.DependantOn != null &&
                     x.DependantOn.Any(y => y == methodDetail.Name))
+                .ToList();
+
+            if (dependantMethods.Count == 0)
+            {
+                return null;
+            }
+
+            return dependantMethods
+                .Select(x => x.Name)
+                .ToList();
+        }
+
+        public static bool HasDependantMethods(this JavaClass javaClass, string fieldName)
+        {
+            return javaClass.GetDependantMethods(fieldName) != null;
+        }
+
+        public static IList<string> GetDependantMethods(this JavaClass javaClass, string fieldName)
+        {
+            // TODO: Fields and variable declarations should be seperated.
+            // This is intended for fields.
+
+            var dependantMethods = javaClass.Methods
+                .Where(x =>
+                    x.DependantOn != null &&
+                    x.DependantOn.Any(y => y == fieldName))
                 .ToList();
 
             if (dependantMethods.Count == 0)
@@ -181,6 +228,11 @@ namespace Mordritch.Transpiler.src
                 .Select(x => x.GetComment())
                 .Where(x => !string.IsNullOrEmpty(x))
                 .FirstOrDefault();
+        }
+
+        public static string ConstructorGetComment(this JavaClass javaClass)
+        {
+            return javaClass.GetMethod(CONSTRUCTOR_METHOD_NAME).GetComment();
         }
 
         public static string GetComment(this FieldDetail fieldDetail)
