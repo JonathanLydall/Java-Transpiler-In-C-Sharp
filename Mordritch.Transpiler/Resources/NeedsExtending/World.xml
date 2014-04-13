@@ -2,7 +2,7 @@
 <JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Name>World</Name>
   <Action>Compile</Action>
-  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultMethodAction>Exclude</DefaultMethodAction>
   <Methods>
     <MethodDetail>
       <Name>onBlockActivated</Name>
@@ -32,12 +32,6 @@
       <Name>initialize</Name>
       <Comments>Imported from exclusions.csv</Comments>
       <Action>Exclude</Action>
-      <DependantOn />
-    </MethodDetail>
-    <MethodDetail>
-      <Name>getSavedLightValue</Name>
-      <Comments>Imported from exclusions.csv, was commented out</Comments>
-      <Action>Compile</Action>
       <DependantOn />
     </MethodDetail>
     <MethodDetail>
@@ -306,8 +300,8 @@
     </MethodDetail>
     <MethodDetail>
       <Name>func_98180_V</Name>
-      <Comments>Imported from exclusions.csv</Comments>
-      <Action>Exclude</Action>
+      <Comments />
+      <Action>Compile</Action>
       <DependantOn />
     </MethodDetail>
     <MethodDetail>
@@ -465,18 +459,269 @@
       <Action>Compile</Action>
       <DependantOn />
     </MethodDetail>
+    <MethodDetail>
+      <Name>chunkExists</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94571_i</Name>
+      <Comments />
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBlockNormalCube</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockMetadata</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>updateTileEntityChunkAndDoNothing</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_96440_m</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>removeBlockTileEntity</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setBlockAndMetadataWithNotify</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>notifyBlockOfNeighborChange</Name>
+      <Comments>Just commenting out the catch block which tries to use CrashReport and CrashReportCategory</Comments>
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>canPlaceEntityOnSide</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockTileEntity</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setBlockMetadataWithNotify</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>markBlockRangeForRenderUpdate</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>playSoundEffect</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>scheduleBlockUpdate</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>doesBlockHaveSolidTopSurface</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>notifyBlocksOfNeighborChange</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockMaterial</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>playAuxSFXAtEntity</Name>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBlockIndirectlyGettingPowered</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>setBlockTileEntity</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>addTileEntity</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>markTileEntityForDespawn</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBlockProvidingPowerTo</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isAirBlock</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getBlockLightValue</Name>
+      <Comments>Always return max value of 15</Comments>
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94575_c</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>checkChunksExist</Name>
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_82740_a</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94573_a</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBlockIndirectlyProvidingPowerTo</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_96439_d</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getTotalWorldTime</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94574_k</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>spawnParticle</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94572_D</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>spawnEntityInWorld</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>isBlockNormalCubeDefault</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>addBlockEvent</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getChunkFromChunkCoords</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>updateAllLightTypes</Name>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>constructor</Name>
+      <Comments>Temporary exclusion, just to stop compiler errors for now.</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>markBlockForUpdate</Name>
+      <Comments />
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>notifyBlockChange</Name>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>blockExists</Name>
+      <Comments>Used by updateTileEntityChunkAndDoNothing</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getChunkFromBlockCoords</Name>
+      <Comments>Used by updateTileEntityChunkAndDoNothing</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_94577_B</Name>
+      <Comments>Used by isBlockIndirectlyProvidingPowerTo</Comments>
+      <Action>Compile</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>updateAllPlayersSleepingFlag</Name>
+      <Comments>Used by spawnEntityInWorld</Comments>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>obtainEntitySkin</Name>
+      <Comments>Used by spawnEntityInWorld</Comments>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getSavedLightValue</Name>
+      <Comments>Always return max value of 15</Comments>
+      <Action>Extend</Action>
+      <DependantOn />
+    </MethodDetail>
   </Methods>
   <ExcludedFields>
-    <FieldDetail>
-      <Name>chunkProvider</Name>
-      <Comments>Uses IChunkProvider</Comments>
-      <Action>Exclude</Action>
-    </FieldDetail>
-    <FieldDetail>
-      <Name>worldInfo</Name>
-      <Comments>Uses WorldInfo</Comments>
-      <Action>Exclude</Action>
-    </FieldDetail>
     <FieldDetail>
       <Name>mapStorage</Name>
       <Comments>Uses MapStorage</Comments>
@@ -490,11 +735,6 @@
     <FieldDetail>
       <Name>villageSiegeObj</Name>
       <Comments>Uses VillageSiege</Comments>
-      <Action>Exclude</Action>
-    </FieldDetail>
-    <FieldDetail>
-      <Name>theProfiler</Name>
-      <Comments>Uses Profiler</Comments>
       <Action>Exclude</Action>
     </FieldDetail>
     <FieldDetail>
