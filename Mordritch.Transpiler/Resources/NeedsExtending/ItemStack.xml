@@ -1,30 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Name>WorldInfo</Name>
+  <Name>ItemStack</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Exclude</DefaultMethodAction>
   <Methods>
     <MethodDetail>
-      <Name>getWorldTotalTime</Name>
-      <Comments>Used by World.getTotalWorldTime</Comments>
+      <Name>General Comment</Name>
+      <Comments>Just a stub implementation</Comments>
       <Action>Compile</Action>
       <DependantOn />
     </MethodDetail>
   </Methods>
   <Fields>
     <FieldDetail>
-      <Name>terrainType</Name>
-      <Comments>Uses WorldType</Comments>
+      <Name>stackSize</Name>
       <Action>Exclude</Action>
     </FieldDetail>
     <FieldDetail>
-      <Name>theGameType</Name>
-      <Comments>Uses EnumGameType</Comments>
+      <Name>animationsToGo</Name>
       <Action>Exclude</Action>
     </FieldDetail>
     <FieldDetail>
-      <Name>theGameRules</Name>
-      <Comments>Uses GameRules</Comments>
+      <Name>itemID</Name>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>stackTagCompound</Name>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>itemDamage</Name>
+      <Action>Exclude</Action>
+    </FieldDetail>
+    <FieldDetail>
+      <Name>itemFrame</Name>
       <Action>Exclude</Action>
     </FieldDetail>
   </Fields>

@@ -16,5 +16,5 @@
       <DependantOn />
     </MethodDetail>
   </Methods>
-  <ExcludedFields />
+  <Fields />
 </JavaClass>

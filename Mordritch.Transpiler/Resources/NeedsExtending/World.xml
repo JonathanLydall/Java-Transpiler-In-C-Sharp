@@ -723,7 +723,7 @@
       <DependantOn />
     </MethodDetail>
   </Methods>
-  <ExcludedFields>
+  <Fields>
     <FieldDetail>
       <Name>mapStorage</Name>
       <Comments>Uses MapStorage</Comments>
@@ -749,5 +749,5 @@
       <Comments>Uses the Calender type which is not yet implemented.</Comments>
       <Action>Exclude</Action>
     </FieldDetail>
-  </ExcludedFields>
+  </Fields>
 </JavaClass>

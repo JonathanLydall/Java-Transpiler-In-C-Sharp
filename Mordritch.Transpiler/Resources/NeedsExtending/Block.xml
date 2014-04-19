@@ -216,7 +216,7 @@
       <DependantOn />
     </MethodDetail>
   </Methods>
-  <ExcludedFields>
+  <Fields>
     <FieldDetail>
       <Name>sapling</Name>
       <Action>Exclude</Action>
@@ -517,5 +517,5 @@
       <Name>field_96469_cy</Name>
       <Action>Exclude</Action>
     </FieldDetail>
-  </ExcludedFields>
+  </Fields>
 </JavaClass>

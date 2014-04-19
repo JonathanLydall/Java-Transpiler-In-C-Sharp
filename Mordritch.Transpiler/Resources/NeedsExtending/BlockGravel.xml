@@ -4,5 +4,5 @@
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
   <Methods />
-  <ExcludedFields />
+  <Fields />
 </JavaClass>

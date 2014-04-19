@@ -4,5 +4,5 @@
   <Action>ParseOnly</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
   <Methods />
-  <ExcludedFields />
+  <Fields />
 </JavaClass>

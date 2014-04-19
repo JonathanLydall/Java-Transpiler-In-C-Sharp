@@ -17,11 +17,11 @@
       <DependantOn />
     </MethodDetail>
   </Methods>
-  <ExcludedFields>
+  <Fields>
     <FieldDetail>
       <Name>isEditable</Name>
       <Comments>Name conflicts with method, needs to be called somethign else</Comments>
       <Action>Exclude</Action>
     </FieldDetail>
-  </ExcludedFields>
+  </Fields>
 </JavaClass>
