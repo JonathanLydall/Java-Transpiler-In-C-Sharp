@@ -3,6 +3,7 @@
   <Name>WorldInfo</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Exclude</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>getWorldTotalTime</Name>

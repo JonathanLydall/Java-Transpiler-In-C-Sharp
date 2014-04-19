@@ -3,6 +3,7 @@
   <Name>BlockOreStorage</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods />
   <Fields />
 </JavaClass>

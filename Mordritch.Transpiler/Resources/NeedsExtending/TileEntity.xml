@@ -3,6 +3,7 @@
   <Name>TileEntity</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>getDescriptionPacket</Name>

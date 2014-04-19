@@ -3,6 +3,7 @@
   <Name>BlockChest</Name>
   <Action>Ignore</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>breakBlock</Name>

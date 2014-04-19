@@ -3,6 +3,7 @@
   <Name>BlockContainer</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>createNewTileEntity(var1: World): TileEntity</Name>

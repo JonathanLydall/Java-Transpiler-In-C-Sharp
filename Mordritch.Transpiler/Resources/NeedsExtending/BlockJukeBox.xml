@@ -3,6 +3,7 @@
   <Name>BlockJukeBox</Name>
   <Action>Ignore</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>func_94328_b_</Name>

@@ -3,6 +3,7 @@
   <Name>BlockCauldron</Name>
   <Action>Ignore</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>onBlockActivated</Name>

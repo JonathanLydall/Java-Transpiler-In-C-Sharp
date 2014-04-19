@@ -3,6 +3,7 @@
   <Name>BlockPressurePlateWeighted</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>func_94351_d</Name>

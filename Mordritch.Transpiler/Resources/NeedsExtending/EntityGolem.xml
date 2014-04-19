@@ -3,6 +3,7 @@
   <Name>EntityGolem</Name>
   <Action>ParseOnly</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods />
   <Fields />
 </JavaClass>

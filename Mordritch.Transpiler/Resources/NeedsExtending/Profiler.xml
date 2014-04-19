@@ -3,6 +3,7 @@
   <Name>Profiler</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>ExcludeBodyOnly</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>getNameOfLastSection</Name>

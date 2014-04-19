@@ -3,6 +3,7 @@
   <Name>BlockFluid</Name>
   <Action>Ignore</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
+  <DefaultFieldAction>Compile</DefaultFieldAction>
   <Methods>
     <MethodDetail>
       <Name>getFlowVector</Name>
