@@ -1,13 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Name>TileEntity</Name>
-  <Action>Ignore</Action>
+  <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
   <Methods>
     <MethodDetail>
       <Name>getDescriptionPacket</Name>
+      <Action>ExcludeAndInDerivedClasses</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>func_85027_a</Name>
       <Action>Exclude</Action>
       <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>static</Name>
+      <Comments>Adds mappings for all TileEntity types and breaks for types which aren't being transpiled</Comments>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>addMapping</string>
+      </DependantOn>
     </MethodDetail>
   </Methods>
   <ExcludedFields />

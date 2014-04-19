@@ -1,6 +1,8 @@
-﻿using Mordritch.Transpiler.Java.AstGenerator;
+﻿using Mordritch.Transpiler.Contracts;
+using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
+using Mordritch.Transpiler.Java.Common;
 using Mordritch.Transpiler.src;
 using Mordritch.Transpiler.src.Compilers;
 using System;
@@ -76,11 +78,33 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
                 _compiler.CompileBody(_classType.Body.Where(x => x is MethodDeclaration && !IsConstructorMethod(x)).ToList());
                 _compiler.CompileBody(_classType.Body.Where(x => x is StaticInitializerDeclaration).ToList());
+
+                GenerateMethodSignatures();
             }
             _compiler.DecreaseIndentation();
             _compiler.AddLine("}");
             _compiler.AddBlankLine();
 
+        }
+
+        private void GenerateMethodSignatures()
+        {
+            var classMetadata = JavaClassMetadata.GetClass(_classType.Name);
+
+            var list = classMetadata.Methods.Where(x => x.Action == MethodAction.GenerateSignature).ToList();
+
+            foreach (var method in list)
+            {
+                _compiler.AddLine(string.Format("// {0}", method.Comments));
+                _compiler.AddLine(string.Format("public {0} {{", method.Name.Trim()));
+                _compiler.IncreaseIndentation();
+                {
+                    _compiler.AddLine("throw new Error(\"This is only a signature method and should never be called, check above comment.\");");
+                }
+                _compiler.DecreaseIndentation();
+                _compiler.AddLine("}");
+                _compiler.AddBlankLine();
+            }
         }
 
         private bool IsConstructorMethod(IAstNode astNode)
@@ -109,8 +133,106 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private void CompileJavaClassExtensions()
         {
-            _compiler.AddLine("// Used to provide certain Class features provided by Java and used by the Minecraft source code:");
-            _compiler.AddLine(string.Format("public static class: any = {0}; public static newInstance(): {0} {{ return new {0}.class(); }} public getClass(): {0} {{ return {0}.class; }}", _classType.Name));
+            _compiler.AddLine("// Begin providing a subset of Java class features:");
+            _compiler.AddLine(string.Format("public static class: any = {0};", _classType.Name));
+            _compiler.AddBlankLine();
+
+            JavaClassFunctionality_Implements();
+            JavaClassFunctionality_NewInstanceMethod();
+            JavaClassFunctionality_IsInstanceMethod();
+            JavaClassFunctionality_InstanceOfMethod();
+            JavaClassFunctionality_IsAssignableFromMethod();
+            JavaClassFunctionality_GetClassMethod();
+
+            _compiler.AddLine("// Finished providing a subset of Java class features.");
+            _compiler.AddBlankLine();
+        }
+
+        private void JavaClassFunctionality_Implements()
+        {
+            var implements = _classType.Implements != null && _classType.Implements.Count > 0
+                ? _classType.Implements.Select(x => string.Format("\"{0}\"", x)).Aggregate((x, y) => x + ", " + y)
+                : string.Empty;
+
+            _compiler.AddLine("// List of Java Interfaces this class implements:");
+            _compiler.AddLine(string.Format("public static implements: string[] = [{0}];", implements));
+            _compiler.AddBlankLine();
+        }
+
+        private void JavaClassFunctionality_NewInstanceMethod()
+        {
+            _compiler.AddLine(string.Format("public static newInstance(): {0} {{", _classType.Name));
+            _compiler.IncreaseIndentation();
+            {
+                _compiler.AddLine(string.Format("return new {0}.class();", _classType.Name));
+            }
+            _compiler.DecreaseIndentation();
+            _compiler.AddLine("}");
+            _compiler.AddBlankLine();
+        }
+        
+        private void JavaClassFunctionality_InstanceOfMethod()
+        {
+            _compiler.AddLine("public instanceOf(object: any): boolean {");
+            _compiler.IncreaseIndentation();
+            {
+                _compiler.AddLine(string.Format("return {0}.isInstance(object);", _classType.Name));
+            }
+            _compiler.DecreaseIndentation();
+            _compiler.AddLine("}");
+            _compiler.AddBlankLine();
+        }
+
+        private void JavaClassFunctionality_IsInstanceMethod()
+        {
+            _compiler.AddLine("public static isInstance(object: any): boolean {");
+            _compiler.IncreaseIndentation();
+            {
+                var parentCheck = _classType.Extends == null || JavaLangPackages.Contains(_classType.Extends)
+                    ? string.Empty
+                    : string.Format(" || {0}.isInstance(object)", _classType.Extends);
+
+                _compiler.AddLine("if (typeof object == \"string\") {");
+                _compiler.IncreaseIndentation();
+                {
+                    _compiler.AddLine(string.Format("return {0}.implements.indexOf(object) > -1{1};", _classType.Name, parentCheck));
+                }
+                _compiler.DecreaseIndentation();
+                _compiler.AddLine("}");
+                _compiler.AddLine("else {");
+                _compiler.IncreaseIndentation();
+                {
+                    _compiler.AddLine(string.Format("return {0}.class == object.class{1};", _classType.Name, parentCheck));
+                }
+                _compiler.DecreaseIndentation();
+                _compiler.AddLine("}");
+            }
+            _compiler.DecreaseIndentation();
+            _compiler.AddLine("}");
+            _compiler.AddBlankLine();
+        }
+        
+        private void JavaClassFunctionality_IsAssignableFromMethod()
+        {
+            _compiler.AddLine("public static isAssignableFrom(object: any): boolean {");
+            _compiler.IncreaseIndentation();
+            {
+                _compiler.AddLine(string.Format("return object.isInstance({0});", _classType.Name));
+            }
+            _compiler.DecreaseIndentation();
+            _compiler.AddLine("}");
+            _compiler.AddBlankLine();
+        }
+
+        private void JavaClassFunctionality_GetClassMethod()
+        {
+            _compiler.AddLine(string.Format("public getClass(): {0} {{", _classType.Name));
+            _compiler.IncreaseIndentation();
+            {
+                _compiler.AddLine(string.Format("return {0}.class;", _classType.Name));
+            }
+            _compiler.DecreaseIndentation();
+            _compiler.AddLine("}");
             _compiler.AddBlankLine();
         }
 

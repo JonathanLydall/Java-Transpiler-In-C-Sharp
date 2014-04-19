@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>MathHelper</Name>
+  <Action>Compile</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>static</Name>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>SIN_TABLE</string>
+      </DependantOn>
+    </MethodDetail>
+    <MethodDetail>
+      <Name>abs</Name>
+      <Comments>This is an overloaded method, actually needs to be solved in extended class</Comments>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>

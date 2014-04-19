@@ -450,7 +450,7 @@
     </MethodDetail>
     <MethodDetail>
       <Name>getBlockId</Name>
-      <Comments />
+      <Comments>Just commenting out the catch block which tries to use CrashReport and CrashReportCategory</Comments>
       <Action>Extend</Action>
       <DependantOn />
     </MethodDetail>
@@ -508,7 +508,8 @@
     </MethodDetail>
     <MethodDetail>
       <Name>canPlaceEntityOnSide</Name>
-      <Action>Compile</Action>
+      <Comments>Refers to liquid blocks and anvil</Comments>
+      <Action>Extend</Action>
       <DependantOn />
     </MethodDetail>
     <MethodDetail>
@@ -538,7 +539,8 @@
     </MethodDetail>
     <MethodDetail>
       <Name>doesBlockHaveSolidTopSurface</Name>
-      <Action>Compile</Action>
+      <Comments>Refers to BlockHopper</Comments>
+      <Action>Extend</Action>
       <DependantOn />
     </MethodDetail>
     <MethodDetail>

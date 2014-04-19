@@ -1,13 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Name>BlockCake</Name>
+  <Name>NBTBase</Name>
   <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
   <Methods>
     <MethodDetail>
-      <Name>eatCakeSlice</Name>
-      <Comments>Not relevant to us</Comments>
-      <Action>ExcludeBodyOnly</Action>
+      <Name>hashCode</Name>
+      <Action>ExcludeAndInDerivedClasses</Action>
+      <DependantOn />
+    </MethodDetail>
+    <MethodDetail>
+      <Name>readNamedTag</Name>
+      <Comments>Remove CrashReport stuff from catch block</Comments>
+      <Action>Extend</Action>
       <DependantOn />
     </MethodDetail>
   </Methods>

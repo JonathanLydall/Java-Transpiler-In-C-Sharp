@@ -22,7 +22,10 @@ namespace Mordritch.Transpiler.Contracts
         ExcludeBodyOnly,
 
         [Description("Extend")]
-        Extend
+        Extend,
+
+        [Description("Generate Signature")]
+        GenerateSignature,
     }
 
     public enum FieldAction

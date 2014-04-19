@@ -90,19 +90,13 @@
     </MethodDetail>
     <MethodDetail>
       <Name>setBlockIDWithMetadata</Name>
-      <Comments>Needs typeof Interface handling.</Comments>
-      <Action>Extend</Action>
+      <Comments />
+      <Action>Compile</Action>
       <DependantOn>
         <string>storageArrays</string>
         <string>relightBlock</string>
         <string>propagateSkylightOcclusion</string>
       </DependantOn>
-    </MethodDetail>
-    <MethodDetail>
-      <Name>getChunkBlockTileEntity</Name>
-      <Comments>Needs forcing of type cast to an interface type.</Comments>
-      <Action>Extend</Action>
-      <DependantOn />
     </MethodDetail>
     <MethodDetail>
       <Name>getRandomWithSeed</Name>

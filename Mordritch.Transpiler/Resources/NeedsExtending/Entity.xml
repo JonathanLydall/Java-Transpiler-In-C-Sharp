@@ -34,6 +34,11 @@
       <Action>Compile</Action>
       <DependantOn />
     </MethodDetail>
+    <MethodDetail>
+      <Name>constructor</Name>
+      <Action>ExcludeBodyOnly</Action>
+      <DependantOn />
+    </MethodDetail>
   </Methods>
   <ExcludedFields>
     <FieldDetail>

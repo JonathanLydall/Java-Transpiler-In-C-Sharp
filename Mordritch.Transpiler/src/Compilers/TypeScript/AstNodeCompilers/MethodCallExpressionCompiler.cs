@@ -1,6 +1,7 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Expressions;
 using Mordritch.Transpiler.Java.Common;
+using Mordritch.Transpiler.src.Compilers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,11 +18,17 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private IAstNode _previousExpression;
 
-        public MethodCallExpressionCompiler(ICompiler compiler, MethodCallExpression methodCallExpression, IAstNode previousExpression)
+        public MethodCallExpressionCompiler(ICompiler compiler, MethodCallExpression methodCallExpression, IList<InnerExpressionProcessingListItem> list)
         {
+            var itemIndex = list == null ? 0 : list.IndexOf(list.First(x => x.AstNode == methodCallExpression));
+            
             _compiler = compiler;
             _methodCallExpression = methodCallExpression;
-            _previousExpression = previousExpression;
+
+            if (itemIndex > 0)
+            {
+                _previousExpression = list[itemIndex - 1].AstNode;
+            }
         }
 
         public string GetMethodCallExpressionString()
@@ -51,17 +58,17 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private string GetParameterString(IList<IAstNode> parameter)
         {
-            var returnString = new StringBuilder();
+            var list = _compiler.ProcessToInnerExpressionItemList(parameter);
 
-            IAstNode previousExpression = null;
-            foreach (var expression in parameter)
+            if (list.Count == 0)
             {
-                returnString.Append(_compiler.GetExpressionString(expression, previousExpression));
-                previousExpression = expression;
+                return string.Empty;
             }
 
-            return returnString.ToString();
+            return list
+                .Where(x => x.Processed)
+                .Select(x => x.Output)
+                .Aggregate((x, y) => x + y);
         }
-
     }
 }

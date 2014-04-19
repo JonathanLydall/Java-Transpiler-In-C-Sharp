@@ -20,6 +20,8 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
 
         public InputElementDataSource DataSource { get; set; }
 
+        private IList<IInputElement> ElementBuffer = new List<IInputElement>();
+        
         public void ResetBuffer()
         {
             for (var i = 0; i < BufferSize; i++)
@@ -27,6 +29,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                 MoveToPreviousInputElement();
             }
 
+            ElementBuffer.Clear();
             BufferSize = 0;
         }
 
@@ -223,6 +226,15 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                     return ParserHelper.Parse<SimpleStatementParser>(DataSource) as SimpleStatement;
                 }
 
+                if (CurrentInputElement.Data == ";" &&
+                    ElementBuffer.Any(x => x.Data == Keywords.Abstract) &&
+                    ElementBuffer.Any(x => x.Data == "(") &&
+                    ElementBuffer.Any(x => x.Data == ")"))
+                {
+                    ResetBuffer();
+                    return ParserHelper.Parse<MethodDeclarationParser>(DataSource);
+                }
+
                 if (JavaUtils.IsAssignmentOperator(CurrentInputElement.Data) || (CurrentInputElement.Data == ";" && PreviousNonWhiteSpaceInputElement.Data != ")"))
                 {
                     ResetBuffer();
@@ -307,6 +319,7 @@ namespace Mordritch.Transpiler.Java.AstGenerator.Parsers
                     return implementationSpecificSingleStatement;
                 }
 
+                ElementBuffer.Add(CurrentInputElement);
                 BufferSize++;
                 MoveToNextInputElement();
             }

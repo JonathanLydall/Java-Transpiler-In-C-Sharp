@@ -27,7 +27,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
             var castTarget = _compiler.GetTypeString(_typeCastExpression.CastTarget, "GetTypeCastExpressionString");
 
-            return string.Format("<{0}>{1}", castTarget, innerExpressions);
+            var toAnyFirst = !PrimitiveMapper.IsTypeScriptPrimitive(castTarget)
+                ? "<any>"
+                : string.Empty;
+
+            return string.Format("<{0}>{1}{2}", castTarget, toAnyFirst, innerExpressions);
         }
     }
 }

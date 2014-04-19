@@ -24,12 +24,6 @@ namespace Mordritch.Transpiler
     {
         private static IDictionary<string, IList<IAstNode>> _sourceFiles = new Dictionary<string, IList<IAstNode>>();
 
-        //private static string _javaSourceFilesPath = @"D:\Users\Jonathan Lydall\Downloads\mcp\mcp742\src\minecraft_server\net\minecraft\src\";
-        //private static string _javaClassMetadataFilesPath = @"D:\Users\Jonathan Lydall\Documents\Visual Studio 2012\Projects\Transpiler\Mordritch.Transpiler\Resources\NeedsExtending";
-        //private static string _projectFile = @"D:\Users\Jonathan Lydall\Documents\visual studio 2012\Projects\McSim\McSim\McSim.csproj";
-        //private static string _projectTranspiledSubfolder = @"net\minecraft\src\Transpiled";
-        //private static string _projectTranspiledButExtendedSubfolder = @"net\minecraft\src\TranspiledButExtended";
-
         private static string _javaSourceFilesPath;
         private static string _singleClassToCompile;
         private static string _javaClassMetadataFilesPath;
@@ -43,7 +37,9 @@ namespace Mordritch.Transpiler
         {
             Debugger.Launch();
             CommandLineParser.AddOption("javaSourceFilesPath", "Folder containing Java source files.", x => _javaSourceFilesPath = x, true);
-            CommandLineParser.AddOption("singleClassToCompile", "Only compile this one class, although all other files will be parsed.", x => _singleClassToCompile = x);
+            CommandLineParser.AddOption("singleClassToCompile", "Only compile this one class, although all other files will be parsed.", x => { 
+                _singleClassToCompile = x;
+            });
             CommandLineParser.AddOption("javaClassMetadataFilesPath", "Folder containing XML files describing which Java classes, methods and fields to compile, ignore or extend.", x => _javaClassMetadataFilesPath = x, true);
             CommandLineParser.AddOption("projectFile", "Path the Visual Studio project file which compiles TypeScript files.", x => _projectFile = x, true);
             CommandLineParser.AddOption("projectTranspiledSubfolder", "Subfolder in the Visual Studio project root in which Transpiled files are placed.", x => _projectTranspiledSubfolder = x, true);
@@ -61,7 +57,8 @@ namespace Mordritch.Transpiler
                 Utils.ConditionalPause(_pauseOnExit);
                 return;
             }
-            
+
+            KnownInterfaces.GatherKnownInterfaces(_javaSourceFilesPath);
             JavaClassMetadata.Load(_javaClassMetadataFilesPath);
             
             Utils.LoggingEnabled = false;
@@ -150,7 +147,7 @@ namespace Mordritch.Transpiler
             var destinationFile = string.Format(@"{0}\{1}\{2}", projectPath, subFolder, file);
 
             File.WriteAllText(destinationFile + ".ts", compiled);
-            File.Create(destinationFile + ".js");
+            using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
         }
 
         static void GenerateDefinition(string file)
@@ -160,7 +157,7 @@ namespace Mordritch.Transpiler
             var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", projectPath, file);
 
             File.WriteAllText(destinationFile + ".ts", compiled);
-            File.Create(destinationFile + ".js");
+            using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
         }
 
         static IList<IAstNode> GetParsedData(string sourceFile)

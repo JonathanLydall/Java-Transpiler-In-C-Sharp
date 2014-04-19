@@ -1,5 +1,6 @@
 ﻿using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Expressions;
+using Mordritch.Transpiler.src.Compilers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,8 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             if (isArray && !isArrayAndInitialized)
             {
                 return string.Format("[]", className, initializationData); // TODO: I can't work out the syntax for initializing the array size in TypeScript (assuming it's possible)
+                // Seems possible, check https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+                // new Array(arrayLength)
             }
 
             if (isArray && isArrayAndInitialized)
@@ -56,17 +59,17 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private string GetParameterString(IList<IAstNode> parameter)
         {
-            var returnString = new StringBuilder();
+            var list = _compiler.ProcessToInnerExpressionItemList(parameter);
 
-            IAstNode previousExpresion = null;
-
-            foreach (var expression in parameter)
+            if (list.Count == 0)
             {
-                returnString.Append(_compiler.GetExpressionString(expression, previousExpresion));
-                previousExpresion = expression;
+                return string.Empty;
             }
 
-            return returnString.ToString();
+            return list
+                .Where(x => x.Processed)
+                .Select(x => x.Output)
+                .Aggregate((x, y) => x + y);
         }
     }
 }

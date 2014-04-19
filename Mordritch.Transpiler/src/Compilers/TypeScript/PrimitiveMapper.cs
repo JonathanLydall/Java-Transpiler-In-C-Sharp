@@ -9,13 +9,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
     public class PrimitiveMapper
     {
         private static string Number = "number";
-
         private static string String = "string";
-
         private static string Boolean = "boolean";
-
         private static string Void = "void";
-
         private static string Any = "any";
 
         private static IDictionary<string, string> _map = new Dictionary<string, string>
@@ -35,16 +31,23 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         private static IDictionary<string, string> _isTypeOfMap = new Dictionary<string, string>
         {
-            { Primitives.Boolean, "boolean" },
-            { Primitives.Byte, "number" },
-            { Primitives.Char, "number" },
-            { Primitives.Double, "number" },
-            { Primitives.Float, "number" },
-            { Primitives.Int, "number" },
-            { Primitives.Long, "number" },
-            { Primitives.Short, "number" },
-            { Primitives.String, "string" },
-            { Primitives.Object, "any" }
+            { Primitives.Boolean, Boolean },
+            { Primitives.Byte, Number },
+            { Primitives.Char, Number },
+            { Primitives.Double, Number },
+            { Primitives.Float, Number },
+            { Primitives.Int, Number },
+            { Primitives.Long, Number },
+            { Primitives.Short, Number },
+            { Primitives.String, String },
+            { Primitives.Object, Any }
+        };
+
+        private static IList<string> _typeScriptPrimitives = new List<string>
+        {
+            Number,
+            String,
+            Boolean
         };
         
         public static bool IsPrimitive(string type)
@@ -70,6 +73,11 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             }
 
             return null;
+        }
+
+        public static bool IsTypeScriptPrimitive(string type)
+        {
+            return _typeScriptPrimitives.Contains(type);
         }
     }
 }

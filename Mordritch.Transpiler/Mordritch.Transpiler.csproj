@@ -61,6 +61,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\CommandLineParser.cs" />
+    <Compile Include="src\Compilers\InnerExpressionProcessingListItem.cs" />
     <Compile Include="src\Compilers\CompilerWarning.cs" />
     <Compile Include="src\Compilers\Excluder.cs" />
     <Compile Include="src\Compilers\ICompiler.cs" />
@@ -252,6 +253,7 @@
     <Compile Include="src\Java\Tokenizer\InputElements\TokenTypes\TokenInputElement.cs" />
     <Compile Include="src\Java\Tokenizer\InputElements\TokenTypes\TokenTypeEnum.cs" />
     <Compile Include="src\Java\Tokenizer\Tokenizer.cs" />
+    <Compile Include="src\KnownInterfaces.cs" />
     <Compile Include="src\Utilities\ClassesNeedingExtending.cs" />
     <Compile Include="src\Utilities\SerializationHelper.cs" />
     <Compile Include="src\Utilities\TypeScriptProject.cs" />

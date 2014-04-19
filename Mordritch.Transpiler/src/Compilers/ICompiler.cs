@@ -1,4 +1,5 @@
-﻿using Mordritch.Transpiler.Java.AstGenerator;
+﻿using Mordritch.Transpiler.Compilers.TypeScript;
+using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Assignments;
 using Mordritch.Transpiler.Java.AstGenerator.ControlStructures;
 using Mordritch.Transpiler.Java.AstGenerator.ControlStructures.Loops;
@@ -9,6 +10,7 @@ using Mordritch.Transpiler.Java.AstGenerator.Statements;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.InputElementTypes;
 using Mordritch.Transpiler.Java.Tokenizer.InputElements.TokenTypes;
+using Mordritch.Transpiler.src.Compilers;
 using Mordritch.Transpiler.src.Utilities;
 using System;
 using System.Collections.Generic;
@@ -91,15 +93,15 @@ namespace Mordritch.Transpiler.Compilers
 
         string GetBracketedExpressionString(BracketedExpression bracketedExpression);
 
-        string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null);
+        string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IList<InnerExpressionProcessingListItem> list = null);
 
-        string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IAstNode previousExpression = null);
+        string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IList<InnerExpressionProcessingListItem> list = null);
 
         string GetTypeCastExpressionString(TypeCastExpression typeCastExpression);
 
         string GetInnerExpressionString(IList<IAstNode> condition);
 
-        string GetExpressionString(IAstNode expression, IAstNode previousExpression = null);
+        string GetExpressionString(IAstNode expression, IList<InnerExpressionProcessingListItem> list = null);
 
         string GetArrayInitializationExpressionString(ArrayInitializationExpression arrayInitialization);
 
@@ -142,5 +144,7 @@ namespace Mordritch.Transpiler.Compilers
         void EndCommentingOut();
 
         IList<string> GetClassInheritanceStack(string className);
+
+        IList<InnerExpressionProcessingListItem> ProcessToInnerExpressionItemList(IEnumerable<IAstNode> astNodeList);
     }
 }

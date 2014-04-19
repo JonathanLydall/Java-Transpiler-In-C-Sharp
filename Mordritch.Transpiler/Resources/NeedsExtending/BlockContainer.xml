@@ -1,8 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Name>BlockContainer</Name>
-  <Action>ParseOnly</Action>
+  <Action>Compile</Action>
   <DefaultMethodAction>Compile</DefaultMethodAction>
-  <Methods />
+  <Methods>
+    <MethodDetail>
+      <Name>createNewTileEntity(var1: World): TileEntity</Name>
+      <Comments>Class was abstract and missing this method for implemented interface</Comments>
+      <Action>GenerateSignature</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
   <ExcludedFields />
 </JavaClass>

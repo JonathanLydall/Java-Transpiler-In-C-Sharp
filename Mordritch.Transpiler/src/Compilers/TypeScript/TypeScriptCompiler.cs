@@ -23,6 +23,7 @@ using Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers;
 using Mordritch.Transpiler.Compilers.TypeScript;
 using Mordritch.Transpiler.src.Compilers.TypeScript;
 using Mordritch.Transpiler.src.Utilities;
+using Mordritch.Transpiler.src.Compilers;
 
 namespace Mordritch.Transpiler.Compilers.TypeScript
 {
@@ -490,21 +491,17 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
         public string GetInnerExpressionString(IList<IAstNode> expressionList)
         {
-            // TODO: The output formatting here is likely not very neat, nevertheless it should work.
-            
-            IAstNode previousExpression = null;
-            var returnList = new List<string>();
-            foreach (var astNode in expressionList) {
-                returnList.Add(GetExpressionString(astNode, previousExpression));
-                previousExpression = astNode;
-            }
+            var list = ProcessToInnerExpressionItemList(expressionList);
 
-            if (returnList.Count == 0)
+            if (list.Count == 0)
             {
                 return string.Empty;
             }
-            
-            return returnList
+
+            // TODO: The output formatting here is likely not very neat, nevertheless it should work.
+            return list
+                .Where(x => x.Processed)
+                .Select(x => x.Output)
                 .Aggregate((x, y) => x + " " + y);
         }
 
@@ -880,7 +877,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             }
         }
 
-        public string GetExpressionString(IAstNode expression, IAstNode previousExpression = null)
+        public string GetExpressionString(IAstNode expression, IList<InnerExpressionProcessingListItem> list = null)
         {
             if (expression is BracketedExpression)
             {
@@ -889,7 +886,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             if (expression is IdentifierExpression)
             {
-                return GetIdentifierExpressionString(expression as IdentifierExpression, previousExpression);
+                return GetIdentifierExpressionString(expression as IdentifierExpression, list);
             }
 
             if (expression is TypeCastExpression)
@@ -899,7 +896,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             if (expression is MethodCallExpression)
             {
-                return GetMethodCallExpressionString(expression as MethodCallExpression, previousExpression);
+                return GetMethodCallExpressionString(expression as MethodCallExpression, list);
             }
 
             if (expression is ClassInstantiationExpression)
@@ -925,9 +922,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return string.Format("({0})", GetInnerExpressionString(bracketedExpression.InnerExpressions));
         }
 
-        public string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IAstNode previousExpression = null)
+        public string GetIdentifierExpressionString(IdentifierExpression identifierExpression, IList<InnerExpressionProcessingListItem> list = null)
         {
-            var compiler = new IdentifierExpressionCompiler(this, identifierExpression, previousExpression);
+            var compiler = new IdentifierExpressionCompiler(this, identifierExpression, list);
             return compiler.GetIdentifierExpressionString();
         }
 
@@ -937,9 +934,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
             return compiler.GetTypeCastExpressionString();
         }
 
-        public string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IAstNode previousExpression)
+        public string GetMethodCallExpressionString(MethodCallExpression methodCallExpression, IList<InnerExpressionProcessingListItem> list = null)
         {
-            var compiler = new MethodCallExpressionCompiler(this, methodCallExpression, previousExpression);
+            var compiler = new MethodCallExpressionCompiler(this, methodCallExpression, list);
             return compiler.GetMethodCallExpressionString();
         }
 
@@ -1098,6 +1095,33 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             cachedScopeClarifierIdentifiers.Add(keyName, string.Empty);
             return string.Empty;
+        }
+
+        public IList<InnerExpressionProcessingListItem> ProcessToInnerExpressionItemList(IEnumerable<IAstNode> astNodeList)
+        {
+            var list = astNodeList
+                .Select(x => new InnerExpressionProcessingListItem
+                {
+                    AstNode = x,
+                    Output = string.Empty,
+                    Processed = false
+                })
+                .ToList();
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+
+                if (item.Processed)
+                {
+                    continue;
+                }
+
+                item.Output = GetExpressionString(item.AstNode, list);
+                item.Processed = true;
+            }
+
+            return list;
         }
     }
 }

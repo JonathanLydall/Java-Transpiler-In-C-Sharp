@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mordritch.Transpiler.src.Compilers;
 
 namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 {
@@ -27,15 +28,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 return;
             }
 
-            var returnExpressionList = new List<string>();
-            IAstNode previousExpression = null;
-            foreach (var returnValue in _returnStatement.ReturnValue)
-            {
-                returnExpressionList.Add(_compiler.GetExpressionString(returnValue, previousExpression));
-                previousExpression = returnValue;
-            }
+            var list = _compiler.ProcessToInnerExpressionItemList(_returnStatement.ReturnValue);
 
-            var returnExpressions = returnExpressionList.Aggregate((x, y) => x + " " + y);
+            var returnExpressions = list
+                .Where(x => x.Processed)
+                .Select(x => x.Output)
+                .Aggregate((x, y) => x + " " + y);
 
             _compiler.AddLine(string.Format("return {0};", returnExpressions));
         }

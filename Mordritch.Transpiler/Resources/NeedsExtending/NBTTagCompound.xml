@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>NBTTagCompound</Name>
+  <Action>Compile</Action>
+  <DefaultMethodAction>Compile</DefaultMethodAction>
+  <Methods>
+    <MethodDetail>
+      <Name>getByteArray</Name>
+      <Comments>Parsing breaks compiler</Comments>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>tagMap</string>
+      </DependantOn>
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getIntArray</Name>
+      <Comments>Parsing breaks compiler</Comments>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>tagMap</string>
+      </DependantOn>
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getCompoundTag</Name>
+      <Comments>Parsing breaks compiler</Comments>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>tagMap</string>
+      </DependantOn>
+    </MethodDetail>
+    <MethodDetail>
+      <Name>getTagList</Name>
+      <Comments>Parsing breaks compiler</Comments>
+      <Action>Extend</Action>
+      <DependantOn>
+        <string>tagMap</string>
+      </DependantOn>
+    </MethodDetail>
+    <MethodDetail>
+      <Name>createCrashReport</Name>
+      <Action>Exclude</Action>
+      <DependantOn />
+    </MethodDetail>
+  </Methods>
+  <ExcludedFields />
+</JavaClass>
