@@ -17,8 +17,6 @@ My job as a developer is with a mostly Microsoft shop and this allows me to use 
 Current Status
 ==============
 
-Tokenizer is complete and working.
+No detailed documentation on how to use it, yet.
 
-Parse can handle "some" files, but not all yet. I have been having to make it more robust at function calls which have brackets around them and casting. As an example, my most recent work fixed the cast of parameters, but then I encountered a case where it's casting an object, then calling a function on it, like so ((Type)Object).doMethod(par1) so I will probably have to change my data structure to accomodate such a scenario.
-
-Work on outputting to another langauge has not yet started.
+But the Transpiler is pretty much at "good enough" for my needs. I also ended up making a GUI utility to help me configure which are the files I want to transpile and other details about transpiling particular files. I have included this tool into the repository as well now.
