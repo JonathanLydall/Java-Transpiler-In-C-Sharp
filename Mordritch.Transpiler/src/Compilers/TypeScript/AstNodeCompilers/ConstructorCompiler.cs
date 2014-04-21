@@ -71,7 +71,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 ? string.Format("super(super.{0}()); ", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME)
                 : string.Empty;
 
-            _compiler.AddLine(string.Format("constructor(n?: {0}) {{ {1}}}", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME, superCall));
+            _compiler.AddLine(string.Format("constructor(n?: any) {{ {0}}}", superCall));
             _compiler.AddLine(string.Format("public {0}(): void {{ }}", CONSTRUCTOR_DISPATCHER_FUNCTION_NAME));
             _compiler.AddBlankLine();
 
@@ -106,7 +106,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private void BuildNullConstructorSignature()
         {
-            _compiler.AddLine(string.Format("constructor(n: {0});", ClassTypeCompiler.NULL_CONSTRUCTOR_OBJECT_NAME));
+            _compiler.AddLine("constructor(n: any);");
         }
 
         private void BuildConstructor()

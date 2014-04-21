@@ -24,6 +24,8 @@ namespace Mordritch.Transpiler
     {
         private static IDictionary<string, IList<IAstNode>> _sourceFiles = new Dictionary<string, IList<IAstNode>>();
 
+        public const string NEEDS_EXTENDING_EXTENSION = "_NeedsExtending";
+
         private static string _javaSourceFilesPath;
         private static string _singleClassToCompile;
         private static string _javaClassMetadataFilesPath;
@@ -89,12 +91,12 @@ namespace Mordritch.Transpiler
             if (JavaClassMetadata.GetClass(file).NeedsExtending())
             {
                 Console.WriteLine("Transpiling {0} for extending...", file);
-                Transpile(file, _projectTranspiledButExtendedSubfolder);
+                Transpile(file, _projectTranspiledButExtendedSubfolder, true);
             }
             else
             {
                 Console.WriteLine("Transpiling {0}...", file);
-                Transpile(file, _projectTranspiledSubfolder);
+                Transpile(file, _projectTranspiledSubfolder, false);
             }
         }
 
@@ -110,18 +112,33 @@ namespace Mordritch.Transpiler
             }
         }
 
+        static void DeleteAllFilesInFolder(string folder)
+        {
+            if (!Directory.Exists(folder))
+            {
+                return;
+            }
+
+            var di = new DirectoryInfo(folder);
+            foreach (var fi in di.GetFiles())
+            {
+                fi.Delete();
+            }
+        }
+
         static void TranspileAll()
         {
             var fileList = JavaClassMetadata.GetFilesToTranspile()
                 .Select(x => x.Name)
                 .ToList();
 
-            UpdateProjectFile(fileList, _projectTranspiledSubfolder);
+            UpdateProjectFile(fileList, _projectTranspiledSubfolder, false);
+            DeleteAllFilesInFolder(string.Format(@"{0}\{1}", Path.GetDirectoryName(_projectFile), _projectTranspiledSubfolder));
 
             foreach (var file in fileList)
             {
                 Console.WriteLine("Transpiling {0}...", file);
-                Transpile(file, _projectTranspiledSubfolder);
+                Transpile(file, _projectTranspiledSubfolder, false);
             }
         }
 
@@ -131,33 +148,43 @@ namespace Mordritch.Transpiler
                 .Select(x => x.Name)
                 .ToList();
 
-            UpdateProjectFile(fileList, _projectTranspiledButExtendedSubfolder);
+            UpdateProjectFile(fileList, _projectTranspiledButExtendedSubfolder, true);
+            DeleteAllFilesInFolder(string.Format(@"{0}\{1}", Path.GetDirectoryName(_projectFile), _projectTranspiledButExtendedSubfolder));
             
             foreach (var file in fileList)
             {
                 Console.WriteLine("Transpiling {0} for extending...", file);
-                Transpile(file, _projectTranspiledButExtendedSubfolder);
+                Transpile(file, _projectTranspiledButExtendedSubfolder, true);
             }
         }
         
-        static void Transpile(string file, string subFolder)
+        static void Transpile(string file, string subFolder, bool needsExtending)
         {
             var compiled = TypeScriptCompiler.Compile(_sourceFiles, file);
             var projectPath = Path.GetDirectoryName(_projectFile);
-            var destinationFile = string.Format(@"{0}\{1}\{2}", projectPath, subFolder, file);
+            var destinationFolder = string.Format(@"{0}\{1}", projectPath, subFolder);
+            var destinationFile = string.Format(@"{0}\{1}", destinationFolder, file);
 
+            if (needsExtending)
+            {
+                destinationFile = string.Format(@"{0}{1}", destinationFile, NEEDS_EXTENDING_EXTENSION);
+            }
+
+            Directory.CreateDirectory(destinationFolder);
             File.WriteAllText(destinationFile + ".ts", compiled);
-            using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
+            //using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
         }
 
         static void GenerateDefinition(string file)
         {
             var compiled = TypeScriptCompiler.GenerateDefinition(_sourceFiles, file);
             var projectPath = Path.GetDirectoryName(_projectFile);
-            var destinationFile = string.Format(@"{0}\minecraft.d\{1}.d", projectPath, file);
+            var destinationFolder = string.Format(@"{0}\minecraft.d", projectPath);
+            var destinationFile = string.Format(@"{0}\{1}.d", destinationFolder, file);
 
+            Directory.CreateDirectory(destinationFolder);
             File.WriteAllText(destinationFile + ".ts", compiled);
-            using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
+            //using (File.Create(destinationFile + ".js")) { } // Ensure dispose gets called to remove the lock
         }
 
         static IList<IAstNode> GetParsedData(string sourceFile)
@@ -172,9 +199,9 @@ namespace Mordritch.Transpiler
             return parsedData;
         }
 
-        static void UpdateProjectFile(IList<string> list, string subFolderName)
+        static void UpdateProjectFile(IList<string> list, string subFolderName, bool needsExtending)
         {
-            TypeScriptProject.GenerateTypeScriptReferences(list, _projectFile, subFolderName);
+            TypeScriptProject.GenerateTypeScriptReferences(list, _projectFile, subFolderName, needsExtending);
         }
 
         static void DumpUsedTypes(IList<IAstNode> astNodes)

@@ -261,8 +261,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Resources\Exclusions.csv" />
-    <None Include="Resources\ExcludeBodyOnly.csv" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -288,37 +286,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\Compilers\JavaScript\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\NeedsExtending\Block.xml" />
-    <Content Include="Resources\NeedsExtending\BlockBasePressurePlate.xml" />
-    <Content Include="Resources\NeedsExtending\BlockBed.xml" />
-    <Content Include="Resources\NeedsExtending\BlockBrewingStand.xml" />
-    <Content Include="Resources\NeedsExtending\BlockCactus.xml" />
-    <Content Include="Resources\NeedsExtending\BlockCauldron.xml" />
-    <Content Include="Resources\NeedsExtending\BlockChest.xml" />
-    <Content Include="Resources\NeedsExtending\BlockComparator.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Resources\NeedsExtending\BlockDaylightDetector.xml" />
-    <Content Include="Resources\NeedsExtending\BlockFire.xml" />
-    <Content Include="Resources\NeedsExtending\BlockFluid.xml" />
-    <Content Include="Resources\NeedsExtending\BlockJukeBox.xml" />
-    <Content Include="Resources\NeedsExtending\BlockMushroom.xml" />
-    <Content Include="Resources\NeedsExtending\BlockPistonBase.xml" />
-    <Content Include="Resources\NeedsExtending\BlockPortal.xml" />
-    <Content Include="Resources\NeedsExtending\BlockPressurePlate.xml" />
-    <Content Include="Resources\NeedsExtending\BlockPressurePlateWeighted.xml" />
-    <Content Include="Resources\NeedsExtending\BlockPumpkin.xml" />
-    <Content Include="Resources\NeedsExtending\BlockRedstoneOre.xml" />
-    <Content Include="Resources\NeedsExtending\Chunk.xml" />
-    <Content Include="Resources\NeedsExtending\EntityMinecart.xml" />
-    <Content Include="Resources\NeedsExtending\TileEntity.xml" />
-    <Content Include="Resources\NeedsExtending\TileEntityBeacon.xml" />
-    <Content Include="Resources\NeedsExtending\TileEntityPiston.xml" />
-    <Content Include="Resources\NeedsExtending\World.xml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mordritch.Transpiler.Contracts\Mordritch.Transpiler.Contracts.csproj">

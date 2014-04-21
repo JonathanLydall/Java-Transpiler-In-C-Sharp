@@ -144,7 +144,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             JavaClassFunctionality_IsAssignableFromMethod();
             JavaClassFunctionality_GetClassMethod();
 
-            _compiler.AddLine("// Finished providing a subset of Java class features.");
+            _compiler.AddLine("// Finished providing subset of Java class features.");
             _compiler.AddBlankLine();
         }
 
@@ -238,11 +238,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 
         private void CompileNullConstructorObject()
         {
-            _compiler.AddLine("// TypeScript enforces that the super method is always called first in the constructor in some");
-            _compiler.AddLine("// cases. This gets in the way of reproducing having overloaded constructors which can call");
-            _compiler.AddLine("// each other or various overloaded constructors in parent classes. The function below is part");
-            _compiler.AddLine("// of a pattern which allows us to work around this.");
-            _compiler.AddLine(string.Format("public {0}(): {0} {{ if (typeof this[\"__{0}\"] == \"undefined\") {{ this[\"__{0}\"] = {{}}; }} return this[\"__{0}\"]; }}", NULL_CONSTRUCTOR_OBJECT_NAME));
+            _compiler.AddLine("// TypeScript enforces that the super method is always called first in the constructor in some cases. This gets in the way of reproducing having overloaded constructors which can call");
+            _compiler.AddLine("// each other or various overloaded constructors in parent classes. The function below is part of a pattern which allows us to work around this.");
+            _compiler.AddLine(string.Format("public {0}(): any {{ if (typeof this[\"__{0}\"] == \"undefined\") {{ this[\"__{0}\"] = {{}}; }} return this[\"__{0}\"]; }}", NULL_CONSTRUCTOR_OBJECT_NAME));
             _compiler.AddBlankLine();
         }
     }

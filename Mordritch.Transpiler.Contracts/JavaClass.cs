@@ -53,13 +53,17 @@ namespace Mordritch.Transpiler.Contracts
     {
         public string Name { get; set; }
 
+        public string Comments { get; set; }
+
         public JavaClassCompileAction Action { get; set; }
 
         public MethodAction DefaultMethodAction { get; set; }
 
+        public FieldAction DefaultFieldAction { get; set; }
+
         public List<MethodDetail> Methods { get; set; }
 
-        public List<FieldDetail> ExcludedFields { get; set; }
+        public List<FieldDetail> Fields { get; set; }
     }
 
     public class MethodDetail

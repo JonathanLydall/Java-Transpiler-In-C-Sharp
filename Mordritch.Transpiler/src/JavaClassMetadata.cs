@@ -91,16 +91,17 @@ namespace Mordritch.Transpiler.src
 
         public static FieldDetail GetField(this JavaClass javaClass, string fieldName)
         {
-            if (javaClass.ExcludedFields.All(x => x.Name != fieldName))
+            if (javaClass.Fields.All(x => x.Name != fieldName))
             {
-                javaClass.ExcludedFields.Add(new FabricatedFieldDetail
+                javaClass.Fields.Add(new FabricatedFieldDetail
                 {
                     Name = fieldName,
-                    Action = FieldAction.Compile
+                    Action = javaClass.DefaultFieldAction,
+                    Comments = string.Format("Default field action for class '{0}'.", javaClass.Name),
                 });
             }
 
-            return javaClass.ExcludedFields.First(x => x.Name == fieldName);
+            return javaClass.Fields.First(x => x.Name == fieldName);
         }
 
         public static bool NeedsExtending(this MethodDetail methodDetail)
@@ -111,6 +112,11 @@ namespace Mordritch.Transpiler.src
         public static bool ConstructorNeedsExtending(this JavaClass javaClass)
         {
             return javaClass.GetMethod(CONSTRUCTOR_METHOD_NAME).NeedsExtending();
+        }
+
+        public static bool NeedsExclusion(this FieldDetail fieldDetail)
+        {
+            return fieldDetail.Action == FieldAction.Exclude;
         }
 
         public static bool NeedsExclusion(this MethodDetail methodDetail, IEnumerable<string> classInheritanceStack)
@@ -156,11 +162,6 @@ namespace Mordritch.Transpiler.src
         public static bool NeedsBodyOnlyExclusion(this MethodDetail methodDetail)
         {
             return methodDetail.Action == MethodAction.ExcludeBodyOnly;
-        }
-
-        public static bool NeedsExclusion(this FieldDetail fieldDetail)
-        {
-            return fieldDetail.Action == FieldAction.Exclude;
         }
 
         public static bool HasDependantMethods(this MethodDetail methodDetail)

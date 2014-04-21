@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<JavaClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Name>EntitySnowman</Name>
-  <Action>ParseOnly</Action>
-  <DefaultMethodAction>Compile</DefaultMethodAction>
-  <DefaultFieldAction>Compile</DefaultFieldAction>
-  <Methods />
-  <Fields />
-</JavaClass>
