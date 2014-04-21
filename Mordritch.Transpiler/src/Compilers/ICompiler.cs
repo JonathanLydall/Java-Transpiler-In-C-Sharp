@@ -29,6 +29,8 @@ namespace Mordritch.Transpiler.Compilers
 
         IAstNode GetPreviousContextFromStack(int depth);
 
+        TAstNode GetPreviousContextFromStack<TAstNode>() where TAstNode : IAstNode;
+        
         void AddBlankLine();
 
         void AddLine(string line);

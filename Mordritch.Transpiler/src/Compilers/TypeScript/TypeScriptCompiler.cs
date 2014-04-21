@@ -190,6 +190,19 @@ namespace Mordritch.Transpiler.Compilers.TypeScript
 
             return elementNumber >= 0 ? _contextStack[elementNumber] : null;
         }
+
+        public TAstNode GetPreviousContextFromStack<TAstNode>() where TAstNode : IAstNode
+        {
+            for (var i = _contextStack.Count - 1; i >= 0; i--)
+            {
+                if (_contextStack[i] is TAstNode)
+                {
+                    return (TAstNode)_contextStack[i];
+                }
+            }
+
+            return default(TAstNode);
+        }
         
         public void AddBlankLine()
         {

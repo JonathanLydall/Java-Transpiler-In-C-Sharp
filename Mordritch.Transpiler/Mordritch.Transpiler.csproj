@@ -95,6 +95,7 @@
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\ForLoopCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\VariableAssignmentCompiler.cs" />
     <Compile Include="src\Compilers\TypeScript\AstNodeCompilers\SwitchStatementCompiler.cs" />
+    <Compile Include="src\Compilers\TypeScript\Helpers\OverloadHelper.cs" />
     <Compile Include="src\Compilers\TypeScript\OtherTypes.cs" />
     <Compile Include="src\Compilers\TypeScript\PrimitiveMapper.cs" />
     <Compile Include="src\Compilers\TypeScript\TypeScriptCompiler.cs" />

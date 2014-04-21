@@ -1,4 +1,5 @@
-﻿using Mordritch.Transpiler.Java.AstGenerator.Declarations;
+﻿using Mordritch.Transpiler.Contracts;
+using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
 using Mordritch.Transpiler.Java.Common;
 using Mordritch.Transpiler.src;
@@ -13,22 +14,22 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
 {
     public class MethodDeclarationCompiler
     {
-        private ICompiler _compiler;
+        private TypeScriptCompiler _compiler;
 
         private MethodDeclaration _methodDeclaration;
 
         public MethodDeclarationCompiler(ICompiler compiler, MethodDeclaration methodDeclaration)
         {
-            _compiler = compiler;
+            _compiler = (TypeScriptCompiler)compiler;
             _methodDeclaration = methodDeclaration;
         }
 
         public void GenerateDefinition()
         {
-            var className = GetClassName();
+            var className = GetClassName(_compiler);
             var methodName = _methodDeclaration.Name.Data;
             var classInheritanceStack = _compiler.GetClassInheritanceStack(className);
-            var skipCompile = className != null && JavaClassMetadata.GetClass(className).GetMethod(methodName).NeedsExclusion(classInheritanceStack);
+            var skipCompile = className != null && GetMethodDetail(_compiler, _methodDeclaration).NeedsExclusion(classInheritanceStack);
             var potentiallyCommented = skipCompile ? "// " : string.Empty;
 
             if (skipCompile)
@@ -36,9 +37,9 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 _compiler.BeginCommentingOut();
             }
 
-            var methodArguments = GetArguments();
-            var returnType = GetReturnType();
-            var arrayDepth = GetArrayDepth();
+            var methodArguments = GetArguments(_compiler, _methodDeclaration);
+            var returnType = GetReturnType(_compiler, _methodDeclaration);
+            var arrayDepth = GetArrayDepth(_methodDeclaration);
 
 
             if (IsConstructorMethod())
@@ -54,14 +55,14 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             }
         }
 
-        public void Compile()
+        public void Compile(string methodNameSuffix = null)
         {
             var methodName = _methodDeclaration.Name.Data;
-            var className = GetClassName();
-            var methodDetail = JavaClassMetadata.GetClass(className).GetMethod(methodName);
+            var className = GetClassName(_compiler);
+            var methodDetail = GetMethodDetail(_compiler, _methodDeclaration);
             var classInheritanceStack = _compiler.GetClassInheritanceStack(className);
 
-            var skipCompile = className != null && methodDetail.NeedsExclusion(classInheritanceStack);
+            var skipCompile = SkipCompile(_compiler, _methodDeclaration);
             var skipBody = className != null && methodDetail.NeedsBodyOnlyExclusion();
             var needsExtension = methodDetail.NeedsExtending();
             var comment = skipCompile ? methodDetail.GetExclusionComment(classInheritanceStack) : methodDetail.GetComment(classInheritanceStack);
@@ -90,19 +91,10 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             }
 
             var dependantMethods = methodDetail.GetDependantMethods();
-            if (dependantMethods != null)
+            if (dependantMethods.Any())
             {
                 _compiler.AddLine(string.Format("// Forced public due to dependancy by: {0}", dependantMethods.Aggregate((x, y) => x + ", " + y)));
             }
-
-            var forcePublic =
-                    needsExtension ||
-                    dependantMethods != null;
-            
-            var modifiers = GetModifiers(forcePublic);
-            var methodArguments = GetArguments();
-            var returnType = GetReturnType();
-            var arrayDepth = GetArrayDepth();
 
             if (_methodDeclaration.ThrowsType != null)
             {
@@ -126,7 +118,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 isAbstractMethod = true;
             }
 
-            _compiler.AddLine(string.Format("{0}{1}({2}): {3}{4} {{", modifiers, methodName, methodArguments, returnType, arrayDepth));
+            _compiler.AddLine(string.Format("{0} {{", GetSignature(_compiler, _methodDeclaration, methodNameSuffix)));
 
             _compiler.IncreaseIndentation();
             {
@@ -161,6 +153,23 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddBlankLine();
         }
 
+        public static bool SkipCompile(ICompiler compiler, MethodDeclaration methodDeclaration)
+        {
+            var classInheritanceStack = compiler.GetClassInheritanceStack(GetClassName(compiler));
+            return GetMethodDetail(compiler, methodDeclaration).NeedsExclusion(classInheritanceStack);
+        }
+
+        public static string GetSignature(TypeScriptCompiler compiler, MethodDeclaration methodDeclaration, string methodNameSuffix = "")
+        {
+            var modifiers = GetModifiers(compiler, methodDeclaration);
+            var methodName = methodDeclaration.Name.Data;
+            var methodArguments = GetArguments(compiler, methodDeclaration);
+            var returnType = GetReturnType(compiler, methodDeclaration);
+            var arrayDepth = GetArrayDepth(methodDeclaration);
+
+            return string.Format("{0}{1}{2}({3}): {4}{5}", modifiers, methodName, methodNameSuffix, methodArguments, returnType, arrayDepth);
+        }
+
         private bool IsConstructorMethod()
         {
             var parentContext = _compiler.GetPreviousContextFromStack(1);
@@ -171,20 +180,19 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
                 (parentContext as ClassType).Name == _methodDeclaration.Name.Data;
         }
 
-        private string GetClassName()
+        private static string GetClassName(ICompiler compiler)
         {
-            var parentContext = _compiler.GetPreviousContextFromStack(1);
+            var classType = compiler.GetPreviousContextFromStack<ClassType>();
 
-            return parentContext != null && parentContext is ClassType
-                ? (parentContext as ClassType).Name
-                : null;
+            return classType == null ? null : classType.Name;
+            
         }
 
-        private string GetArrayDepth()
+        private static string GetArrayDepth(MethodDeclaration methodDeclaration)
         {
             var arrayString = string.Empty;
 
-            for (var i = 0; i < _methodDeclaration.ReturnArrayDepth; i++)
+            for (var i = 0; i < methodDeclaration.ReturnArrayDepth; i++)
             {
                 arrayString += "[]";
             }
@@ -192,41 +200,48 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             return arrayString;
         }
 
-        private string GetModifiers(bool forcePublic)
+        private static string GetModifiers(TypeScriptCompiler compiler, MethodDeclaration methodDeclaration)
         {
-            var allowedModifiers = new[] { 
-                Keywords.Private,
-                Keywords.Public,
-                Keywords.Static };
+            var modifiers = new List<string>();
+            var methodDetail = GetMethodDetail(compiler, methodDeclaration);
 
-            return
-                _methodDeclaration.Modifiers == null ||
-                _methodDeclaration.Modifiers.Count == 0 ||
-                _methodDeclaration.Modifiers.Count(x => allowedModifiers.Any(m => m == x.Data)) == 0
-                    ? string.Empty
-                    : _methodDeclaration.Modifiers
-                        .Where(x => allowedModifiers.Any(m => m == x.Data))
-                        .Select(x => x.Data == Keywords.Private && forcePublic ? Keywords.Public : x.Data)
-                        .Aggregate((x, y) => x + " " + y) + " ";
+            modifiers.Add(
+                methodDetail.NeedsExtending() ||
+                methodDetail.GetDependantMethods().Any() ||
+                (methodDeclaration.Modifiers != null && methodDeclaration.Modifiers.All(x => x.Data != Keywords.Private))
+                    ? Keywords.Public
+                    : Keywords.Private);
+
+            if (methodDeclaration.Modifiers != null && methodDeclaration.Modifiers.Any(x => x.Data == Keywords.Static))
+            {
+                modifiers.Add(Keywords.Static);
+            }
+
+            return modifiers.Aggregate((x, y) => x + " " + y) + " ";
         }
 
-        private string GetArguments()
+        private static string GetArguments(TypeScriptCompiler compiler, MethodDeclaration methodDeclaration)
         {
             return
-                _methodDeclaration.Arguments == null ||
-                _methodDeclaration.Arguments.Count == 0
+                methodDeclaration.Arguments == null ||
+                methodDeclaration.Arguments.Count == 0
                     ? string.Empty
-                    : _methodDeclaration.Arguments
-                        .Select(x => _compiler.GetMethodArgumentString(x))
+                    : methodDeclaration.Arguments
+                        .Select(x => compiler.GetMethodArgumentString(x))
                         .Aggregate((x, y) => x + ", " + y);
         }
 
-        private string GetReturnType()
+        private static string GetReturnType(TypeScriptCompiler compiler, MethodDeclaration methodDeclaration)
         {
             return 
-                _methodDeclaration.ReturnType == null
+                methodDeclaration.ReturnType == null
                     ? string.Empty
-                    : _compiler.GetTypeString(_methodDeclaration.ReturnType, "MethodDeclarationCompiler -> GetReturnType");
+                    : compiler.GetTypeString(methodDeclaration.ReturnType, "MethodDeclarationCompiler -> GetReturnType");
+        }
+
+        private static MethodDetail GetMethodDetail(ICompiler compiler, MethodDeclaration methodDeclaration)
+        {
+            return JavaClassMetadata.GetClass(GetClassName(compiler)).GetMethod(methodDeclaration.Name.Data);
         }
     }
 }

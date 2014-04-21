@@ -1,4 +1,5 @@
-﻿using Mordritch.Transpiler.Contracts;
+﻿using Mordritch.Transpiler.Compilers.TypeScript.Helpers;
+using Mordritch.Transpiler.Contracts;
 using Mordritch.Transpiler.Java.AstGenerator;
 using Mordritch.Transpiler.Java.AstGenerator.Declarations;
 using Mordritch.Transpiler.Java.AstGenerator.Types;
@@ -72,11 +73,13 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             {
                 CompileJavaClassExtensions();
                 CompileNullConstructorObject();
-                
-                _compiler.CompileBody(_classType.Body.Where(x =>  !(x is MethodDeclaration) && !(x is StaticInitializerDeclaration)).ToList());
-                CompileConstructors();
 
-                _compiler.CompileBody(_classType.Body.Where(x => x is MethodDeclaration && !IsConstructorMethod(x)).ToList());
+                var fields = _classType.Body.Where(x => !(x is MethodDeclaration) && !(x is StaticInitializerDeclaration)).ToList();
+                _compiler.CompileBody(fields);
+                
+                CompileConstructors();
+                CompileMethods();
+
                 _compiler.CompileBody(_classType.Body.Where(x => x is StaticInitializerDeclaration).ToList());
 
                 GenerateMethodSignatures();
@@ -85,6 +88,79 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             _compiler.AddLine("}");
             _compiler.AddBlankLine();
 
+        }
+
+        private void CompileMethods()
+        {
+            var methods = _classType.Body.Where(x => x is MethodDeclaration && !IsConstructorMethod(x)).ToList();
+            var builtOverloadedMethods = new List<string>();
+            
+            foreach (var method in methods)
+            {
+                var asMethodDeclaration = (MethodDeclaration)method;
+                var isOverloaded = methods.Select(x => x as MethodDeclaration).Count(x => x.Name.Data == asMethodDeclaration.Name.Data) > 1;
+
+                if (!isOverloaded)
+                {
+                    _compiler.CompileBody(new List<IAstNode> { method });
+                    continue;
+                }
+
+                if (builtOverloadedMethods.Any(x => x == asMethodDeclaration.Name.Data))
+                {
+                    continue;
+                }
+
+                builtOverloadedMethods.Add(asMethodDeclaration.Name.Data);
+
+                BuildOverloadedMethod(methods.Where(x => ((MethodDeclaration)x).Name.Data == asMethodDeclaration.Name.Data));
+            }
+        }
+
+        private void BuildOverloadedMethod(IEnumerable<IAstNode> astNodes)
+        {
+            var methodNumber = 0;
+            var methodDeclarations = astNodes.Select(x => (MethodDeclaration)x);
+            var skipCompile = MethodDeclarationCompiler.SkipCompile(_compiler, methodDeclarations.First());
+
+            var signatures = methodDeclarations
+                .Select(x => MethodDeclarationCompiler.GetSignature((TypeScriptCompiler)_compiler, x))
+                .Distinct();
+
+            var returnType = methodDeclarations.Any(x => x.ReturnType != null && !string.IsNullOrWhiteSpace(x.ReturnType.Data))
+                ? "any"
+                : "void";
+
+            var methodName = methodDeclarations.First().Name.Data;
+
+            foreach (var signature in signatures)
+            {
+                _compiler.AddLine(string.Format("{0}{1};", skipCompile ? "// " : string.Empty, signature));
+            }
+
+            
+
+            if (skipCompile)
+            {
+                _compiler.BeginCommentingOut();
+            }
+
+            OverloadHelper.BuildDispatcher(_compiler, astNodes.Select(x => (MethodDeclaration)x).ToList(), methodName, returnType, string.Format("{0}_", methodName));
+
+            if (skipCompile)
+            {
+                _compiler.EndCommentingOut();
+            }
+
+            foreach (var methodDeclaration in methodDeclarations)
+            {
+                _compiler.PushToContextStack(methodDeclaration);
+
+                var methodDeclarationCompiler = new MethodDeclarationCompiler(_compiler, methodDeclaration);
+                methodDeclarationCompiler.Compile(string.Format("_{0}", methodNumber++));
+
+                _compiler.PopFromContextStack();
+            }
         }
 
         private void GenerateMethodSignatures()

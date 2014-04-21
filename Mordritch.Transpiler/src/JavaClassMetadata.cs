@@ -181,7 +181,7 @@ namespace Mordritch.Transpiler.src
 
             if (dependantMethods.Count == 0)
             {
-                return null;
+                return new List<string>();
             }
 
             return dependantMethods
