@@ -1,5 +1,7 @@
 /TestResults
 obj
 bin
+publish
+packages
 *.suo
 *.user

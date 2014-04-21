@@ -1,0 +1,433 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Mordritch.Transpiler.Contracts;assembly=Mordritch.Transpiler.Contracts"
+        xmlns:utils="clr-namespace:TranspilerUtils.Utils"
+
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+
+        x:Class="TranspilerUtils.JavaClass.JavaClassView"
+        
+        WindowStartupLocation="CenterScreen"
+        Title="Mordritch's Transpiler Java Class Configurator">
+    <Window.Resources>
+        <!--Create list of enumeration values-->
+        <ObjectDataProvider x:Key="methodActionEnum" MethodName="GetEnumDescriptions" ObjectType="{x:Type utils:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:MethodAction"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="fieldActionEnum" MethodName="GetEnumDescriptions" ObjectType="{x:Type utils:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:FieldAction"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="javaClassCompileActionEnum" MethodName="GetEnumDescriptions" ObjectType="{x:Type utils:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:JavaClassCompileAction"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+        <utils:InvertedBooleanToVisibilityConverter x:Key="invertedBooleanToVisibilityConverter" />
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding Path=SaveCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding Path=RunTranspilerCommand}"/>
+        <KeyBinding Key="F5" Modifiers="Control" Command="{Binding Path=RunTranspilerOnSingleFileCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding Path=AboutCommand}"/>
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Menu Grid.ColumnSpan="3">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Save" Command="{Binding Path=SaveCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="E_xit" Command="{Binding Path=ExitCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Run">
+                <MenuItem Header="Save and Run _Transpiler" Command="{Binding Path=RunTranspilerCommand}" InputGestureText="F5"/>
+                <MenuItem Header="Save and Run Transpiler for _Selected Class" Command="{Binding Path=RunTranspilerOnSingleFileCommand}" InputGestureText="Ctrl+F5"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Command="{Binding Path=AboutCommand}" InputGestureText="F1"/>
+            </MenuItem>
+        </Menu>
+
+        <TabControl Grid.Row="1" Margin="10,10,10,0">
+            <TabItem Header="List of Files">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Content="Filter:" VerticalAlignment="Center" Margin="0,0,0,5"/>
+                    
+                    <TextBox Grid.Row="0"
+                             Grid.Column="1"
+                             Text="{Binding Path=FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,5"/>
+
+                    <DataGrid Grid.Row="1"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="2"
+                              ItemsSource="{Binding Path=ClassListView}"
+                              SelectedItem="{Binding Path=SelectedFile}"
+                              SelectionMode="Single"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              AutoGenerateColumns="False">
+                        <DataGrid.Resources>
+                            <DataTemplate x:Key="CompileActionColumnDataTemplate">
+                                <Grid>
+                                    <Button
+                                        Content="New"
+                                        Visibility="{Binding Path=HasJavaClassModel, Converter={StaticResource invertedBooleanToVisibilityConverter}}"
+                                        Command="{Binding Path=NewCommand}"/>
+                                    <ComboBox
+                                        SelectedValuePath="Value"
+                                        DisplayMemberPath="Key"
+                                        Visibility="{Binding Path=HasJavaClassModel, Converter={StaticResource booleanToVisibilityConverter}}"
+                                        ItemsSource="{Binding Source={StaticResource javaClassCompileActionEnum}}" 
+                                        SelectedValue="{Binding Path=JavaClassCompileAction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Class" Binding="{Binding Path=Name}" Width="*" IsReadOnly="True" />
+                            <DataGridTemplateColumn CellTemplate="{StaticResource ResourceKey=CompileActionColumnDataTemplate}" Width="100" />
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <TabControl Grid.Row="1" Grid.Column="1" Margin="0,10,10,0">
+            
+            <TabItem Header="General Information">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Class Name:"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=GeneralInfo.ClassName, Mode=OneWay}" IsReadOnly="True" />
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Comments:"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=JavaClass.Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  />
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Default Method Action:"/>
+                    <ComboBox Grid.Row="2"
+                              Grid.Column="1"
+                              Width="300"
+                              Margin="0,0,0,5"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Left"
+                              IsEnabled="{Binding Path=HasFileSelected}"
+                              ItemsSource="{Binding Source={StaticResource methodActionEnum}}"
+                              DisplayMemberPath="Key"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding Path=JavaClass.DefaultMethodAction}"/>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="Default Field Action:"/>
+                    <ComboBox Grid.Row="3"
+                              Grid.Column="1"
+                              Width="300"
+                              Margin="0,0,0,5"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Left"
+                              IsEnabled="{Binding Path=HasFileSelected}"
+                              ItemsSource="{Binding Source={StaticResource fieldActionEnum}}"
+                              DisplayMemberPath="Key"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding Path=JavaClass.DefaultFieldAction}"/>
+                    
+                    <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" />
+
+                    <Label Grid.Row="5" Grid.Column="0" Content="Needs Extending:"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Path=GeneralInfo.NeedsExtending, Mode=OneWay}" IsReadOnly="True" />
+
+                    <Label Grid.Row="6" Grid.Column="0" Content="Java File Exists:"/>
+                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding Path=GeneralInfo.JavaFileExists, Mode=OneWay}" IsReadOnly="True" />
+
+                    <Label Grid.Row="7" Grid.Column="0" Content="XML File Exists:"/>
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding Path=GeneralInfo.XmlFileExists, Mode=OneWay}" IsReadOnly="True" />
+
+                    <Label Grid.Row="8" Grid.Column="0" Content="Number of Fields:"/>
+                    <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding Path=GeneralInfo.NumberOfFields, Mode=OneWay}" IsReadOnly="True" />
+
+                    <Label Grid.Row="9" Grid.Column="0" Content="Number of Methods:"/>
+                    <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding Path=GeneralInfo.NumberOfMethods, Mode=OneWay}" IsReadOnly="True" />
+
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Methods">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="250" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,0,5"
+                           Content="Default compile action:"
+                           IsEnabled="{Binding Path=HasFileSelected}"/>
+
+                    <ComboBox Grid.Row="0"
+                              Grid.Column="1"
+                              Width="150"
+                              Margin="0,0,0,5"
+                              VerticalAlignment="Center"
+                              IsEnabled="{Binding Path=HasFileSelected}"
+                              ItemsSource="{Binding Source={StaticResource methodActionEnum}}"
+                              DisplayMemberPath="Key"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding Path=JavaClass.DefaultMethodAction}"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,0,5"
+                           Content="Filter:"
+                           IsEnabled="{Binding Path=HasFileSelected}"/>
+
+                    <TextBox Grid.Row="1"
+                             Grid.Column="1"
+                             Text="{Binding Path=MethodFilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding Path=HasFileSelected}"
+                             Margin="0,0,0,5"/>
+
+                    <DataGrid Grid.Row="2"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              ItemsSource="{Binding Path=MethodListView}"
+                              SelectedItem="{Binding Path=SelectedMethodObject}"
+                              AutoGenerateColumns="False"
+                              IsEnabled="{Binding Path=HasFileSelected}">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="200" Header="Name" Binding="{Binding Path=Name}"  />
+                            <DataGridComboBoxColumn
+                                Width="180"
+                                Header="Action"
+                                SelectedValuePath="Value"
+                                SelectedValueBinding="{Binding Path=Action}"
+                                DisplayMemberPath="Key"
+                                ItemsSource="{Binding Source={StaticResource methodActionEnum}}" />
+                            <DataGridTextColumn Width="125" Header="Dependancy Count" IsReadOnly="True" Binding="{Binding Path=DependantMethodCount}"/>
+                            <DataGridTextColumn Width="*" Header="Comments" Binding="{Binding Path=Comments}" />
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <Label Content="Dependancies for selected method:"
+                           Grid.Row="3"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="3"/>
+
+                    <DataGrid Grid.Row="4"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              ItemsSource="{Binding Path=SelectedMethodDependancies}"
+                              IsEnabled="{Binding Path=HasFileSelected}"
+                              AutoGenerateColumns="False">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Path=Name}"  />
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                </Grid>
+
+            </TabItem>
+
+            <TabItem Header="Fields">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,0,5"
+                           Content="Default compile action:"
+                           IsEnabled="{Binding Path=HasFileSelected}"/>
+
+                    <ComboBox Grid.Row="0"
+                              Grid.Column="1"
+                              Width="150"
+                              Margin="0,0,0,5"
+                              VerticalAlignment="Center"
+                              IsEnabled="{Binding Path=HasFileSelected}"
+                              ItemsSource="{Binding Source={StaticResource fieldActionEnum}}"
+                              DisplayMemberPath="Key"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding Path=JavaClass.DefaultFieldAction}"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,0,5"
+                           Content="Filter:"
+                           IsEnabled="{Binding Path=HasFileSelected}"/>
+
+                    <TextBox Grid.Row="1"
+                             Grid.Column="1"
+                             Text="{Binding Path=FieldFilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding Path=HasFileSelected}"
+                             Margin="0,0,0,5"/>
+                    
+                    <DataGrid Grid.Row="2"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              ItemsSource="{Binding Path=JavaClass.Fields}"
+                              AutoGenerateColumns="False"
+                              IsEnabled="{Binding Path=HasFileSelected}">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Width="125" Binding="{Binding Path=Name}"  />
+                            <DataGridComboBoxColumn
+                                Width="180"
+                                Header="Action"
+                                SelectedValuePath="Value"
+                                SelectedValueBinding="{Binding Path=Action}"
+                                DisplayMemberPath="Key"
+                                ItemsSource="{Binding Source={StaticResource fieldActionEnum}}" />
+                            <DataGridTextColumn Header="Comments" Width="*" Binding="{Binding Path=Comments}" />
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- File browsing: -->
+        <Grid Grid.Row="2"
+              Grid.Column="0"
+              Grid.ColumnSpan="2"
+              Margin="10">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Label
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="0,0,0,5"
+                Content="XML Files Path" />
+            <TextBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="0,0,0,5"
+                IsReadOnly="True"
+                Text="{Binding Path=CurrentPaths.XmlFilesPath}"/>
+            <Button
+                Grid.Row="0"
+                Grid.Column="2"
+                Margin="10,0,0,5"
+                Padding="5,0,5,0"
+                Content="Browse"
+                Command="{Binding Path=CurrentPaths.BrowseXmlFilesPathCommand}"/>
+            <Button
+                Grid.Row="0"
+                Grid.Column="3"
+                Margin="10,0,0,5"
+                Padding="5,0,5,0"
+                Content="Open Folder"
+                Command="{Binding Path=CurrentPaths.OpenXmlFilesPathCommand}"/>
+
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                Content="Java Classes Path" />
+            <TextBox
+                Grid.Row="1"
+                Grid.Column="1"
+                IsReadOnly="True"
+                Text="{Binding Path=CurrentPaths.JavaClassesPath}"/>
+            <Button
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="10,0,0,0"
+                Padding="5,0,5,0"
+                Content="Browse"
+                Command="{Binding Path=CurrentPaths.BrowseJavaClassesPathCommand}"/>
+            <Button
+                Grid.Row="1"
+                Grid.Column="3"
+                Margin="10,0,0,0"
+                Padding="5,0,5,0"
+                Content="Open Folder"
+                Command="{Binding Path=CurrentPaths.OpenJavaClassesPathCommand}"/>
+        </Grid>
+    </Grid>
+</Window>

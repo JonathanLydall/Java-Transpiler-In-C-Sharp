@@ -1,0 +1,33 @@
+﻿<Window x:Class="TranspilerUtils.PromptBox.PromptDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title=""
+        Height="Auto"
+        Width="450" 
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   x:Name="Caption"
+                   Margin="10" />
+
+        <TextBox Grid.Row="1"
+                 x:Name="TextValue"
+                 Margin="10" />
+
+        <StackPanel Orientation ="Horizontal"
+                    HorizontalAlignment="Right"
+                    Grid.Row="2">
+            <Button Click="OkButton_Click" Content="_Ok" Width="80" Margin="10"/>
+            <Button Click="Button_Click" Content="_Cancel" Width="80" Margin="10" />
+        </StackPanel>
+    </Grid>
+</Window>
