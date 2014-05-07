@@ -39,7 +39,8 @@ namespace Mordritch.Transpiler
         {
             Debugger.Launch();
             CommandLineParser.AddOption("javaSourceFilesPath", "Folder containing Java source files.", x => _javaSourceFilesPath = x, true);
-            CommandLineParser.AddOption("singleClassToCompile", "Only compile this one class, although all other files will be parsed.", x => { 
+            CommandLineParser.AddOption("singleClassToCompile", "Only compile this one class, although all other files will be parsed.", x =>
+            {
                 _singleClassToCompile = x;
             });
             CommandLineParser.AddOption("javaClassMetadataFilesPath", "Folder containing XML files describing which Java classes, methods and fields to compile, ignore or extend.", x => _javaClassMetadataFilesPath = x, true);
@@ -62,7 +63,7 @@ namespace Mordritch.Transpiler
 
             KnownInterfaces.GatherKnownInterfaces(_javaSourceFilesPath);
             JavaClassMetadata.Load(_javaClassMetadataFilesPath);
-            
+
             Utils.LoggingEnabled = false;
             OtherTypes.BasePath = _javaSourceFilesPath;
 
@@ -76,7 +77,6 @@ namespace Mordritch.Transpiler
             }
             else
             {
-                //TranspileSingleFile("Chunk");
                 TranspileSingleFile(_singleClassToCompile);
             }
 
@@ -202,6 +202,7 @@ namespace Mordritch.Transpiler
         static void UpdateProjectFile(IList<string> list, string subFolderName, bool needsExtending)
         {
             TypeScriptProject.GenerateTypeScriptReferences(list, _projectFile, subFolderName, needsExtending);
+            TypeScriptReferences.Generate(list, _projectFile, subFolderName, needsExtending);
         }
 
         static void DumpUsedTypes(IList<IAstNode> astNodes)

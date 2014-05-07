@@ -258,6 +258,7 @@
     <Compile Include="src\Utilities\ClassesNeedingExtending.cs" />
     <Compile Include="src\Utilities\SerializationHelper.cs" />
     <Compile Include="src\Utilities\TypeScriptProject.cs" />
+    <Compile Include="src\Utilities\TypeScriptReferences.cs" />
     <Compile Include="src\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

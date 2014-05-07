@@ -38,41 +38,24 @@ namespace Mordritch.Transpiler.Utilities
 
             foreach (var file in files)
             {
-                var hasJs = true;
-                //var hasJs = itemGroupElement
-                //        .Descendants()
-                //        .Any(descendant =>
-                //            descendant.Attribute("Include") != null &&
-                //            string.Format(@"{0}\{1}.js", sourceFolder, fileName) == descendant.Attribute("Include").Value);
-                
                 var hasTs = itemGroupElement
                         .Descendants()
                         .Any(descendant =>
                             descendant.Attribute("Include") != null &&
                             string.Format(@"{0}\{1}.ts", sourceFolder, file) == descendant.Attribute("Include").Value);
 
-                if (hasJs && hasTs)
+                if (hasTs)
                 {
                     continue;
                 }
 
                 fileAdded = true;
 
-                //XElement dependentUponElement;
-                //dependentUponElement = new XElement(xmlNamespace + "DependentUpon");
-                //dependentUponElement.SetValue(string.Format(@"{0}.ts", file));
-
-                //XElement contentElement;
-                //contentElement = new XElement(xmlNamespace + "Content");
-                //contentElement.SetAttributeValue("Include", string.Format(@"{0}\{1}.js", sourceFolder, fileName));
-                //contentElement.Add(dependentUponElement);
-
                 XElement typeScriptCompileElement;
                 typeScriptCompileElement = new XElement(xmlNamespace + "TypeScriptCompile");
                 typeScriptCompileElement.SetAttributeValue("Include", string.Format(@"{0}\{1}.ts", sourceFolder, file));
 
                 itemGroupElement.Add(typeScriptCompileElement);
-                //itemGroupElement.Add(contentElement);
             }
 
             return fileAdded;
