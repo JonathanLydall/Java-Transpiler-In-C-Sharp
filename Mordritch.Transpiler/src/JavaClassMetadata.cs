@@ -119,6 +119,11 @@ namespace Mordritch.Transpiler.src
             return fieldDetail.Action == FieldAction.Exclude;
         }
 
+        public static bool NeedsDelayedInitialisation(this FieldDetail fieldDetail)
+        {
+            return fieldDetail.Action == FieldAction.CompileWithDelayedInitialisation;
+        }
+
         public static bool NeedsExclusion(this MethodDetail methodDetail, IEnumerable<string> classInheritanceStack)
         {
             if (methodDetail.Action == MethodAction.Exclude || methodDetail.Action == MethodAction.ExcludeAndInDerivedClasses)

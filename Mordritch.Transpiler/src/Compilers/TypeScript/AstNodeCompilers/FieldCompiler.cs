@@ -53,9 +53,25 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
             var arrayString = GetArrayString();
             var assignedValue = _compiler.GetInnerExpressionString(_variableDeclaration.AssignedValue);
 
+            if (NeedsDelayedInitialisation() && _variableDeclaration.Modifiers.Any(x => x.Data == Keywords.Static) && _variableDeclaration.HasInitialization)
+            {
+                assignedValue = string.Format("(function () {{ window.addEventListener(\"load\", () => {{ {0}.{1} = {2}; }}); return null; }})()", _javaClass.Name, fieldName, assignedValue);
+            }
+
+            if (NeedsDelayedInitialisation() && !_variableDeclaration.Modifiers.Any(x => x.Data == Keywords.Static))
+            {
+                _compiler.AddLine(string.Format("// Could not set up delayed execution for field '{0}' as not static.", fieldName));
+            }
+
+            if (NeedsDelayedInitialisation() && !_variableDeclaration.HasInitialization)
+            {
+                _compiler.AddLine(string.Format("// Could not set up delayed execution for field '{0}' as static field not initialised.", fieldName));
+            }
+
             var lineToAdd = _variableDeclaration.HasInitialization
                 ? string.Format("{0}{1}: {2}{3} = {4};", modifiers, fieldName, fieldType, arrayString, assignedValue)
                 : string.Format("{0}{1}: {2}{3};", modifiers, fieldName, fieldType, arrayString);
+
 
             if (_javaClass.HasDependantMethods(fieldName))
             {
@@ -121,6 +137,12 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.AstNodeCompilers
         {
             var fieldName = _variableDeclaration.VariableName.Data;
             return _javaClass.GetField(fieldName).NeedsExclusion();
+        }
+
+        private bool NeedsDelayedInitialisation()
+        {
+            var fieldName = _variableDeclaration.VariableName.Data;
+            return _javaClass.GetField(fieldName).NeedsDelayedInitialisation();
         }
     }
 }

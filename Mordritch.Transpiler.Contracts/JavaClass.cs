@@ -35,6 +35,9 @@ namespace Mordritch.Transpiler.Contracts
 
         [Description("Compile")]
         Compile = 1,
+
+        [Description("Compile With Delayed Initialisation")]
+        CompileWithDelayedInitialisation = 2,
     }
 
     public enum JavaClassCompileAction
