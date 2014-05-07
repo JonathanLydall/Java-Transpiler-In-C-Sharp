@@ -69,6 +69,7 @@ namespace Mordritch.Transpiler.Compilers.TypeScript.Helpers
                             : string.Empty;
 
                         compiler.AddLine(string.Format("this.{0}{1}({2});", targetMethodName, constructorNumber++, arguments));
+                        compiler.AddLine("return;");
                     }
                     compiler.DecreaseIndentation();
 
